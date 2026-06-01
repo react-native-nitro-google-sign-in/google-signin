@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" role="img" aria-label="Nitro Google Sign-In">
+  <defs>
+    <linearGradient id="logo-bg" x1="8" y1="6" x2="40" y2="42" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0E7490"/>
+      <stop offset="0.55" stop-color="#4F46E5"/>
+      <stop offset="1" stop-color="#6D28D9"/>
+    </linearGradient>
+    <linearGradient id="logo-shine" x1="12" y1="8" x2="28" y2="24" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="3" y="3" width="42" height="42" rx="12" fill="url(#logo-bg)"/>
+  <rect x="3" y="3" width="42" height="22" rx="12" fill="url(#logo-shine)"/>
+  <circle cx="20" cy="20" r="5.25" fill="#FFFFFF"/>
+  <path
+    d="M11.5 29.5C14.2 26.8 17.4 25.5 20 25.5C22.6 25.5 25.8 26.8 28.5 29.5"
+    stroke="#FFFFFF"
+    stroke-width="2.75"
+    stroke-linecap="round"
+    fill="none"
+  />
+  <path
+    d="M29.5 20H38M35 16.5L38 20L35 23.5"
+    stroke="#FFFFFF"
+    stroke-width="2.75"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
