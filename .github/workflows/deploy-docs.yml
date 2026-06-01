@@ -5,13 +5,15 @@ on:
     branches: [main]
     paths:
       - 'docs/**'
-      - 'assets/fingerprint.png'
-      - 'assets/README.md'
+      - 'assets/**'
       - 'AGENTS.md'
       - 'skills/**'
       - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
+# Required for actions/deploy-pages (OIDC).
+# If deploy fails with HttpError: Not Found, enable Pages in the repo:
+# Settings → Pages → Build and deployment → Source: GitHub Actions
 permissions:
   contents: read
   pages: write
@@ -34,6 +36,9 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
       - name: Install dependencies
         working-directory: docs
         run: bun install --frozen-lockfile
@@ -41,7 +46,7 @@ jobs:
       - name: Build
         working-directory: docs
         env:
-          # Project site: /google-signin/ — set repo variable DOCUSAURUS_BASE_URL=/ for custom domain root
+          # Project site: /google-signin/ — repo variable DOCUSAURUS_BASE_URL=/ for custom domain root
           DOCUSAURUS_BASE_URL: ${{ vars.DOCUSAURUS_BASE_URL || '/google-signin/' }}
         run: bun run build
 
@@ -57,7 +62,10 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
     steps:
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

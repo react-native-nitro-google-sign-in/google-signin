@@ -83,6 +83,10 @@ Use clear commit messages; [Conventional Commits](https://www.conventionalcommit
 
 CI runs Android/iOS builds and docs deploy on relevant changes.
 
+### Docs deploy (`HttpError: Not Found`)
+
+Enable **Settings → Pages → Source: GitHub Actions** once per repository, then re-run the workflow. See [`docs/README.md`](https://github.com/react-native-nitro-google-signin/google-signin/blob/main/docs/README.md#deploy).
+
 ## Project layout
 
 | Path | Purpose |
