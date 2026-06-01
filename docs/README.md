@@ -17,6 +17,31 @@ bun run build    # production build
 bun run serve    # preview build
 ```
 
+## Deploy (GitHub Pages)
+
+Pushes to `main` that touch `docs/` run [`.github/workflows/deploy-docs.yml`](../.github/workflows/deploy-docs.yml). The workflow builds the site and pushes to the **`gh-pages`** branch.
+
+### One-time GitHub setup (required)
+
+1. Repo → **Settings** → **Pages**
+2. **Build and deployment** → **Source**: **Deploy from a branch**
+3. **Branch**: **`gh-pages`** · folder **`/ (root)`** → **Save**
+4. Merge a change under `docs/` to `main`, or run **Deploy documentation** manually under **Actions**
+
+After the first successful run, the site is available at:
+
+**https://react-native-nitro-google-signin.github.io/google-signin/**
+
+(`DOCUSAURUS_BASE_URL` defaults to `/google-signin/`. For a custom domain at the site root, set repository variable `DOCUSAURUS_BASE_URL` to `/` and add `docs/static/CNAME`.)
+
+### If deploy fails
+
+| Symptom | Fix |
+| ------- | --- |
+| Workflow green but 404 on the URL | Complete **Pages** setup above; wait 1–2 minutes after first deploy |
+| `Permission denied` / `403` on push to `gh-pages` | **Settings → Actions → General → Workflow permissions** → **Read and write** |
+| Wrong asset paths (CSS 404) | Keep `DOCUSAURUS_BASE_URL=/google-signin/` for project Pages URLs |
+
 ## Agent skill
 
 Published at `skills/react-native-nitro-google-signin/`. Users install with:
@@ -24,17 +49,3 @@ Published at `skills/react-native-nitro-google-signin/`. Users install with:
 ```bash
 npx skills add react-native-nitro-google-signin/google-signin -g -y
 ```
-
-## Deploy
-
-Pushes to `main` that touch `docs/` run [`.github/workflows/deploy-docs.yml`](../.github/workflows/deploy-docs.yml).
-
-### One-time GitHub setup (required)
-
-If the deploy job fails with **`HttpError: Not Found`**:
-
-1. Open the repo on GitHub → **Settings** → **Pages**
-2. Under **Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from a branch”)
-3. Re-run the **Deploy documentation** workflow
-
-The site is a **project page**: `https://react-native-nitro-google-signin.github.io/google-signin/` (`baseUrl` `/google-signin/`). For a custom domain at the root, set repository variable `DOCUSAURUS_BASE_URL` to `/` and add `docs/static/CNAME`.

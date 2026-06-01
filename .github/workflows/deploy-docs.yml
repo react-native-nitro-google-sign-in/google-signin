@@ -11,21 +11,17 @@ on:
       - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
-# Required for actions/deploy-pages (OIDC).
-# If deploy fails with HttpError: Not Found, enable Pages in the repo:
-# Settings → Pages → Build and deployment → Source: GitHub Actions
+# Pushes the built site to the `gh-pages` branch (peaceiris/actions-gh-pages).
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: deploy-docs
+  cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build Docusaurus site
+  deploy:
+    name: Build and deploy docs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -36,36 +32,20 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
       - name: Install dependencies
         working-directory: docs
         run: bun install --frozen-lockfile
 
-      - name: Build
+      - name: Build Docusaurus
         working-directory: docs
         env:
-          # Project site: /google-signin/ — repo variable DOCUSAURUS_BASE_URL=/ for custom domain root
           DOCUSAURUS_BASE_URL: ${{ vars.DOCUSAURUS_BASE_URL || '/google-signin/' }}
         run: bun run build
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: docs/build
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      pages: write
-      id-token: write
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build
+          publish_branch: gh-pages
+          commit_message: 'docs: deploy ${{ github.sha }}'
