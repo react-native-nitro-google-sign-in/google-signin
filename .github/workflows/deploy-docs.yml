@@ -12,6 +12,8 @@ on:
       - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
+# Prerequisite (repo admin, one-time): Settings → Pages → Build and deployment → Source: GitHub Actions
+# https://github.com/react-native-nitro-google-signin/google-signin/settings/pages
 permissions:
   contents: read
   pages: write
@@ -37,9 +39,6 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
 
       - name: Install dependencies
         working-directory: docs
@@ -73,3 +72,15 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Deployment summary
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SITE="https://react-native-nitro-google-signin.github.io/google-signin/"
+          if [ "$(gh api "repos/${GITHUB_REPOSITORY}" --jq '.has_pages')" = "true" ]; then
+            echo "::notice title=Documentation site::$SITE"
+            exit 0
+          fi
+          echo "::warning title=Enable GitHub Pages::Source must be **GitHub Actions** at https://github.com/${GITHUB_REPOSITORY}/settings/pages — then re-run this workflow."
