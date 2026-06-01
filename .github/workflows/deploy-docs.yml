@@ -5,24 +5,30 @@ on:
     branches: [main]
     paths:
       - 'docs/**'
-      - 'assets/**'
+      - 'assets/google-signin-android.webm'
+      - 'assets/google-signin-iOS.mov'
       - 'AGENTS.md'
       - 'skills/**'
       - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
-# Pushes the built site to the `gh-pages` branch (peaceiris/actions-gh-pages).
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
-  group: deploy-docs
-  cancel-in-progress: true
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: Build and deploy docs
+  build:
+    name: Build Docusaurus site
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,44 +38,38 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
       - name: Install dependencies
         working-directory: docs
         run: bun install --frozen-lockfile
 
-      - name: Build Docusaurus
+      - name: Sync demo videos from package assets
+        run: node docs/scripts/sync-media.mjs
+
+      - name: Build site
         working-directory: docs
         env:
           DOCUSAURUS_BASE_URL: ${{ vars.DOCUSAURUS_BASE_URL || '/google-signin/' }}
         run: bun run build
 
-      - name: Deploy to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/build
-          publish_branch: gh-pages
-          commit_message: 'docs: deploy ${{ github.sha }}'
+          path: docs/build
 
-      # Workflow can succeed while the public URL still 404s until Pages is turned on in repo Settings.
-      - name: Verify GitHub Pages is enabled
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if [ "$(gh api "repos/${GITHUB_REPOSITORY}" --jq '.has_pages')" = "true" ]; then
-            echo "GitHub Pages is enabled. Site: https://react-native-nitro-google-signin.github.io/google-signin/"
-            exit 0
-          fi
-          echo "::error::Docs were pushed to the gh-pages branch, but GitHub Pages is not enabled for this repository (has_pages=false)."
-          echo ""
-          echo "Enable hosting (one-time, repo admin):"
-          echo "  https://github.com/${GITHUB_REPOSITORY}/settings/pages"
-          echo ""
-          echo "  Build and deployment → Source: Deploy from a branch"
-          echo "  Branch: gh-pages"
-          echo "  Folder: / (root)"
-          echo ""
-          echo "Save, wait 1–2 minutes, then open:"
-          echo "  https://react-native-nitro-google-signin.github.io/google-signin/"
-          echo ""
-          echo "Re-run this workflow after Pages is enabled (optional)."
-          exit 1
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

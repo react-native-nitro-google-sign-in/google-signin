@@ -18,3 +18,5 @@ To refresh the site after updating a screenshot:
 ```bash
 cp assets/<file> docs/static/img/guides/<target>   # or docs/static/video/
 ```
+
+Videos are synced before CI build via `node docs/scripts/sync-media.mjs`.

@@ -5,7 +5,8 @@ Docusaurus docs for **react-native-nitro-google-signin**, managed with **Bun**.
 | Path | Purpose |
 | ---- | ------- |
 | `content/` | Markdown documentation pages |
-| `static/` | Images, favicon, videos (served as `/img/...`) |
+| `static/` | Images, favicon, videos (served as `/img/...`, `/video/...`) |
+| `scripts/sync-media.mjs` | Copies demo videos from `assets/` before build |
 | `src/` | Homepage and theme |
 
 ## Commands
@@ -13,38 +14,36 @@ Docusaurus docs for **react-native-nitro-google-signin**, managed with **Bun**.
 ```bash
 bun install
 bun run start    # dev server
+node ../docs/scripts/sync-media.mjs   # optional: refresh videos from assets/
 bun run build    # production build
 bun run serve    # preview build
 ```
 
 ## Deploy (GitHub Pages)
 
-Pushes to `main` that touch `docs/` run [`.github/workflows/deploy-docs.yml`](../.github/workflows/deploy-docs.yml). The workflow builds the site and pushes to the **`gh-pages`** branch.
+Pushes to `main` that touch `docs/` run [`.github/workflows/deploy-docs.yml`](../.github/workflows/deploy-docs.yml) (`upload-pages-artifact` + `deploy-pages`).
 
 ### One-time GitHub setup (required)
 
-The deploy workflow only **pushes** to the `gh-pages` branch. GitHub does **not** serve the site until Pages is enabled in Settings (`has_pages` must be `true`).
+1. Repo → **Settings** → **Pages**
+2. **Build and deployment** → **Source:** **GitHub Actions**
+3. Merge to `main` or run **Deploy documentation** under **Actions**
 
-1. Open **https://github.com/react-native-nitro-google-signin/google-signin/settings/pages**
-2. **Build and deployment** → **Source**: **Deploy from a branch**
-3. **Branch**: **`gh-pages`** · folder **`/ (root)`** → **Save**
-4. Wait 1–2 minutes, then open **https://react-native-nitro-google-signin.github.io/google-signin/**
+Site URL (project page):
 
-If **Actions** shows green but the URL 404s, Pages is still off — complete the steps above (not “GitHub Actions” as the source).
+**https://react-native-nitro-google-signin.github.io/google-signin/**
 
-(`DOCUSAURUS_BASE_URL` defaults to `/google-signin/`. For a custom domain at the site root, set repository variable `DOCUSAURUS_BASE_URL` to `/` and add `docs/static/CNAME`.)
+(`DOCUSAURUS_BASE_URL` defaults to `/google-signin/`. For a custom domain at the root, set repository variable `DOCUSAURUS_BASE_URL` to `/` and add `docs/static/CNAME`.)
 
 ### If deploy fails
 
-| Symptom | Fix |
-| ------- | --- |
-| Workflow green but 404 on the URL | Complete **Pages** setup above; wait 1–2 minutes after first deploy |
-| `Permission denied` / `403` on push to `gh-pages` | **Settings → Actions → General → Workflow permissions** → **Read and write** |
-| Wrong asset paths (CSS 404) | Keep `DOCUSAURUS_BASE_URL=/google-signin/` for project Pages URLs |
+| Error | Fix |
+| ----- | --- |
+| `Get Pages site failed` / `Not Found` on deploy | Enable **Pages** with source **GitHub Actions** (not “Deploy from a branch”) |
+| `Resource not accessible` | **Settings → Actions → General** → workflow permissions **Read and write** |
+| CSS/assets 404 on the live site | Keep `DOCUSAURUS_BASE_URL=/google-signin/` for this repo URL |
 
 ## Agent skill
-
-Published at `skills/react-native-nitro-google-signin/`. Users install with:
 
 ```bash
 npx skills add react-native-nitro-google-signin/google-signin -g -y
