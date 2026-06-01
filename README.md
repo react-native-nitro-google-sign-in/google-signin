@@ -150,6 +150,14 @@ Helpers: `isSuccessResponse`, `isNoSavedCredentialFoundResponse`, `isCancelledRe
 
 Configure Firebase / `GoogleService-Info.plist` and `google-services.json` before testing on device. See [`example-expo/README.md`](example-expo/README.md) for Expo prebuild steps.
 
+## Contributing & community
+
+- [Contributing](./CONTRIBUTING.md)
+- [Code of Conduct](./CODE_OF_CONDUCT.md)
+- [Security policy](./SECURITY.md)
+- [Support](./SUPPORT.md)
+- [Documentation — Community](https://react-native-nitro-google-signin.github.io/google-signin/docs/community/overview)
+
 ## License
 
 MIT

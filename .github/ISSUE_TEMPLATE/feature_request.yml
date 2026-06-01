@@ -1,0 +1,54 @@
+name: Feature request
+description: Suggest an idea for this library
+title: '[Feature]: '
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature requests help us prioritize. For usage questions, see [Support](https://react-native-nitro-google-signin.github.io/google-signin/docs/community/support) and [Documentation](https://react-native-nitro-google-signin.github.io/google-signin/docs/intro).
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What are you trying to do? What is painful or missing today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: API shape, platform behavior, or UX you would like
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds, other libraries, or native APIs you looked at
+    validations:
+      required: false
+
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Platform(s)
+      options:
+        - Android
+        - iOS
+        - Both
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I am willing to help implement this (PR)
+          required: false
+        - label: I have read the Code of Conduct
+          required: true

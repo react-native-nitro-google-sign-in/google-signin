@@ -43,6 +43,18 @@ const sidebars: SidebarsConfig = {
       label: 'Examples',
       items: ['examples/overview'],
     },
+    {
+      type: 'category',
+      label: 'Community',
+      collapsed: true,
+      items: [
+        'community/overview',
+        'community/contributing',
+        'community/code-of-conduct',
+        'community/security',
+        'community/support',
+      ],
+    },
   ],
   agentsSidebar: [
     'agents/overview',

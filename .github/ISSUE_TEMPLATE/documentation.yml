@@ -1,0 +1,40 @@
+name: Documentation
+description: Report unclear, missing, or incorrect docs
+title: '[Docs]: '
+labels: ['documentation']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Documentation lives in [`docs/content/`](https://github.com/react-native-nitro-google-signin/google-signin/tree/main/docs/content) and is published at [react-native-nitro-google-signin.github.io/google-signin](https://react-native-nitro-google-signin.github.io/google-signin/).
+
+  - type: input
+    id: page
+    attributes:
+      label: Page or section
+      placeholder: e.g. /docs/setup/android, API reference configure()
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is wrong or missing?
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+      description: Optional wording, screenshot, or link to licensed guide
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: willing_pr
+    attributes:
+      label: Contribution
+      options:
+        - label: I can open a PR with a fix
+          required: false

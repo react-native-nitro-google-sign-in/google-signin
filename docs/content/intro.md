@@ -39,6 +39,11 @@ npx skills add react-native-nitro-google-signin/google-signin -g -y
 
 See **[For AI agents](/docs/agents/overview)** and **[Install the agent skill](/docs/agents/skill)**.
 
+## Community
+
+- [Contributing](/docs/community/contributing) · [Code of Conduct](/docs/community/code-of-conduct)
+- [Security policy](/docs/community/security) · [Support](/docs/community/support)
+
 ## Next steps
 
 - [Requirements](/docs/getting-started/requirements)

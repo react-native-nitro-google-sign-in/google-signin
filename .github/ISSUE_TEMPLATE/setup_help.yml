@@ -1,0 +1,92 @@
+name: Setup / configuration help
+description: DEVELOPER_ERROR, autoDetect, SHA-1, Gradle, URL scheme, or Expo prebuild
+title: '[Setup]: '
+labels: ['question']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for **Google Cloud / native setup** problems, not runtime crashes inside library code.
+
+        **Check first:**
+        - [Google Cloud & config files](https://react-native-nitro-google-signin.github.io/google-signin/docs/setup/google-cloud)
+        - [Android setup](https://react-native-nitro-google-signin.github.io/google-signin/docs/setup/android) · [iOS setup](https://react-native-nitro-google-signin.github.io/google-signin/docs/setup/ios) · [Expo setup](https://react-native-nitro-google-signin.github.io/google-signin/docs/setup/expo)
+        - [Troubleshooting](https://react-native-nitro-google-signin.github.io/google-signin/docs/guide/troubleshooting)
+
+        **Do not** attach `google-services.json`, plist files, or OAuth client secrets.
+
+  - type: dropdown
+    id: issue_area
+    attributes:
+      label: What are you stuck on?
+      options:
+        - Android DEVELOPER_ERROR
+        - default_web_client_id / autoDetect (Android)
+        - SHA-1 / package name mismatch
+        - iOS URL scheme / redirect not returning to app
+        - GoogleService-Info.plist / WEB_CLIENT_ID
+        - Expo config plugin / prebuild
+        - Play Services not available
+        - Other setup issue
+    validations:
+      required: true
+
+  - type: dropdown
+    id: app_type
+    attributes:
+      label: App type
+      options:
+        - Bare React Native
+        - Expo development build
+        - Expo Go (not supported)
+    validations:
+      required: true
+
+  - type: input
+    id: rn_version
+    attributes:
+      label: React Native version
+    validations:
+      required: true
+
+  - type: dropdown
+    id: web_client_id_mode
+    attributes:
+      label: webClientId
+      options:
+        - autoDetect
+        - Explicit Web client ID
+        - Unsure
+    validations:
+      required: true
+
+  - type: textarea
+    id: setup_done
+    attributes:
+      label: What have you already configured?
+      description: OAuth clients, SHA-1, Gradle plugin, plist/json paths, AppDelegate, expo prebuild, etc.
+      placeholder: |
+        - Web + Android + iOS OAuth clients in Google Cloud
+        - google-services.json at android/app/
+        - Google Services Gradle plugin applied
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: error_output
+    attributes:
+      label: Exact error message or behavior
+      render: shell
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I rebuilt the native app after native config changes
+          required: false
+        - label: Package name / bundle ID matches my OAuth clients
+          required: false

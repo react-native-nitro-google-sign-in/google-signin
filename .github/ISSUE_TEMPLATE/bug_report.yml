@@ -1,0 +1,120 @@
+name: Bug report
+description: Something is broken in the library or native integration
+title: '[Bug]: '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Search [existing issues](https://github.com/react-native-nitro-google-signin/google-signin/issues) first.
+
+        **Do not** paste ID tokens, `google-services.json`, `GoogleService-Info.plist`, or client secrets.
+
+        See [Troubleshooting](https://react-native-nitro-google-signin.github.io/google-signin/docs/guide/troubleshooting) for common fixes (`DEVELOPER_ERROR`, `default_web_client_id`, iOS redirect).
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Android
+        - iOS
+        - Both
+    validations:
+      required: true
+
+  - type: dropdown
+    id: app_type
+    attributes:
+      label: App type
+      description: This library does not work in Expo Go
+      options:
+        - Bare React Native
+        - Expo development build
+        - Expo Go (not supported)
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: rn_version
+    attributes:
+      label: React Native version
+      placeholder: e.g. 0.76.5, 0.84.1
+    validations:
+      required: true
+
+  - type: input
+    id: package_version
+    attributes:
+      label: react-native-nitro-google-signin version
+      placeholder: e.g. 0.1.0
+    validations:
+      required: true
+
+  - type: input
+    id: nitro_modules_version
+    attributes:
+      label: react-native-nitro-modules version
+      placeholder: e.g. 0.35.9
+    validations:
+      required: true
+
+  - type: dropdown
+    id: web_client_id_mode
+    attributes:
+      label: webClientId configuration
+      options:
+        - autoDetect
+        - Explicit Web client ID string
+        - Not configured yet / unsure
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Actual behavior and any error messages or codes
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps, or link to a repro branch if possible
+      placeholder: |
+        1. Configure with ...
+        2. Call GoogleOneTapSignIn.signIn()
+        3. See error ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Native or JS logs — redact tokens and personal data
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have read the Code of Conduct
+          required: true
+        - label: I am not using Expo Go for this integration
+          required: false
+        - label: I rebuilt the native app after installing or changing native config (not only Metro reload)
+          required: false

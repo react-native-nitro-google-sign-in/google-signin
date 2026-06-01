@@ -104,6 +104,19 @@ const config: Config = {
           ],
         },
         {
+          title: 'Community',
+          items: [
+            { label: 'Contributing', to: '/docs/community/contributing' },
+            { label: 'Code of Conduct', to: '/docs/community/code-of-conduct' },
+            { label: 'Security', to: '/docs/community/security' },
+            { label: 'Support', to: '/docs/community/support' },
+            {
+              label: 'GitHub Issues',
+              href: 'https://github.com/react-native-nitro-google-signin/google-signin/issues',
+            },
+          ],
+        },
+        {
           title: 'More',
           items: [
             {
