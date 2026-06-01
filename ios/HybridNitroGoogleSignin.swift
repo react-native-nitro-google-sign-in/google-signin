@@ -71,7 +71,10 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
   func signIn() throws -> Promise<OneTapResponse> {
     try ensureConfigured()
     return Promise.async {
-      try await self.restorePreviousSignIn()
+      if let user = GIDSignIn.sharedInstance.currentUser {
+        return Self.success(from: user, serverAuthCode: nil)
+      }
+      return try await self.restorePreviousSignIn()
     }
   }
 
@@ -123,12 +126,8 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
     try await withCheckedThrowingContinuation { continuation in
       GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
         if let error = error as NSError? {
-          if error.code == GIDSignInError.hasNoAuthInKeychain.rawValue {
-            continuation.resume(returning: Self.noSavedCredential())
-            return
-          }
-          if error.code == GIDSignInError.canceled.rawValue {
-            continuation.resume(returning: Self.cancelled())
+          if let response = Self.response(forSignInError: error) {
+            continuation.resume(returning: response)
             return
           }
           continuation.resume(
@@ -160,12 +159,8 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
         nonce: nonce
       ) { result, error in
         if let error = error as NSError? {
-          if error.code == GIDSignInError.canceled.rawValue {
-            continuation.resume(returning: Self.cancelled())
-            return
-          }
-          if error.code == GIDSignInError.hasNoAuthInKeychain.rawValue {
-            continuation.resume(returning: Self.noSavedCredential())
+          if let response = Self.response(forSignInError: error) {
+            continuation.resume(returning: response)
             return
           }
           continuation.resume(
@@ -212,6 +207,23 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
     OneTapResponse(type: .cancelled, data: nil)
   }
 
+  /// Maps known `GIDSignIn` errors to API responses. Returns `nil` if the error should be thrown.
+  private static func response(forSignInError error: NSError) -> OneTapResponse? {
+    switch error.code {
+    case GIDSignInError.hasNoAuthInKeychain.rawValue:
+      return noSavedCredential()
+    case GIDSignInError.canceled.rawValue:
+      return cancelled()
+    case GIDSignInError.scopesAlreadyGranted.rawValue:
+      guard let user = GIDSignIn.sharedInstance.currentUser else {
+        return nil
+      }
+      return success(from: user, serverAuthCode: nil)
+    default:
+      return nil
+    }
+  }
+
   private static func optionalStringVariant(_ value: String?) -> Variant_NullType_String? {
     guard let value else {
       return .first(NullType.null)
@@ -255,6 +267,14 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
           if error.code == GIDSignInError.canceled.rawValue {
             continuation.resume(
               returning: OneTapAuthorizationResult(serverAuthCode: Self.optionalStringVariant(nil))
+            )
+            return
+          }
+          if error.code == GIDSignInError.scopesAlreadyGranted.rawValue {
+            continuation.resume(
+              returning: OneTapAuthorizationResult(
+                serverAuthCode: Self.optionalStringVariant(result?.serverAuthCode)
+              )
             )
             return
           }
