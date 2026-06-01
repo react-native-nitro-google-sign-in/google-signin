@@ -1,29 +1,77 @@
 # react-native-nitro-google-signin
 
-High-Performance Google Sign-In for React Native (Nitro Powered)
+High-performance [Universal (One Tap) Google Sign-In](https://react-native-google-signin.github.io/docs/one-tap) for React Native, powered by [Nitro Modules](https://nitro.margelo.com).
 
-[![Version](https://img.shields.io/npm/v/react-native-nitro-google-signin.svg)](https://www.npmjs.com/package/react-native-nitro-google-signin)
-[![Downloads](https://img.shields.io/npm/dm/react-native-nitro-google-signin.svg)](https://www.npmjs.com/package/react-native-nitro-google-signin)
-[![License](https://img.shields.io/npm/l/react-native-nitro-google-signin.svg)](https://github.com/patrickkabwe/react-native-nitro-google-signin/LICENSE)
+- **Android**: [Credential Manager](https://developer.android.com/identity/sign-in/credential-manager-siwg-implementation) + Google ID (`GetGoogleIdOption` / `GetSignInWithGoogleOption`)
+- **iOS**: [Google Sign-In SDK for iOS](https://developers.google.com/identity/sign-in/ios) (`restorePreviousSignIn`, interactive `signIn`)
 
 ## Requirements
 
-- React Native v0.76.0 or higher
-- Node 18.0.0 or higher
-
-> [!IMPORTANT]  
-> To Support `Nitro Views` you need to install React Native version v0.78.0 or higher.
+- React Native ≥ 0.76
+- `react-native-nitro-modules`
 
 ## Installation
 
 ```bash
 bun add react-native-nitro-google-signin react-native-nitro-modules
+cd ios && pod install
 ```
 
-## Credits
+## Google Cloud setup
 
-Bootstrapped with [create-nitro-module](https://github.com/patrickkabwe/create-nitro-module).
+1. Create OAuth clients in [Google Cloud Console](https://console.cloud.google.com/): **Web**, **Android**, and **iOS**.
+2. **Android**: add your app SHA-1 and package name; apply the Google Services plugin so `default_web_client_id` is generated, or pass `webClientId` explicitly.
+3. **iOS**: add `GoogleService-Info.plist`, URL scheme (`REVERSED_CLIENT_ID`), and optionally `WEB_CLIENT_ID` for `webClientId: 'autoDetect'`.
 
-## Contributing
+## Usage
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Same flow as the [Universal sign-in guide](https://react-native-google-signin.github.io/docs/one-tap):
+
+```ts
+import {
+  GoogleOneTapSignIn,
+  isNoSavedCredentialFoundResponse,
+  isSuccessResponse,
+} from 'react-native-nitro-google-signin'
+
+GoogleOneTapSignIn.configure({ webClientId: 'autoDetect' })
+
+const startSignInFlow = async () => {
+  await GoogleOneTapSignIn.checkPlayServices()
+  let response = await GoogleOneTapSignIn.signIn()
+
+  if (isNoSavedCredentialFoundResponse(response)) {
+    response = await GoogleOneTapSignIn.createAccount()
+  }
+  if (isNoSavedCredentialFoundResponse(response)) {
+    response = await GoogleOneTapSignIn.presentExplicitSignIn()
+  }
+
+  if (isSuccessResponse(response)) {
+    const { user, idToken } = response.data
+    // send idToken to your backend
+  }
+}
+```
+
+### API
+
+| Method | Description |
+|--------|-------------|
+| `configure(params)` | Required before other calls. `webClientId` or `'autoDetect'`. |
+| `checkPlayServices()` | Android: validates Play Services. iOS: no-op resolve. |
+| `signIn()` | Silent / restore previous sign-in. |
+| `createAccount()` | Interactive account picker (sign-up). |
+| `presentExplicitSignIn()` | Explicit Sign in with Google UI. |
+| `signOut()` | Clears local Google session (iOS SDK); disable auto sign-in. |
+| `revokeAccess(id)` | Disconnect app (iOS); no-op token revoke on Android CredMan. |
+
+Helpers: `isSuccessResponse`, `isNoSavedCredentialFoundResponse`, `isCancelledResponse`, `isErrorWithCode`, `statusCodes`.
+
+## Example app
+
+See [`example/`](example/). Configure Firebase / `GoogleService-Info.plist` and `google-services.json` before testing on device.
+
+## License
+
+MIT

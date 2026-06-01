@@ -125,14 +125,153 @@ open class HybridNitroGoogleSigninSpec_cxx {
 
   // Methods
   @inline(__always)
-  public final func sum(num1: Double, num2: Double) -> bridge.Result_double_ {
+  public final func configure(params: OneTapConfigureParams) -> bridge.Result_void_ {
     do {
-      let __result = try self.__implementation.sum(num1: num1, num2: num2)
-      let __resultCpp = __result
-      return bridge.create_Result_double_(__resultCpp)
+      try self.__implementation.configure(params: params)
+      return bridge.create_Result_void_()
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_double_(__exceptionPtr)
+      return bridge.create_Result_void_(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func checkPlayServices(showErrorResolutionDialog: bridge.std__optional_bool_) -> bridge.Result_std__shared_ptr_Promise_void___ {
+    do {
+      let __result = try self.__implementation.checkPlayServices(showErrorResolutionDialog: { () -> Bool? in
+        if bridge.has_value_std__optional_bool_(showErrorResolutionDialog) {
+          let __unwrapped = bridge.get_std__optional_bool_(showErrorResolutionDialog)
+          return __unwrapped
+        } else {
+          return nil
+        }
+      }())
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
+        let __promise = bridge.create_std__shared_ptr_Promise_void__()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve() })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func signIn() -> bridge.Result_std__shared_ptr_Promise_OneTapResponse___ {
+    do {
+      let __result = try self.__implementation.signIn()
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_OneTapResponse__ in
+        let __promise = bridge.create_std__shared_ptr_Promise_OneTapResponse__()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_OneTapResponse__(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve(__result) })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_OneTapResponse___(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_OneTapResponse___(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func createAccount() -> bridge.Result_std__shared_ptr_Promise_OneTapResponse___ {
+    do {
+      let __result = try self.__implementation.createAccount()
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_OneTapResponse__ in
+        let __promise = bridge.create_std__shared_ptr_Promise_OneTapResponse__()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_OneTapResponse__(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve(__result) })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_OneTapResponse___(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_OneTapResponse___(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func presentExplicitSignIn() -> bridge.Result_std__shared_ptr_Promise_OneTapResponse___ {
+    do {
+      let __result = try self.__implementation.presentExplicitSignIn()
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_OneTapResponse__ in
+        let __promise = bridge.create_std__shared_ptr_Promise_OneTapResponse__()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_OneTapResponse__(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve(__result) })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_OneTapResponse___(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_OneTapResponse___(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func requestScopes(scopes: bridge.std__vector_std__string_) -> bridge.Result_std__shared_ptr_Promise_OneTapAuthorizationResult___ {
+    do {
+      let __result = try self.__implementation.requestScopes(scopes: scopes.map({ __item in String(__item) }))
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_OneTapAuthorizationResult__ in
+        let __promise = bridge.create_std__shared_ptr_Promise_OneTapAuthorizationResult__()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_OneTapAuthorizationResult__(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve(__result) })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_OneTapAuthorizationResult___(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_OneTapAuthorizationResult___(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func signOut() -> bridge.Result_std__shared_ptr_Promise_void___ {
+    do {
+      let __result = try self.__implementation.signOut()
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
+        let __promise = bridge.create_std__shared_ptr_Promise_void__()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve() })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func revokeAccess(emailOrUniqueId: std.string) -> bridge.Result_std__shared_ptr_Promise_void___ {
+    do {
+      let __result = try self.__implementation.revokeAccess(emailOrUniqueId: String(emailOrUniqueId))
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
+        let __promise = bridge.create_std__shared_ptr_Promise_void__()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve() })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
     }
   }
 }

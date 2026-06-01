@@ -12,9 +12,31 @@
 // Forward declaration of `HybridNitroGoogleSigninSpec_cxx` to properly resolve imports.
 namespace NitroGoogleSignin { class HybridNitroGoogleSigninSpec_cxx; }
 
+// Forward declaration of `OneTapConfigureParams` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapConfigureParams; }
+// Forward declaration of `OneTapResponse` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapResponse; }
+// Forward declaration of `OneTapResponseType` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { enum class OneTapResponseType; }
+// Forward declaration of `OneTapSuccessData` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapSuccessData; }
+// Forward declaration of `OneTapUser` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapUser; }
+// Forward declaration of `OneTapAuthorizationResult` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapAuthorizationResult; }
 
-
-
+#include "OneTapConfigureParams.hpp"
+#include <string>
+#include <NitroModules/Null.hpp>
+#include <variant>
+#include <optional>
+#include <vector>
+#include <NitroModules/Promise.hpp>
+#include "OneTapResponse.hpp"
+#include "OneTapResponseType.hpp"
+#include "OneTapSuccessData.hpp"
+#include "OneTapUser.hpp"
+#include "OneTapAuthorizationResult.hpp"
 
 #include "NitroGoogleSignin-Swift-Cxx-Umbrella.hpp"
 
@@ -66,8 +88,62 @@ namespace margelo::nitro::nitrogooglesignin {
 
   public:
     // Methods
-    inline double sum(double num1, double num2) override {
-      auto __result = _swiftPart.sum(std::forward<decltype(num1)>(num1), std::forward<decltype(num2)>(num2));
+    inline void configure(const OneTapConfigureParams& params) override {
+      auto __result = _swiftPart.configure(std::forward<decltype(params)>(params));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+    }
+    inline std::shared_ptr<Promise<void>> checkPlayServices(std::optional<bool> showErrorResolutionDialog) override {
+      auto __result = _swiftPart.checkPlayServices(showErrorResolutionDialog);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<OneTapResponse>> signIn() override {
+      auto __result = _swiftPart.signIn();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<OneTapResponse>> createAccount() override {
+      auto __result = _swiftPart.createAccount();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<OneTapResponse>> presentExplicitSignIn() override {
+      auto __result = _swiftPart.presentExplicitSignIn();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<OneTapAuthorizationResult>> requestScopes(const std::vector<std::string>& scopes) override {
+      auto __result = _swiftPart.requestScopes(scopes);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> signOut() override {
+      auto __result = _swiftPart.signOut();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> revokeAccess(const std::string& emailOrUniqueId) override {
+      auto __result = _swiftPart.revokeAccess(emailOrUniqueId);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

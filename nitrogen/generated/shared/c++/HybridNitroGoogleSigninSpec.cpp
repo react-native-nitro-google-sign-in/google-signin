@@ -14,7 +14,14 @@ namespace margelo::nitro::nitrogooglesignin {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridMethod("sum", &HybridNitroGoogleSigninSpec::sum);
+      prototype.registerHybridMethod("configure", &HybridNitroGoogleSigninSpec::configure);
+      prototype.registerHybridMethod("checkPlayServices", &HybridNitroGoogleSigninSpec::checkPlayServices);
+      prototype.registerHybridMethod("signIn", &HybridNitroGoogleSigninSpec::signIn);
+      prototype.registerHybridMethod("createAccount", &HybridNitroGoogleSigninSpec::createAccount);
+      prototype.registerHybridMethod("presentExplicitSignIn", &HybridNitroGoogleSigninSpec::presentExplicitSignIn);
+      prototype.registerHybridMethod("requestScopes", &HybridNitroGoogleSigninSpec::requestScopes);
+      prototype.registerHybridMethod("signOut", &HybridNitroGoogleSigninSpec::signOut);
+      prototype.registerHybridMethod("revokeAccess", &HybridNitroGoogleSigninSpec::revokeAccess);
     });
   }
 

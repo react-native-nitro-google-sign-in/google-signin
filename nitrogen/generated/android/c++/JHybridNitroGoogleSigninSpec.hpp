@@ -54,7 +54,14 @@ namespace margelo::nitro::nitrogooglesignin {
 
   public:
     // Methods
-    double sum(double num1, double num2) override;
+    void configure(const OneTapConfigureParams& params) override;
+    std::shared_ptr<Promise<void>> checkPlayServices(std::optional<bool> showErrorResolutionDialog) override;
+    std::shared_ptr<Promise<OneTapResponse>> signIn() override;
+    std::shared_ptr<Promise<OneTapResponse>> createAccount() override;
+    std::shared_ptr<Promise<OneTapResponse>> presentExplicitSignIn() override;
+    std::shared_ptr<Promise<OneTapAuthorizationResult>> requestScopes(const std::vector<std::string>& scopes) override;
+    std::shared_ptr<Promise<void>> signOut() override;
+    std::shared_ptr<Promise<void>> revokeAccess(const std::string& emailOrUniqueId) override;
 
   private:
     jni::global_ref<JHybridNitroGoogleSigninSpec::JavaPart> _javaPart;

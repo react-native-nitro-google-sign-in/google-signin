@@ -1,5 +1,26 @@
-import { NitroModules } from 'react-native-nitro-modules'
-import type { NitroGoogleSignin as NitroGoogleSigninSpec } from './specs/nitro-google-signin.nitro'
+export { GoogleOneTapSignIn } from './GoogleOneTapSignIn'
+import { GoogleOneTapSignIn } from './GoogleOneTapSignIn'
+export {
+  GoogleSignInError,
+  isCancelledResponse,
+  isErrorWithCode,
+  isNoSavedCredentialFoundResponse,
+  isSuccessResponse,
+  statusCodes,
+} from './types'
+export type {
+  OneTapAuthorizationResult,
+  OneTapConfigureParams,
+  OneTapCreateAccountParams,
+  OneTapExplicitSignInParams,
+  OneTapResponse,
+  OneTapSignInParams,
+  OneTapSuccessData,
+  OneTapUser,
+  StatusCode,
+} from './types'
+export type { OneTapResponseType } from './types'
+export { OneTapResponseTypes } from './types'
 
-export const NitroGoogleSignin =
-  NitroModules.createHybridObject<NitroGoogleSigninSpec>('NitroGoogleSignin')
+/** @deprecated Use `GoogleOneTapSignIn` instead */
+export const NitroGoogleSignin = GoogleOneTapSignIn

@@ -7,9 +7,43 @@
 
 #include "JHybridNitroGoogleSigninSpec.hpp"
 
+// Forward declaration of `OneTapResponse` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapResponse; }
+// Forward declaration of `OneTapResponseType` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { enum class OneTapResponseType; }
+// Forward declaration of `OneTapSuccessData` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapSuccessData; }
+// Forward declaration of `OneTapUser` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapUser; }
+// Forward declaration of `OneTapAuthorizationResult` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapAuthorizationResult; }
+// Forward declaration of `OneTapConfigureParams` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapConfigureParams; }
 
-
-
+#include <NitroModules/Promise.hpp>
+#include <NitroModules/JPromise.hpp>
+#include <NitroModules/JUnit.hpp>
+#include "OneTapResponse.hpp"
+#include "JOneTapResponse.hpp"
+#include "OneTapResponseType.hpp"
+#include "JOneTapResponseType.hpp"
+#include <NitroModules/Null.hpp>
+#include "OneTapSuccessData.hpp"
+#include <variant>
+#include <optional>
+#include "JVariant_NullType_OneTapSuccessData.hpp"
+#include <NitroModules/JNull.hpp>
+#include "JOneTapSuccessData.hpp"
+#include "OneTapUser.hpp"
+#include "JOneTapUser.hpp"
+#include <string>
+#include "JVariant_NullType_String.hpp"
+#include "OneTapAuthorizationResult.hpp"
+#include "JOneTapAuthorizationResult.hpp"
+#include "OneTapConfigureParams.hpp"
+#include "JOneTapConfigureParams.hpp"
+#include <vector>
+#include "JVariant_NullType_Array_String_.hpp"
 
 namespace margelo::nitro::nitrogooglesignin {
 
@@ -44,10 +78,127 @@ namespace margelo::nitro::nitrogooglesignin {
   
 
   // Methods
-  double JHybridNitroGoogleSigninSpec::sum(double num1, double num2) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<double(double /* num1 */, double /* num2 */)>("sum");
-    auto __result = method(_javaPart, num1, num2);
-    return __result;
+  void JHybridNitroGoogleSigninSpec::configure(const OneTapConfigureParams& params) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JOneTapConfigureParams> /* params */)>("configure");
+    method(_javaPart, JOneTapConfigureParams::fromCpp(params));
+  }
+  std::shared_ptr<Promise<void>> JHybridNitroGoogleSigninSpec::checkPlayServices(std::optional<bool> showErrorResolutionDialog) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<jni::JBoolean> /* showErrorResolutionDialog */)>("checkPlayServices");
+    auto __result = method(_javaPart, showErrorResolutionDialog.has_value() ? jni::JBoolean::valueOf(showErrorResolutionDialog.value()) : nullptr);
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<OneTapResponse>> JHybridNitroGoogleSigninSpec::signIn() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>()>("signIn");
+    auto __result = method(_javaPart);
+    return [&]() {
+      auto __promise = Promise<OneTapResponse>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<JOneTapResponse>(__boxedResult);
+        __promise->resolve(__result->toCpp());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<OneTapResponse>> JHybridNitroGoogleSigninSpec::createAccount() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>()>("createAccount");
+    auto __result = method(_javaPart);
+    return [&]() {
+      auto __promise = Promise<OneTapResponse>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<JOneTapResponse>(__boxedResult);
+        __promise->resolve(__result->toCpp());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<OneTapResponse>> JHybridNitroGoogleSigninSpec::presentExplicitSignIn() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>()>("presentExplicitSignIn");
+    auto __result = method(_javaPart);
+    return [&]() {
+      auto __promise = Promise<OneTapResponse>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<JOneTapResponse>(__boxedResult);
+        __promise->resolve(__result->toCpp());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<OneTapAuthorizationResult>> JHybridNitroGoogleSigninSpec::requestScopes(const std::vector<std::string>& scopes) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<jni::JArrayClass<jni::JString>> /* scopes */)>("requestScopes");
+    auto __result = method(_javaPart, [&](auto&& __input) {
+      size_t __size = __input.size();
+      jni::local_ref<jni::JArrayClass<jni::JString>> __array = jni::JArrayClass<jni::JString>::newArray(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        const auto& __element = __input[__i];
+        auto __elementJni = jni::make_jstring(__element);
+        __array->setElement(__i, *__elementJni);
+      }
+      return __array;
+    }(scopes));
+    return [&]() {
+      auto __promise = Promise<OneTapAuthorizationResult>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<JOneTapAuthorizationResult>(__boxedResult);
+        __promise->resolve(__result->toCpp());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<void>> JHybridNitroGoogleSigninSpec::signOut() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>()>("signOut");
+    auto __result = method(_javaPart);
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<void>> JHybridNitroGoogleSigninSpec::revokeAccess(const std::string& emailOrUniqueId) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<jni::JString> /* emailOrUniqueId */)>("revokeAccess");
+    auto __result = method(_javaPart, jni::make_jstring(emailOrUniqueId));
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
   }
 
 } // namespace margelo::nitro::nitrogooglesignin

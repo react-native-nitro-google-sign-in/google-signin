@@ -10,6 +10,7 @@ package com.margelo.nitro.nitrogooglesignin
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
+import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.HybridObject
 
 /**
@@ -30,7 +31,35 @@ abstract class HybridNitroGoogleSigninSpec: HybridObject() {
   // Methods
   @DoNotStrip
   @Keep
-  abstract fun sum(num1: Double, num2: Double): Double
+  abstract fun configure(params: OneTapConfigureParams): Unit
+  
+  @DoNotStrip
+  @Keep
+  abstract fun checkPlayServices(showErrorResolutionDialog: Boolean?): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun signIn(): Promise<OneTapResponse>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun createAccount(): Promise<OneTapResponse>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun presentExplicitSignIn(): Promise<OneTapResponse>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun requestScopes(scopes: Array<String>): Promise<OneTapAuthorizationResult>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun signOut(): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun revokeAccess(emailOrUniqueId: String): Promise<Unit>
 
   // Default implementation of `HybridObject.toString()`
   override fun toString(): String {

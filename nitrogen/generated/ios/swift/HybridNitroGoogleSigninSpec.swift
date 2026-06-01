@@ -13,7 +13,14 @@ public protocol HybridNitroGoogleSigninSpec_protocol: HybridObject {
   
 
   // Methods
-  func sum(num1: Double, num2: Double) throws -> Double
+  func configure(params: OneTapConfigureParams) throws -> Void
+  func checkPlayServices(showErrorResolutionDialog: Bool?) throws -> Promise<Void>
+  func signIn() throws -> Promise<OneTapResponse>
+  func createAccount() throws -> Promise<OneTapResponse>
+  func presentExplicitSignIn() throws -> Promise<OneTapResponse>
+  func requestScopes(scopes: [String]) throws -> Promise<OneTapAuthorizationResult>
+  func signOut() throws -> Promise<Void>
+  func revokeAccess(emailOrUniqueId: String) throws -> Promise<Void>
 }
 
 public extension HybridNitroGoogleSigninSpec_protocol {

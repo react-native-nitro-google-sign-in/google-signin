@@ -13,9 +13,20 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `OneTapConfigureParams` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapConfigureParams; }
+// Forward declaration of `OneTapResponse` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapResponse; }
+// Forward declaration of `OneTapAuthorizationResult` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapAuthorizationResult; }
 
-
-
+#include "OneTapConfigureParams.hpp"
+#include <NitroModules/Promise.hpp>
+#include <optional>
+#include "OneTapResponse.hpp"
+#include "OneTapAuthorizationResult.hpp"
+#include <string>
+#include <vector>
 
 namespace margelo::nitro::nitrogooglesignin {
 
@@ -48,7 +59,14 @@ namespace margelo::nitro::nitrogooglesignin {
 
     public:
       // Methods
-      virtual double sum(double num1, double num2) = 0;
+      virtual void configure(const OneTapConfigureParams& params) = 0;
+      virtual std::shared_ptr<Promise<void>> checkPlayServices(std::optional<bool> showErrorResolutionDialog) = 0;
+      virtual std::shared_ptr<Promise<OneTapResponse>> signIn() = 0;
+      virtual std::shared_ptr<Promise<OneTapResponse>> createAccount() = 0;
+      virtual std::shared_ptr<Promise<OneTapResponse>> presentExplicitSignIn() = 0;
+      virtual std::shared_ptr<Promise<OneTapAuthorizationResult>> requestScopes(const std::vector<std::string>& scopes) = 0;
+      virtual std::shared_ptr<Promise<void>> signOut() = 0;
+      virtual std::shared_ptr<Promise<void>> revokeAccess(const std::string& emailOrUniqueId) = 0;
 
     protected:
       // Hybrid Setup

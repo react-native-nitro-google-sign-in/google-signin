@@ -10,12 +10,36 @@
 // Forward declarations of C++ defined types
 // Forward declaration of `HybridNitroGoogleSigninSpec` to properly resolve imports.
 namespace margelo::nitro::nitrogooglesignin { class HybridNitroGoogleSigninSpec; }
+// Forward declaration of `OneTapAuthorizationResult` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapAuthorizationResult; }
+// Forward declaration of `OneTapConfigureParams` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapConfigureParams; }
+// Forward declaration of `OneTapResponseType` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { enum class OneTapResponseType; }
+// Forward declaration of `OneTapResponse` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapResponse; }
+// Forward declaration of `OneTapSuccessData` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapSuccessData; }
+// Forward declaration of `OneTapUser` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapUser; }
 
 // Include C++ defined types
 #include "HybridNitroGoogleSigninSpec.hpp"
+#include "OneTapAuthorizationResult.hpp"
+#include "OneTapConfigureParams.hpp"
+#include "OneTapResponse.hpp"
+#include "OneTapResponseType.hpp"
+#include "OneTapSuccessData.hpp"
+#include "OneTapUser.hpp"
+#include <NitroModules/Null.hpp>
+#include <NitroModules/Promise.hpp>
 #include <NitroModules/Result.hpp>
 #include <exception>
 #include <memory>
+#include <optional>
+#include <string>
+#include <variant>
+#include <vector>
 
 // C++ helpers for Swift
 #include "NitroGoogleSignin-Swift-Cxx-Bridge.hpp"

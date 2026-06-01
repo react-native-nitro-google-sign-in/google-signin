@@ -14,6 +14,38 @@
 
 namespace margelo::nitro::nitrogooglesignin::bridge::swift {
 
+  // pragma MARK: std::function<void()>
+  Func_void create_Func_void(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroGoogleSignin::Func_void::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)]() mutable -> void {
+      swiftClosure.call();
+    };
+  }
+  
+  // pragma MARK: std::function<void(const std::exception_ptr& /* error */)>
+  Func_void_std__exception_ptr create_Func_void_std__exception_ptr(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroGoogleSignin::Func_void_std__exception_ptr::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const std::exception_ptr& error) mutable -> void {
+      swiftClosure.call(error);
+    };
+  }
+  
+  // pragma MARK: std::function<void(const OneTapResponse& /* result */)>
+  Func_void_OneTapResponse create_Func_void_OneTapResponse(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroGoogleSignin::Func_void_OneTapResponse::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const OneTapResponse& result) mutable -> void {
+      swiftClosure.call(result);
+    };
+  }
+  
+  // pragma MARK: std::function<void(const OneTapAuthorizationResult& /* result */)>
+  Func_void_OneTapAuthorizationResult create_Func_void_OneTapAuthorizationResult(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroGoogleSignin::Func_void_OneTapAuthorizationResult::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const OneTapAuthorizationResult& result) mutable -> void {
+      swiftClosure.call(result);
+    };
+  }
+  
   // pragma MARK: std::shared_ptr<HybridNitroGoogleSigninSpec>
   std::shared_ptr<HybridNitroGoogleSigninSpec> create_std__shared_ptr_HybridNitroGoogleSigninSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     NitroGoogleSignin::HybridNitroGoogleSigninSpec_cxx swiftPart = NitroGoogleSignin::HybridNitroGoogleSigninSpec_cxx::fromUnsafe(swiftUnsafePointer);

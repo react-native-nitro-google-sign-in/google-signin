@@ -10,6 +10,16 @@
 // Forward declarations of C++ defined types
 // Forward declaration of `HybridNitroGoogleSigninSpec` to properly resolve imports.
 namespace margelo::nitro::nitrogooglesignin { class HybridNitroGoogleSigninSpec; }
+// Forward declaration of `OneTapAuthorizationResult` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapAuthorizationResult; }
+// Forward declaration of `OneTapResponseType` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { enum class OneTapResponseType; }
+// Forward declaration of `OneTapResponse` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapResponse; }
+// Forward declaration of `OneTapSuccessData` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapSuccessData; }
+// Forward declaration of `OneTapUser` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct OneTapUser; }
 
 // Forward declarations of Swift defined types
 // Forward declaration of `HybridNitroGoogleSigninSpec_cxx` to properly resolve imports.
@@ -17,9 +27,22 @@ namespace NitroGoogleSignin { class HybridNitroGoogleSigninSpec_cxx; }
 
 // Include C++ defined types
 #include "HybridNitroGoogleSigninSpec.hpp"
+#include "OneTapAuthorizationResult.hpp"
+#include "OneTapResponse.hpp"
+#include "OneTapResponseType.hpp"
+#include "OneTapSuccessData.hpp"
+#include "OneTapUser.hpp"
+#include <NitroModules/Null.hpp>
+#include <NitroModules/Promise.hpp>
+#include <NitroModules/PromiseHolder.hpp>
 #include <NitroModules/Result.hpp>
 #include <exception>
+#include <functional>
 #include <memory>
+#include <optional>
+#include <string>
+#include <variant>
+#include <vector>
 
 /**
  * Contains specialized versions of C++ templated types so they can be accessed from Swift,
@@ -27,6 +50,288 @@ namespace NitroGoogleSignin { class HybridNitroGoogleSigninSpec_cxx; }
  */
 namespace margelo::nitro::nitrogooglesignin::bridge::swift {
 
+  // pragma MARK: std::variant<nitro::NullType, std::string>
+  /**
+   * Wrapper struct for `std::variant<nitro::NullType, std::string>`.
+   * std::variant cannot be used in Swift because of a Swift bug.
+   * Not even specializing it works. So we create a wrapper struct.
+   */
+  struct std__variant_nitro__NullType__std__string_ final {
+    std::variant<nitro::NullType, std::string> variant;
+    std__variant_nitro__NullType__std__string_(std::variant<nitro::NullType, std::string> variant): variant(variant) { }
+    operator std::variant<nitro::NullType, std::string>() const noexcept {
+      return variant;
+    }
+    inline size_t index() const noexcept {
+      return variant.index();
+    }
+    inline nitro::NullType get_0() const noexcept {
+      return std::get<0>(variant);
+    }
+    inline std::string get_1() const noexcept {
+      return std::get<1>(variant);
+    }
+  };
+  inline std__variant_nitro__NullType__std__string_ create_std__variant_nitro__NullType__std__string_(nitro::NullType value) noexcept {
+    return std__variant_nitro__NullType__std__string_(value);
+  }
+  inline std__variant_nitro__NullType__std__string_ create_std__variant_nitro__NullType__std__string_(const std::string& value) noexcept {
+    return std__variant_nitro__NullType__std__string_(value);
+  }
+  
+  // pragma MARK: std::optional<std::variant<nitro::NullType, std::string>>
+  /**
+   * Specialized version of `std::optional<std::variant<nitro::NullType, std::string>>`.
+   */
+  using std__optional_std__variant_nitro__NullType__std__string__ = std::optional<std::variant<nitro::NullType, std::string>>;
+  inline std::optional<std::variant<nitro::NullType, std::string>> create_std__optional_std__variant_nitro__NullType__std__string__(const std::variant<nitro::NullType, std::string>& value) noexcept {
+    return std::optional<std::variant<nitro::NullType, std::string>>(value);
+  }
+  inline bool has_value_std__optional_std__variant_nitro__NullType__std__string__(const std::optional<std::variant<nitro::NullType, std::string>>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::variant<nitro::NullType, std::string> get_std__optional_std__variant_nitro__NullType__std__string__(const std::optional<std::variant<nitro::NullType, std::string>>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::optional<bool>
+  /**
+   * Specialized version of `std::optional<bool>`.
+   */
+  using std__optional_bool_ = std::optional<bool>;
+  inline std::optional<bool> create_std__optional_bool_(const bool& value) noexcept {
+    return std::optional<bool>(value);
+  }
+  inline bool has_value_std__optional_bool_(const std::optional<bool>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline bool get_std__optional_bool_(const std::optional<bool>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::vector<std::string>
+  /**
+   * Specialized version of `std::vector<std::string>`.
+   */
+  using std__vector_std__string_ = std::vector<std::string>;
+  inline std::vector<std::string> create_std__vector_std__string_(size_t size) noexcept {
+    std::vector<std::string> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  // pragma MARK: std::variant<nitro::NullType, std::vector<std::string>>
+  /**
+   * Wrapper struct for `std::variant<nitro::NullType, std::vector<std::string>>`.
+   * std::variant cannot be used in Swift because of a Swift bug.
+   * Not even specializing it works. So we create a wrapper struct.
+   */
+  struct std__variant_nitro__NullType__std__vector_std__string__ final {
+    std::variant<nitro::NullType, std::vector<std::string>> variant;
+    std__variant_nitro__NullType__std__vector_std__string__(std::variant<nitro::NullType, std::vector<std::string>> variant): variant(variant) { }
+    operator std::variant<nitro::NullType, std::vector<std::string>>() const noexcept {
+      return variant;
+    }
+    inline size_t index() const noexcept {
+      return variant.index();
+    }
+    inline nitro::NullType get_0() const noexcept {
+      return std::get<0>(variant);
+    }
+    inline std::vector<std::string> get_1() const noexcept {
+      return std::get<1>(variant);
+    }
+  };
+  inline std__variant_nitro__NullType__std__vector_std__string__ create_std__variant_nitro__NullType__std__vector_std__string__(nitro::NullType value) noexcept {
+    return std__variant_nitro__NullType__std__vector_std__string__(value);
+  }
+  inline std__variant_nitro__NullType__std__vector_std__string__ create_std__variant_nitro__NullType__std__vector_std__string__(const std::vector<std::string>& value) noexcept {
+    return std__variant_nitro__NullType__std__vector_std__string__(value);
+  }
+  
+  // pragma MARK: std::optional<std::variant<nitro::NullType, std::vector<std::string>>>
+  /**
+   * Specialized version of `std::optional<std::variant<nitro::NullType, std::vector<std::string>>>`.
+   */
+  using std__optional_std__variant_nitro__NullType__std__vector_std__string___ = std::optional<std::variant<nitro::NullType, std::vector<std::string>>>;
+  inline std::optional<std::variant<nitro::NullType, std::vector<std::string>>> create_std__optional_std__variant_nitro__NullType__std__vector_std__string___(const std::variant<nitro::NullType, std::vector<std::string>>& value) noexcept {
+    return std::optional<std::variant<nitro::NullType, std::vector<std::string>>>(value);
+  }
+  inline bool has_value_std__optional_std__variant_nitro__NullType__std__vector_std__string___(const std::optional<std::variant<nitro::NullType, std::vector<std::string>>>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::variant<nitro::NullType, std::vector<std::string>> get_std__optional_std__variant_nitro__NullType__std__vector_std__string___(const std::optional<std::variant<nitro::NullType, std::vector<std::string>>>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::shared_ptr<Promise<void>>
+  /**
+   * Specialized version of `std::shared_ptr<Promise<void>>`.
+   */
+  using std__shared_ptr_Promise_void__ = std::shared_ptr<Promise<void>>;
+  inline std::shared_ptr<Promise<void>> create_std__shared_ptr_Promise_void__() noexcept {
+    return Promise<void>::create();
+  }
+  inline PromiseHolder<void> wrap_std__shared_ptr_Promise_void__(std::shared_ptr<Promise<void>> promise) noexcept {
+    return PromiseHolder<void>(std::move(promise));
+  }
+  
+  // pragma MARK: std::function<void()>
+  /**
+   * Specialized version of `std::function<void()>`.
+   */
+  using Func_void = std::function<void()>;
+  /**
+   * Wrapper class for a `std::function<void()>`, this can be used from Swift.
+   */
+  class Func_void_Wrapper final {
+  public:
+    explicit Func_void_Wrapper(std::function<void()>&& func): _function(std::make_unique<std::function<void()>>(std::move(func))) {}
+    inline void call() const noexcept {
+      _function->operator()();
+    }
+  private:
+    std::unique_ptr<std::function<void()>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void create_Func_void(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_Wrapper wrap_Func_void(Func_void value) noexcept {
+    return Func_void_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::function<void(const std::exception_ptr& /* error */)>
+  /**
+   * Specialized version of `std::function<void(const std::exception_ptr&)>`.
+   */
+  using Func_void_std__exception_ptr = std::function<void(const std::exception_ptr& /* error */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::exception_ptr& / * error * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__exception_ptr_Wrapper final {
+  public:
+    explicit Func_void_std__exception_ptr_Wrapper(std::function<void(const std::exception_ptr& /* error */)>&& func): _function(std::make_unique<std::function<void(const std::exception_ptr& /* error */)>>(std::move(func))) {}
+    inline void call(std::exception_ptr error) const noexcept {
+      _function->operator()(error);
+    }
+  private:
+    std::unique_ptr<std::function<void(const std::exception_ptr& /* error */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_std__exception_ptr create_Func_void_std__exception_ptr(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_std__exception_ptr_Wrapper wrap_Func_void_std__exception_ptr(Func_void_std__exception_ptr value) noexcept {
+    return Func_void_std__exception_ptr_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::variant<nitro::NullType, OneTapSuccessData>
+  /**
+   * Wrapper struct for `std::variant<nitro::NullType, OneTapSuccessData>`.
+   * std::variant cannot be used in Swift because of a Swift bug.
+   * Not even specializing it works. So we create a wrapper struct.
+   */
+  struct std__variant_nitro__NullType__OneTapSuccessData_ final {
+    std::variant<nitro::NullType, OneTapSuccessData> variant;
+    std__variant_nitro__NullType__OneTapSuccessData_(std::variant<nitro::NullType, OneTapSuccessData> variant): variant(variant) { }
+    operator std::variant<nitro::NullType, OneTapSuccessData>() const noexcept {
+      return variant;
+    }
+    inline size_t index() const noexcept {
+      return variant.index();
+    }
+    inline nitro::NullType get_0() const noexcept {
+      return std::get<0>(variant);
+    }
+    inline OneTapSuccessData get_1() const noexcept {
+      return std::get<1>(variant);
+    }
+  };
+  inline std__variant_nitro__NullType__OneTapSuccessData_ create_std__variant_nitro__NullType__OneTapSuccessData_(nitro::NullType value) noexcept {
+    return std__variant_nitro__NullType__OneTapSuccessData_(value);
+  }
+  inline std__variant_nitro__NullType__OneTapSuccessData_ create_std__variant_nitro__NullType__OneTapSuccessData_(const OneTapSuccessData& value) noexcept {
+    return std__variant_nitro__NullType__OneTapSuccessData_(value);
+  }
+  
+  // pragma MARK: std::optional<std::variant<nitro::NullType, OneTapSuccessData>>
+  /**
+   * Specialized version of `std::optional<std::variant<nitro::NullType, OneTapSuccessData>>`.
+   */
+  using std__optional_std__variant_nitro__NullType__OneTapSuccessData__ = std::optional<std::variant<nitro::NullType, OneTapSuccessData>>;
+  inline std::optional<std::variant<nitro::NullType, OneTapSuccessData>> create_std__optional_std__variant_nitro__NullType__OneTapSuccessData__(const std::variant<nitro::NullType, OneTapSuccessData>& value) noexcept {
+    return std::optional<std::variant<nitro::NullType, OneTapSuccessData>>(value);
+  }
+  inline bool has_value_std__optional_std__variant_nitro__NullType__OneTapSuccessData__(const std::optional<std::variant<nitro::NullType, OneTapSuccessData>>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::variant<nitro::NullType, OneTapSuccessData> get_std__optional_std__variant_nitro__NullType__OneTapSuccessData__(const std::optional<std::variant<nitro::NullType, OneTapSuccessData>>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::shared_ptr<Promise<OneTapResponse>>
+  /**
+   * Specialized version of `std::shared_ptr<Promise<OneTapResponse>>`.
+   */
+  using std__shared_ptr_Promise_OneTapResponse__ = std::shared_ptr<Promise<OneTapResponse>>;
+  inline std::shared_ptr<Promise<OneTapResponse>> create_std__shared_ptr_Promise_OneTapResponse__() noexcept {
+    return Promise<OneTapResponse>::create();
+  }
+  inline PromiseHolder<OneTapResponse> wrap_std__shared_ptr_Promise_OneTapResponse__(std::shared_ptr<Promise<OneTapResponse>> promise) noexcept {
+    return PromiseHolder<OneTapResponse>(std::move(promise));
+  }
+  
+  // pragma MARK: std::function<void(const OneTapResponse& /* result */)>
+  /**
+   * Specialized version of `std::function<void(const OneTapResponse&)>`.
+   */
+  using Func_void_OneTapResponse = std::function<void(const OneTapResponse& /* result */)>;
+  /**
+   * Wrapper class for a `std::function<void(const OneTapResponse& / * result * /)>`, this can be used from Swift.
+   */
+  class Func_void_OneTapResponse_Wrapper final {
+  public:
+    explicit Func_void_OneTapResponse_Wrapper(std::function<void(const OneTapResponse& /* result */)>&& func): _function(std::make_unique<std::function<void(const OneTapResponse& /* result */)>>(std::move(func))) {}
+    inline void call(OneTapResponse result) const noexcept {
+      _function->operator()(result);
+    }
+  private:
+    std::unique_ptr<std::function<void(const OneTapResponse& /* result */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_OneTapResponse create_Func_void_OneTapResponse(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_OneTapResponse_Wrapper wrap_Func_void_OneTapResponse(Func_void_OneTapResponse value) noexcept {
+    return Func_void_OneTapResponse_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::shared_ptr<Promise<OneTapAuthorizationResult>>
+  /**
+   * Specialized version of `std::shared_ptr<Promise<OneTapAuthorizationResult>>`.
+   */
+  using std__shared_ptr_Promise_OneTapAuthorizationResult__ = std::shared_ptr<Promise<OneTapAuthorizationResult>>;
+  inline std::shared_ptr<Promise<OneTapAuthorizationResult>> create_std__shared_ptr_Promise_OneTapAuthorizationResult__() noexcept {
+    return Promise<OneTapAuthorizationResult>::create();
+  }
+  inline PromiseHolder<OneTapAuthorizationResult> wrap_std__shared_ptr_Promise_OneTapAuthorizationResult__(std::shared_ptr<Promise<OneTapAuthorizationResult>> promise) noexcept {
+    return PromiseHolder<OneTapAuthorizationResult>(std::move(promise));
+  }
+  
+  // pragma MARK: std::function<void(const OneTapAuthorizationResult& /* result */)>
+  /**
+   * Specialized version of `std::function<void(const OneTapAuthorizationResult&)>`.
+   */
+  using Func_void_OneTapAuthorizationResult = std::function<void(const OneTapAuthorizationResult& /* result */)>;
+  /**
+   * Wrapper class for a `std::function<void(const OneTapAuthorizationResult& / * result * /)>`, this can be used from Swift.
+   */
+  class Func_void_OneTapAuthorizationResult_Wrapper final {
+  public:
+    explicit Func_void_OneTapAuthorizationResult_Wrapper(std::function<void(const OneTapAuthorizationResult& /* result */)>&& func): _function(std::make_unique<std::function<void(const OneTapAuthorizationResult& /* result */)>>(std::move(func))) {}
+    inline void call(OneTapAuthorizationResult result) const noexcept {
+      _function->operator()(result);
+    }
+  private:
+    std::unique_ptr<std::function<void(const OneTapAuthorizationResult& /* result */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_OneTapAuthorizationResult create_Func_void_OneTapAuthorizationResult(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_OneTapAuthorizationResult_Wrapper wrap_Func_void_OneTapAuthorizationResult(Func_void_OneTapAuthorizationResult value) noexcept {
+    return Func_void_OneTapAuthorizationResult_Wrapper(std::move(value));
+  }
+  
   // pragma MARK: std::shared_ptr<HybridNitroGoogleSigninSpec>
   /**
    * Specialized version of `std::shared_ptr<HybridNitroGoogleSigninSpec>`.
@@ -39,13 +344,40 @@ namespace margelo::nitro::nitrogooglesignin::bridge::swift {
   using std__weak_ptr_HybridNitroGoogleSigninSpec_ = std::weak_ptr<HybridNitroGoogleSigninSpec>;
   inline std__weak_ptr_HybridNitroGoogleSigninSpec_ weakify_std__shared_ptr_HybridNitroGoogleSigninSpec_(const std::shared_ptr<HybridNitroGoogleSigninSpec>& strong) noexcept { return strong; }
   
-  // pragma MARK: Result<double>
-  using Result_double_ = Result<double>;
-  inline Result_double_ create_Result_double_(double value) noexcept {
-    return Result<double>::withValue(std::move(value));
+  // pragma MARK: Result<void>
+  using Result_void_ = Result<void>;
+  inline Result_void_ create_Result_void_() noexcept {
+    return Result<void>::withValue();
   }
-  inline Result_double_ create_Result_double_(const std::exception_ptr& error) noexcept {
-    return Result<double>::withError(error);
+  inline Result_void_ create_Result_void_(const std::exception_ptr& error) noexcept {
+    return Result<void>::withError(error);
+  }
+  
+  // pragma MARK: Result<std::shared_ptr<Promise<void>>>
+  using Result_std__shared_ptr_Promise_void___ = Result<std::shared_ptr<Promise<void>>>;
+  inline Result_std__shared_ptr_Promise_void___ create_Result_std__shared_ptr_Promise_void___(const std::shared_ptr<Promise<void>>& value) noexcept {
+    return Result<std::shared_ptr<Promise<void>>>::withValue(value);
+  }
+  inline Result_std__shared_ptr_Promise_void___ create_Result_std__shared_ptr_Promise_void___(const std::exception_ptr& error) noexcept {
+    return Result<std::shared_ptr<Promise<void>>>::withError(error);
+  }
+  
+  // pragma MARK: Result<std::shared_ptr<Promise<OneTapResponse>>>
+  using Result_std__shared_ptr_Promise_OneTapResponse___ = Result<std::shared_ptr<Promise<OneTapResponse>>>;
+  inline Result_std__shared_ptr_Promise_OneTapResponse___ create_Result_std__shared_ptr_Promise_OneTapResponse___(const std::shared_ptr<Promise<OneTapResponse>>& value) noexcept {
+    return Result<std::shared_ptr<Promise<OneTapResponse>>>::withValue(value);
+  }
+  inline Result_std__shared_ptr_Promise_OneTapResponse___ create_Result_std__shared_ptr_Promise_OneTapResponse___(const std::exception_ptr& error) noexcept {
+    return Result<std::shared_ptr<Promise<OneTapResponse>>>::withError(error);
+  }
+  
+  // pragma MARK: Result<std::shared_ptr<Promise<OneTapAuthorizationResult>>>
+  using Result_std__shared_ptr_Promise_OneTapAuthorizationResult___ = Result<std::shared_ptr<Promise<OneTapAuthorizationResult>>>;
+  inline Result_std__shared_ptr_Promise_OneTapAuthorizationResult___ create_Result_std__shared_ptr_Promise_OneTapAuthorizationResult___(const std::shared_ptr<Promise<OneTapAuthorizationResult>>& value) noexcept {
+    return Result<std::shared_ptr<Promise<OneTapAuthorizationResult>>>::withValue(value);
+  }
+  inline Result_std__shared_ptr_Promise_OneTapAuthorizationResult___ create_Result_std__shared_ptr_Promise_OneTapAuthorizationResult___(const std::exception_ptr& error) noexcept {
+    return Result<std::shared_ptr<Promise<OneTapAuthorizationResult>>>::withError(error);
   }
 
 } // namespace margelo::nitro::nitrogooglesignin::bridge::swift
