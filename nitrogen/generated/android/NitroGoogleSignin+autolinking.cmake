@@ -33,8 +33,12 @@ target_sources(
   # Autolinking Setup
   ../nitrogen/generated/android/NitroGoogleSigninOnLoad.cpp
   # Shared Nitrogen C++ sources
+  ../nitrogen/generated/shared/c++/HybridGoogleSignInButtonSpec.cpp
+  ../nitrogen/generated/shared/c++/views/HybridGoogleSignInButtonComponent.cpp
   ../nitrogen/generated/shared/c++/HybridNitroGoogleSigninSpec.cpp
   # Android-specific Nitrogen C++ sources
+  ../nitrogen/generated/android/c++/JHybridGoogleSignInButtonSpec.cpp
+  ../nitrogen/generated/android/c++/views/JHybridGoogleSignInButtonStateUpdater.cpp
   ../nitrogen/generated/android/c++/JHybridNitroGoogleSigninSpec.cpp
   ../nitrogen/generated/android/c++/JVariant_NullType_OneTapSuccessData.cpp
   ../nitrogen/generated/android/c++/JVariant_NullType_String.cpp

@@ -1,91 +1,61 @@
-import React, { useState, Fragment } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import {
   ActivityIndicator,
   Image,
-  Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import {
   GoogleOneTapSignIn,
+  GoogleSignInButton,
   isNoSavedCredentialFoundResponse,
   isSuccessResponse,
   OneTapSuccessData,
 } from 'react-native-nitro-google-signin';
 
-/** Example scope — enable the Calendar API in Google Cloud for your project. */
+const WEB_CLIENT_ID =
+  '662359549373-tr50ibd41c85pcb6mefk76ouaocooc6u.apps.googleusercontent.com';
+
 const CALENDAR_READONLY_SCOPE =
   'https://www.googleapis.com/auth/calendar.readonly';
 
 function App(): React.JSX.Element {
-  const [status, setStatus] = useState<string>('Tap to sign in');
+  const [status, setStatus] = useState<string>('Sign in below');
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<OneTapSuccessData | null>(null);
   const [extraScopesStatus, setExtraScopesStatus] = useState<string | null>(
     null,
   );
 
-  const startSignInFlow = async () => {
-    setLoading(true);
-    setStatus('Signing in…');
-    try {
-      GoogleOneTapSignIn.configure({
-        webClientId:
-          '662359549373-tr50ibd41c85pcb6mefk76ouaocooc6u.apps.googleusercontent.com',
-        // iosClientId: 'YOUR_IOS_CLIENT_ID.apps.googleusercontent.com',
-      });
-      await GoogleOneTapSignIn.checkPlayServices();
-      let response = await GoogleOneTapSignIn.signIn();
-      console.log('response signIn', response);
+  useEffect(() => {
+    GoogleOneTapSignIn.configure({
+      webClientId: WEB_CLIENT_ID,
+    });
+  }, []);
 
-      if (isNoSavedCredentialFoundResponse(response)) {
-        response = await GoogleOneTapSignIn.createAccount();
-        console.log('response createAccount', response);
-      }
-      if (isNoSavedCredentialFoundResponse(response)) {
-        response = await GoogleOneTapSignIn.presentExplicitSignIn();
-        console.log('response presentExplicitSignIn', response);
-      }
-
-      if (isSuccessResponse(response)) {
-        setStatus(
-          `Signed in as ${response.data.user.email ?? response.data.user.id}`,
-        );
-        console.log('response.data', response.data);
-        setUser(response.data);
-      } else {
-        setStatus('Sign-in cancelled');
-      }
-    } catch (e) {
-      setStatus(e instanceof Error ? e.message : 'Sign-in failed');
-    } finally {
-      setLoading(false);
-    }
+  const onSignInSuccess = (data: OneTapSuccessData) => {
+    setUser(data);
+    setStatus(`Signed in as ${data.user.email ?? data.user.id}`);
   };
 
-  /** Lists every Google account on the device (use to switch accounts). */
+  const onSignInError = (e: unknown) => {
+    setStatus(e instanceof Error ? e.message : 'Sign-in failed');
+  };
+
   const chooseAnotherAccount = async () => {
     setLoading(true);
     setExtraScopesStatus(null);
     setStatus('Choose a Google account…');
     try {
-      const response = await GoogleOneTapSignIn.createAccount();
+      await GoogleOneTapSignIn.checkPlayServices();
+      let response = await GoogleOneTapSignIn.createAccount();
+      if (isNoSavedCredentialFoundResponse(response)) {
+        response = await GoogleOneTapSignIn.presentExplicitSignIn();
+      }
       if (isSuccessResponse(response)) {
-        setUser(response.data);
-        setStatus(
-          `Signed in as ${response.data.user.email ?? response.data.user.id}`,
-        );
-      } else if (isNoSavedCredentialFoundResponse(response)) {
-        const explicit = await GoogleOneTapSignIn.presentExplicitSignIn();
-        if (isSuccessResponse(explicit)) {
-          setUser(explicit.data);
-          setStatus(
-            `Signed in as ${explicit.data.user.email ?? explicit.data.user.id}`,
-          );
-        } else {
-          setStatus('Sign-in cancelled');
-        }
+        onSignInSuccess(response.data);
       } else {
         setStatus('Sign-in cancelled');
       }
@@ -145,10 +115,13 @@ function App(): React.JSX.Element {
   const isSignedIn = user != null;
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.scroll}
+      showsVerticalScrollIndicator={false}
+    >
       {loading ? <ActivityIndicator size="large" /> : null}
-      {/* show whole returned user details */}
       <Text style={styles.status}>{status}</Text>
+
       {user ? (
         <Fragment>
           <Text style={styles.status}>{`Name: ${user.user.name}`}</Text>
@@ -165,41 +138,49 @@ function App(): React.JSX.Element {
       ) : null}
 
       {!isSignedIn ? (
-        <Pressable
-          style={styles.button}
-          onPress={startSignInFlow}
-          disabled={loading}
-        >
-          <Text style={styles.buttonLabel}>Sign in with Google</Text>
-        </Pressable>
+        <View style={styles.signInButtonContainer} collapsable={false}>
+          <GoogleSignInButton
+            colorScheme="dark"
+            size="wide"
+            contentAlignment="center"
+            disabled={loading}
+            onSignInSuccess={onSignInSuccess}
+            onSignInError={onSignInError}
+            style={styles.signInButton}
+          />
+        </View>
       ) : (
-        <Fragment>
-          <Pressable
-            style={[styles.button, styles.secondaryButton]}
-            onPress={chooseAnotherAccount}
-            disabled={loading}
+        <View style={styles.actions}>
+          <Text
+            accessibilityRole="button"
+            onPress={loading ? undefined : chooseAnotherAccount}
+            style={[styles.action, loading && styles.actionDisabled]}
           >
-            <Text style={styles.buttonLabel}>Choose another account</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.button, styles.secondaryButton]}
-            onPress={requestAdditionalScopes}
-            disabled={loading}
+            Choose another account
+          </Text>
+          <Text
+            accessibilityRole="button"
+            onPress={loading ? undefined : requestAdditionalScopes}
+            style={[styles.action, loading && styles.actionDisabled]}
           >
-            <Text style={styles.buttonLabel}>Request calendar read access</Text>
-          </Pressable>
-          <Pressable style={styles.button} onPress={signOut} disabled={loading}>
-            <Text style={styles.buttonLabel}>Sign out</Text>
-          </Pressable>
-        </Fragment>
+            Request calendar read access
+          </Text>
+          <Text
+            accessibilityRole="button"
+            onPress={loading ? undefined : signOut}
+            style={[styles.action, loading && styles.actionDisabled]}
+          >
+            Sign out
+          </Text>
+        </View>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scroll: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
@@ -215,19 +196,28 @@ const styles = StyleSheet.create({
     color: '#555',
     paddingHorizontal: 8,
   },
-  button: {
-    backgroundColor: '#4285F4',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
+  signInButtonContainer: {
+    width: 312,
+    height: 48,
+    alignSelf: 'center',
   },
-  secondaryButton: {
-    backgroundColor: '#34A853',
+  signInButton: {
+    width: 312,
+    height: 48,
+    flexShrink: 0,
   },
-  buttonLabel: {
-    color: '#fff',
+  actions: {
+    gap: 12,
+    alignItems: 'center',
+  },
+  action: {
+    color: '#1A73E8',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
+    paddingVertical: 8,
+  },
+  actionDisabled: {
+    opacity: 0.5,
   },
   photo: {
     width: 100,

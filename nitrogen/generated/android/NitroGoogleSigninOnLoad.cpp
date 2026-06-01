@@ -15,6 +15,9 @@
 #include <fbjni/fbjni.h>
 #include <NitroModules/HybridObjectRegistry.hpp>
 
+#include "JHybridGoogleSignInButtonSpec.hpp"
+#include "JFunc_void.hpp"
+#include "views/JHybridGoogleSignInButtonStateUpdater.hpp"
 #include "JHybridNitroGoogleSigninSpec.hpp"
 #include <NitroModules/DefaultConstructableObject.hpp>
 
@@ -34,12 +37,23 @@ struct JHybridNitroGoogleSigninSpecImpl: public jni::JavaClass<JHybridNitroGoogl
     return javaPart->getJHybridNitroGoogleSigninSpec();
   }
 };
+struct JHybridGoogleSignInButtonSpecImpl: public jni::JavaClass<JHybridGoogleSignInButtonSpecImpl, JHybridGoogleSignInButtonSpec::JavaPart> {
+  static constexpr auto kJavaDescriptor = "Lcom/nitrogooglesignin/HybridGoogleSignInButton;";
+  static std::shared_ptr<JHybridGoogleSignInButtonSpec> create() {
+    static const auto constructorFn = javaClassStatic()->getConstructor<JHybridGoogleSignInButtonSpecImpl::javaobject()>();
+    jni::local_ref<JHybridGoogleSignInButtonSpec::JavaPart> javaPart = javaClassStatic()->newObject(constructorFn);
+    return javaPart->getJHybridGoogleSignInButtonSpec();
+  }
+};
 
 void registerAllNatives() {
   using namespace margelo::nitro;
   using namespace margelo::nitro::nitrogooglesignin;
 
   // Register native JNI methods
+  margelo::nitro::nitrogooglesignin::JHybridGoogleSignInButtonSpec::CxxPart::registerNatives();
+  margelo::nitro::nitrogooglesignin::JFunc_void_cxx::registerNatives();
+  margelo::nitro::nitrogooglesignin::views::JHybridGoogleSignInButtonStateUpdater::registerNatives();
   margelo::nitro::nitrogooglesignin::JHybridNitroGoogleSigninSpec::CxxPart::registerNatives();
 
   // Register Nitro Hybrid Objects
@@ -47,6 +61,12 @@ void registerAllNatives() {
     "NitroGoogleSignin",
     []() -> std::shared_ptr<HybridObject> {
       return JHybridNitroGoogleSigninSpecImpl::create();
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "GoogleSignInButton",
+    []() -> std::shared_ptr<HybridObject> {
+      return JHybridGoogleSignInButtonSpecImpl::create();
     }
   );
 }

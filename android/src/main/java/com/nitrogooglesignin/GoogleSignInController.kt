@@ -95,7 +95,11 @@ internal object GoogleSignInController {
     )
   }
 
-  /** Explicit Sign in with Google button flow (add account / no credentials on device). */
+  /**
+   * Sign in with Google **button** flow (`GetSignInWithGoogleOption`): account dialog on Android
+   * (all device accounts, add account). For the Credential Manager **bottom sheet**, use
+   * [signIn] or [createAccount] instead — that is what [GoogleSignInButton] uses by default.
+   */
   suspend fun presentExplicitSignIn(): OneTapResponse {
     requireConfigured()
     return getGoogleCredential(

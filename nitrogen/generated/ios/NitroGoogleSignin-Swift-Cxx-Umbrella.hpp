@@ -8,6 +8,14 @@
 #pragma once
 
 // Forward declarations of C++ defined types
+// Forward declaration of `GoogleSignInButtonColorScheme` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { enum class GoogleSignInButtonColorScheme; }
+// Forward declaration of `GoogleSignInButtonContentAlignment` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { enum class GoogleSignInButtonContentAlignment; }
+// Forward declaration of `GoogleSignInButtonNativeSize` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { enum class GoogleSignInButtonNativeSize; }
+// Forward declaration of `HybridGoogleSignInButtonSpec` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { class HybridGoogleSignInButtonSpec; }
 // Forward declaration of `HybridNitroGoogleSigninSpec` to properly resolve imports.
 namespace margelo::nitro::nitrogooglesignin { class HybridNitroGoogleSigninSpec; }
 // Forward declaration of `OneTapAuthorizationResult` to properly resolve imports.
@@ -24,6 +32,10 @@ namespace margelo::nitro::nitrogooglesignin { struct OneTapSuccessData; }
 namespace margelo::nitro::nitrogooglesignin { struct OneTapUser; }
 
 // Include C++ defined types
+#include "GoogleSignInButtonColorScheme.hpp"
+#include "GoogleSignInButtonContentAlignment.hpp"
+#include "GoogleSignInButtonNativeSize.hpp"
+#include "HybridGoogleSignInButtonSpec.hpp"
 #include "HybridNitroGoogleSigninSpec.hpp"
 #include "OneTapAuthorizationResult.hpp"
 #include "OneTapConfigureParams.hpp"
@@ -35,6 +47,7 @@ namespace margelo::nitro::nitrogooglesignin { struct OneTapUser; }
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/Result.hpp>
 #include <exception>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -51,6 +64,8 @@ namespace margelo::nitro::nitrogooglesignin { struct OneTapUser; }
 #include <NitroModules/DateToChronoDate.hpp>
 
 // Forward declarations of Swift defined types
+// Forward declaration of `HybridGoogleSignInButtonSpec_cxx` to properly resolve imports.
+namespace NitroGoogleSignin { class HybridGoogleSignInButtonSpec_cxx; }
 // Forward declaration of `HybridNitroGoogleSigninSpec_cxx` to properly resolve imports.
 namespace NitroGoogleSignin { class HybridNitroGoogleSigninSpec_cxx; }
 

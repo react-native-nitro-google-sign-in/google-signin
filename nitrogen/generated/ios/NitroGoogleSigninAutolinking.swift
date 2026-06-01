@@ -23,4 +23,16 @@ public final class NitroGoogleSigninAutolinking {
   public static func isNitroGoogleSigninRecyclable() -> Bool {
     return HybridNitroGoogleSignin.self is any RecyclableView.Type
   }
+  
+  public static func createGoogleSignInButton() -> bridge.std__shared_ptr_HybridGoogleSignInButtonSpec_ {
+    let hybridObject = HybridGoogleSignInButton()
+    return { () -> bridge.std__shared_ptr_HybridGoogleSignInButtonSpec_ in
+      let __cxxWrapped = hybridObject.getCxxWrapper()
+      return __cxxWrapped.getCxxPart()
+    }()
+  }
+  
+  public static func isGoogleSignInButtonRecyclable() -> Bool {
+    return HybridGoogleSignInButton.self is any RecyclableView.Type
+  }
 }

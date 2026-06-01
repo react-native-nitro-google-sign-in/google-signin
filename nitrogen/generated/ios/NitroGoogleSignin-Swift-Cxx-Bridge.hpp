@@ -8,6 +8,10 @@
 #pragma once
 
 // Forward declarations of C++ defined types
+// Forward declaration of `GoogleSignInButtonContentAlignment` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { enum class GoogleSignInButtonContentAlignment; }
+// Forward declaration of `HybridGoogleSignInButtonSpec` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { class HybridGoogleSignInButtonSpec; }
 // Forward declaration of `HybridNitroGoogleSigninSpec` to properly resolve imports.
 namespace margelo::nitro::nitrogooglesignin { class HybridNitroGoogleSigninSpec; }
 // Forward declaration of `OneTapAuthorizationResult` to properly resolve imports.
@@ -22,10 +26,14 @@ namespace margelo::nitro::nitrogooglesignin { struct OneTapSuccessData; }
 namespace margelo::nitro::nitrogooglesignin { struct OneTapUser; }
 
 // Forward declarations of Swift defined types
+// Forward declaration of `HybridGoogleSignInButtonSpec_cxx` to properly resolve imports.
+namespace NitroGoogleSignin { class HybridGoogleSignInButtonSpec_cxx; }
 // Forward declaration of `HybridNitroGoogleSigninSpec_cxx` to properly resolve imports.
 namespace NitroGoogleSignin { class HybridNitroGoogleSigninSpec_cxx; }
 
 // Include C++ defined types
+#include "GoogleSignInButtonContentAlignment.hpp"
+#include "HybridGoogleSignInButtonSpec.hpp"
 #include "HybridNitroGoogleSigninSpec.hpp"
 #include "OneTapAuthorizationResult.hpp"
 #include "OneTapResponse.hpp"
@@ -50,6 +58,55 @@ namespace NitroGoogleSignin { class HybridNitroGoogleSigninSpec_cxx; }
  */
 namespace margelo::nitro::nitrogooglesignin::bridge::swift {
 
+  // pragma MARK: std::optional<GoogleSignInButtonContentAlignment>
+  /**
+   * Specialized version of `std::optional<GoogleSignInButtonContentAlignment>`.
+   */
+  using std__optional_GoogleSignInButtonContentAlignment_ = std::optional<GoogleSignInButtonContentAlignment>;
+  inline std::optional<GoogleSignInButtonContentAlignment> create_std__optional_GoogleSignInButtonContentAlignment_(const GoogleSignInButtonContentAlignment& value) noexcept {
+    return std::optional<GoogleSignInButtonContentAlignment>(value);
+  }
+  inline bool has_value_std__optional_GoogleSignInButtonContentAlignment_(const std::optional<GoogleSignInButtonContentAlignment>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline GoogleSignInButtonContentAlignment get_std__optional_GoogleSignInButtonContentAlignment_(const std::optional<GoogleSignInButtonContentAlignment>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::function<void()>
+  /**
+   * Specialized version of `std::function<void()>`.
+   */
+  using Func_void = std::function<void()>;
+  /**
+   * Wrapper class for a `std::function<void()>`, this can be used from Swift.
+   */
+  class Func_void_Wrapper final {
+  public:
+    explicit Func_void_Wrapper(std::function<void()>&& func): _function(std::make_unique<std::function<void()>>(std::move(func))) {}
+    inline void call() const noexcept {
+      _function->operator()();
+    }
+  private:
+    std::unique_ptr<std::function<void()>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void create_Func_void(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_Wrapper wrap_Func_void(Func_void value) noexcept {
+    return Func_void_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridGoogleSignInButtonSpec>
+  /**
+   * Specialized version of `std::shared_ptr<HybridGoogleSignInButtonSpec>`.
+   */
+  using std__shared_ptr_HybridGoogleSignInButtonSpec_ = std::shared_ptr<HybridGoogleSignInButtonSpec>;
+  std::shared_ptr<HybridGoogleSignInButtonSpec> create_std__shared_ptr_HybridGoogleSignInButtonSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_HybridGoogleSignInButtonSpec_(std__shared_ptr_HybridGoogleSignInButtonSpec_ cppType);
+  
+  // pragma MARK: std::weak_ptr<HybridGoogleSignInButtonSpec>
+  using std__weak_ptr_HybridGoogleSignInButtonSpec_ = std::weak_ptr<HybridGoogleSignInButtonSpec>;
+  inline std__weak_ptr_HybridGoogleSignInButtonSpec_ weakify_std__shared_ptr_HybridGoogleSignInButtonSpec_(const std::shared_ptr<HybridGoogleSignInButtonSpec>& strong) noexcept { return strong; }
+  
   // pragma MARK: std::variant<nitro::NullType, std::string>
   /**
    * Wrapper struct for `std::variant<nitro::NullType, std::string>`.
@@ -174,28 +231,6 @@ namespace margelo::nitro::nitrogooglesignin::bridge::swift {
   }
   inline PromiseHolder<void> wrap_std__shared_ptr_Promise_void__(std::shared_ptr<Promise<void>> promise) noexcept {
     return PromiseHolder<void>(std::move(promise));
-  }
-  
-  // pragma MARK: std::function<void()>
-  /**
-   * Specialized version of `std::function<void()>`.
-   */
-  using Func_void = std::function<void()>;
-  /**
-   * Wrapper class for a `std::function<void()>`, this can be used from Swift.
-   */
-  class Func_void_Wrapper final {
-  public:
-    explicit Func_void_Wrapper(std::function<void()>&& func): _function(std::make_unique<std::function<void()>>(std::move(func))) {}
-    inline void call() const noexcept {
-      _function->operator()();
-    }
-  private:
-    std::unique_ptr<std::function<void()>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void create_Func_void(void* NON_NULL swiftClosureWrapper) noexcept;
-  inline Func_void_Wrapper wrap_Func_void(Func_void value) noexcept {
-    return Func_void_Wrapper(std::move(value));
   }
   
   // pragma MARK: std::function<void(const std::exception_ptr& /* error */)>

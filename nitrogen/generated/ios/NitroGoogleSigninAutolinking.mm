@@ -11,6 +11,7 @@
 #import <type_traits>
 
 #include "HybridNitroGoogleSigninSpecSwift.hpp"
+#include "HybridGoogleSignInButtonSpecSwift.hpp"
 
 @interface NitroGoogleSigninAutolinking : NSObject
 @end
@@ -25,6 +26,13 @@
     "NitroGoogleSignin",
     []() -> std::shared_ptr<HybridObject> {
       std::shared_ptr<HybridNitroGoogleSigninSpec> hybridObject = NitroGoogleSignin::NitroGoogleSigninAutolinking::createNitroGoogleSignin();
+      return hybridObject;
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "GoogleSignInButton",
+    []() -> std::shared_ptr<HybridObject> {
+      std::shared_ptr<HybridGoogleSignInButtonSpec> hybridObject = NitroGoogleSignin::NitroGoogleSigninAutolinking::createGoogleSignInButton();
       return hybridObject;
     }
   );

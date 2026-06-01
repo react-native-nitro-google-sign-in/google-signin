@@ -1,0 +1,14 @@
+{
+  "uiViewClassName": "GoogleSignInButton",
+  "supportsRawText": false,
+  "bubblingEventTypes": {},
+  "directEventTypes": {},
+  "validAttributes": {
+    "colorScheme": true,
+    "size": true,
+    "disabled": true,
+    "contentAlignment": true,
+    "onPress": true,
+    "hybridRef": true
+  }
+}

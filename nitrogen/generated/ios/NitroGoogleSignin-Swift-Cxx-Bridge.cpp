@@ -8,6 +8,7 @@
 #include "NitroGoogleSignin-Swift-Cxx-Bridge.hpp"
 
 // Include C++ implementation defined types
+#include "HybridGoogleSignInButtonSpecSwift.hpp"
 #include "HybridNitroGoogleSigninSpecSwift.hpp"
 #include "NitroGoogleSignin-Swift-Cxx-Umbrella.hpp"
 #include <NitroModules/NitroDefines.hpp>
@@ -20,6 +21,22 @@ namespace margelo::nitro::nitrogooglesignin::bridge::swift {
     return [swiftClosure = std::move(swiftClosure)]() mutable -> void {
       swiftClosure.call();
     };
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridGoogleSignInButtonSpec>
+  std::shared_ptr<HybridGoogleSignInButtonSpec> create_std__shared_ptr_HybridGoogleSignInButtonSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    NitroGoogleSignin::HybridGoogleSignInButtonSpec_cxx swiftPart = NitroGoogleSignin::HybridGoogleSignInButtonSpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::nitrogooglesignin::HybridGoogleSignInButtonSpecSwift>(swiftPart);
+  }
+  void* NON_NULL get_std__shared_ptr_HybridGoogleSignInButtonSpec_(std__shared_ptr_HybridGoogleSignInButtonSpec_ cppType) {
+    std::shared_ptr<margelo::nitro::nitrogooglesignin::HybridGoogleSignInButtonSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::nitrogooglesignin::HybridGoogleSignInButtonSpecSwift>(cppType);
+    #ifdef NITRO_DEBUG
+    if (swiftWrapper == nullptr) [[unlikely]] {
+      throw std::runtime_error("Class \"HybridGoogleSignInButtonSpec\" is not implemented in Swift!");
+    }
+    #endif
+    NitroGoogleSignin::HybridGoogleSignInButtonSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    return swiftPart.toUnsafe();
   }
   
   // pragma MARK: std::function<void(const std::exception_ptr& /* error */)>

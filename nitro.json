@@ -22,6 +22,16 @@
         "language": "kotlin",
         "implementationClassName": "HybridNitroGoogleSignin"
       }
+    },
+    "GoogleSignInButton": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridGoogleSignInButton"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "HybridGoogleSignInButton"
+      }
     }
   },
   "ignorePaths": [
