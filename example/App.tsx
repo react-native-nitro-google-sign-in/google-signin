@@ -64,6 +64,38 @@ function App(): React.JSX.Element {
     }
   };
 
+  /** Lists every Google account on the device (use to switch accounts). */
+  const chooseAnotherAccount = async () => {
+    setLoading(true);
+    setExtraScopesStatus(null);
+    setStatus('Choose a Google account…');
+    try {
+      const response = await GoogleOneTapSignIn.createAccount();
+      if (isSuccessResponse(response)) {
+        setUser(response.data);
+        setStatus(
+          `Signed in as ${response.data.user.email ?? response.data.user.id}`,
+        );
+      } else if (isNoSavedCredentialFoundResponse(response)) {
+        const explicit = await GoogleOneTapSignIn.presentExplicitSignIn();
+        if (isSuccessResponse(explicit)) {
+          setUser(explicit.data);
+          setStatus(
+            `Signed in as ${explicit.data.user.email ?? explicit.data.user.id}`,
+          );
+        } else {
+          setStatus('Sign-in cancelled');
+        }
+      } else {
+        setStatus('Sign-in cancelled');
+      }
+    } catch (e) {
+      setStatus(e instanceof Error ? e.message : 'Account selection failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const requestAdditionalScopes = async () => {
     if (!user) {
       setExtraScopesStatus('Sign in first, then request additional scopes.');
@@ -142,6 +174,13 @@ function App(): React.JSX.Element {
         </Pressable>
       ) : (
         <Fragment>
+          <Pressable
+            style={[styles.button, styles.secondaryButton]}
+            onPress={chooseAnotherAccount}
+            disabled={loading}
+          >
+            <Text style={styles.buttonLabel}>Choose another account</Text>
+          </Pressable>
           <Pressable
             style={[styles.button, styles.secondaryButton]}
             onPress={requestAdditionalScopes}

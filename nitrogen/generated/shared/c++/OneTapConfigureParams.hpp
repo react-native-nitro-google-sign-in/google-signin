@@ -49,10 +49,11 @@ namespace margelo::nitro::nitrogooglesignin {
     std::optional<std::variant<nitro::NullType, std::string>> hostedDomain     SWIFT_PRIVATE;
     std::optional<std::variant<nitro::NullType, std::string>> nonce     SWIFT_PRIVATE;
     std::optional<std::variant<nitro::NullType, std::vector<std::string>>> scopes     SWIFT_PRIVATE;
+    std::optional<bool> autoSelectOnSignIn     SWIFT_PRIVATE;
 
   public:
     OneTapConfigureParams() = default;
-    explicit OneTapConfigureParams(std::string webClientId, std::optional<std::variant<nitro::NullType, std::string>> iosClientId, std::optional<bool> offlineAccess, std::optional<std::variant<nitro::NullType, std::string>> hostedDomain, std::optional<std::variant<nitro::NullType, std::string>> nonce, std::optional<std::variant<nitro::NullType, std::vector<std::string>>> scopes): webClientId(webClientId), iosClientId(iosClientId), offlineAccess(offlineAccess), hostedDomain(hostedDomain), nonce(nonce), scopes(scopes) {}
+    explicit OneTapConfigureParams(std::string webClientId, std::optional<std::variant<nitro::NullType, std::string>> iosClientId, std::optional<bool> offlineAccess, std::optional<std::variant<nitro::NullType, std::string>> hostedDomain, std::optional<std::variant<nitro::NullType, std::string>> nonce, std::optional<std::variant<nitro::NullType, std::vector<std::string>>> scopes, std::optional<bool> autoSelectOnSignIn): webClientId(webClientId), iosClientId(iosClientId), offlineAccess(offlineAccess), hostedDomain(hostedDomain), nonce(nonce), scopes(scopes), autoSelectOnSignIn(autoSelectOnSignIn) {}
 
   public:
     friend bool operator==(const OneTapConfigureParams& lhs, const OneTapConfigureParams& rhs) = default;
@@ -73,7 +74,8 @@ namespace margelo::nitro {
         JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "offlineAccess"))),
         JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "hostedDomain"))),
         JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "nonce"))),
-        JSIConverter<std::optional<std::variant<nitro::NullType, std::vector<std::string>>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "scopes")))
+        JSIConverter<std::optional<std::variant<nitro::NullType, std::vector<std::string>>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "scopes"))),
+        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "autoSelectOnSignIn")))
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::nitrogooglesignin::OneTapConfigureParams& arg) {
@@ -84,6 +86,7 @@ namespace margelo::nitro {
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "hostedDomain"), JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::toJSI(runtime, arg.hostedDomain));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "nonce"), JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::toJSI(runtime, arg.nonce));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "scopes"), JSIConverter<std::optional<std::variant<nitro::NullType, std::vector<std::string>>>>::toJSI(runtime, arg.scopes));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "autoSelectOnSignIn"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.autoSelectOnSignIn));
       return obj;
     }
     static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
@@ -100,6 +103,7 @@ namespace margelo::nitro {
       if (!JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "hostedDomain")))) return false;
       if (!JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "nonce")))) return false;
       if (!JSIConverter<std::optional<std::variant<nitro::NullType, std::vector<std::string>>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "scopes")))) return false;
+      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "autoSelectOnSignIn")))) return false;
       return true;
     }
   };

@@ -18,7 +18,7 @@ public extension OneTapConfigureParams {
   /**
    * Create a new instance of `OneTapConfigureParams`.
    */
-  init(webClientId: String, iosClientId: Variant_NullType_String?, offlineAccess: Bool?, hostedDomain: Variant_NullType_String?, nonce: Variant_NullType_String?, scopes: Variant_NullType__String_?) {
+  init(webClientId: String, iosClientId: Variant_NullType_String?, offlineAccess: Bool?, hostedDomain: Variant_NullType_String?, nonce: Variant_NullType_String?, scopes: Variant_NullType__String_?, autoSelectOnSignIn: Bool?) {
     self.init(std.string(webClientId), { () -> bridge.std__optional_std__variant_nitro__NullType__std__string__ in
       if let __unwrappedValue = iosClientId {
         return bridge.create_std__optional_std__variant_nitro__NullType__std__string__({ () -> bridge.std__variant_nitro__NullType__std__string_ in
@@ -80,6 +80,12 @@ public extension OneTapConfigureParams {
               }())
           }
         }().variant)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_bool_ in
+      if let __unwrappedValue = autoSelectOnSignIn {
+        return bridge.create_std__optional_bool_(__unwrappedValue)
       } else {
         return .init()
       }
@@ -193,6 +199,18 @@ public extension OneTapConfigureParams {
               fatalError("Variant can never have index \(__variant.index())!")
           }
         }()
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var autoSelectOnSignIn: Bool? {
+    return { () -> Bool? in
+      if bridge.has_value_std__optional_bool_(self.__autoSelectOnSignIn) {
+        let __unwrapped = bridge.get_std__optional_bool_(self.__autoSelectOnSignIn)
+        return __unwrapped
       } else {
         return nil
       }

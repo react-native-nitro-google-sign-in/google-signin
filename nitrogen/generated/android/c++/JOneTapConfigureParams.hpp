@@ -50,13 +50,16 @@ namespace margelo::nitro::nitrogooglesignin {
       jni::local_ref<JVariant_NullType_String> nonce = this->getFieldValue(fieldNonce);
       static const auto fieldScopes = clazz->getField<JVariant_NullType_Array_String_>("scopes");
       jni::local_ref<JVariant_NullType_Array_String_> scopes = this->getFieldValue(fieldScopes);
+      static const auto fieldAutoSelectOnSignIn = clazz->getField<jni::JBoolean>("autoSelectOnSignIn");
+      jni::local_ref<jni::JBoolean> autoSelectOnSignIn = this->getFieldValue(fieldAutoSelectOnSignIn);
       return OneTapConfigureParams(
         webClientId->toStdString(),
         iosClientId != nullptr ? std::make_optional(iosClientId->toCpp()) : std::nullopt,
         offlineAccess != nullptr ? std::make_optional(static_cast<bool>(offlineAccess->value())) : std::nullopt,
         hostedDomain != nullptr ? std::make_optional(hostedDomain->toCpp()) : std::nullopt,
         nonce != nullptr ? std::make_optional(nonce->toCpp()) : std::nullopt,
-        scopes != nullptr ? std::make_optional(scopes->toCpp()) : std::nullopt
+        scopes != nullptr ? std::make_optional(scopes->toCpp()) : std::nullopt,
+        autoSelectOnSignIn != nullptr ? std::make_optional(static_cast<bool>(autoSelectOnSignIn->value())) : std::nullopt
       );
     }
 
@@ -66,7 +69,7 @@ namespace margelo::nitro::nitrogooglesignin {
      */
     [[maybe_unused]]
     static jni::local_ref<JOneTapConfigureParams::javaobject> fromCpp(const OneTapConfigureParams& value) {
-      using JSignature = JOneTapConfigureParams(jni::alias_ref<jni::JString>, jni::alias_ref<JVariant_NullType_String>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<JVariant_NullType_String>, jni::alias_ref<JVariant_NullType_String>, jni::alias_ref<JVariant_NullType_Array_String_>);
+      using JSignature = JOneTapConfigureParams(jni::alias_ref<jni::JString>, jni::alias_ref<JVariant_NullType_String>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<JVariant_NullType_String>, jni::alias_ref<JVariant_NullType_String>, jni::alias_ref<JVariant_NullType_Array_String_>, jni::alias_ref<jni::JBoolean>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
@@ -76,7 +79,8 @@ namespace margelo::nitro::nitrogooglesignin {
         value.offlineAccess.has_value() ? jni::JBoolean::valueOf(value.offlineAccess.value()) : nullptr,
         value.hostedDomain.has_value() ? JVariant_NullType_String::fromCpp(value.hostedDomain.value()) : nullptr,
         value.nonce.has_value() ? JVariant_NullType_String::fromCpp(value.nonce.value()) : nullptr,
-        value.scopes.has_value() ? JVariant_NullType_Array_String_::fromCpp(value.scopes.value()) : nullptr
+        value.scopes.has_value() ? JVariant_NullType_Array_String_::fromCpp(value.scopes.value()) : nullptr,
+        value.autoSelectOnSignIn.has_value() ? jni::JBoolean::valueOf(value.autoSelectOnSignIn.value()) : nullptr
       );
     }
   };

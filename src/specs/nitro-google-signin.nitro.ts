@@ -34,6 +34,11 @@ export interface OneTapConfigureParams {
   nonce?: string | null
   /** OAuth scope URLs (e.g. `https://www.googleapis.com/auth/drive.file`). */
   scopes?: string[] | null
+  /**
+   * When true, `signIn()` may sign in without showing the account sheet if exactly one
+   * authorized account exists. Default false — always show the account picker UI when possible.
+   */
+  autoSelectOnSignIn?: boolean
 }
 
 export interface OneTapAuthorizationResult {

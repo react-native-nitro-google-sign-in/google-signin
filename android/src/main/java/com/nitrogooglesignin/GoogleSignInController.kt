@@ -31,6 +31,7 @@ internal object GoogleSignInController {
   private var hostedDomain: String? = null
   private var configuredNonce: String? = null
   private var configuredScopes: List<String> = emptyList()
+  private var autoSelectOnSignIn: Boolean = false
   private var configured: Boolean = false
 
   fun configure(params: OneTapConfigureParams) {
@@ -40,6 +41,7 @@ internal object GoogleSignInController {
     hostedDomain = variantToString(params.hostedDomain)
     configuredNonce = variantToString(params.nonce)
     configuredScopes = params.scopes.toStringList()
+    autoSelectOnSignIn = params.autoSelectOnSignIn == true
     configured = true
   }
 
@@ -69,17 +71,21 @@ internal object GoogleSignInController {
     )
   }
 
-  /** Silent sign-in: previously authorized accounts only, auto-select when possible. */
+  /**
+   * Sign-in for returning users (previously authorized accounts only).
+   * With [autoSelectOnSignIn] false (default), the account bottom sheet is shown so the user
+   * can pick among authorized accounts. Use [createAccount] to list every Google account on the device.
+   */
   suspend fun signIn(): OneTapResponse {
     requireConfigured()
     return getGoogleCredential(
       filterByAuthorizedAccounts = true,
-      autoSelectEnabled = true,
+      autoSelectEnabled = autoSelectOnSignIn,
       useExplicitButton = false,
     )
   }
 
-  /** Sign-up flow: show account picker for accounts not yet authorized for this app. */
+  /** Shows all Google accounts on the device (including ones not yet authorized for this app). */
   suspend fun createAccount(): OneTapResponse {
     requireConfigured()
     return getGoogleCredential(

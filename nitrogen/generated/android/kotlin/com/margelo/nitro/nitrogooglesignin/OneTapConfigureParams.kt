@@ -35,7 +35,10 @@ data class OneTapConfigureParams(
   val nonce: Variant_NullType_String?,
   @DoNotStrip
   @Keep
-  val scopes: Variant_NullType_Array_String_?
+  val scopes: Variant_NullType_Array_String_?,
+  @DoNotStrip
+  @Keep
+  val autoSelectOnSignIn: Boolean?
 ) {
   /* primary constructor */
 
@@ -48,6 +51,7 @@ data class OneTapConfigureParams(
       && Objects.deepEquals(this.hostedDomain, other.hostedDomain)
       && Objects.deepEquals(this.nonce, other.nonce)
       && Objects.deepEquals(this.scopes, other.scopes)
+      && Objects.deepEquals(this.autoSelectOnSignIn, other.autoSelectOnSignIn)
   }
 
   override fun hashCode(): Int {
@@ -57,7 +61,8 @@ data class OneTapConfigureParams(
       offlineAccess,
       hostedDomain,
       nonce,
-      scopes
+      scopes,
+      autoSelectOnSignIn
     ).contentDeepHashCode()
   }
 
@@ -69,8 +74,8 @@ data class OneTapConfigureParams(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(webClientId: String, iosClientId: Variant_NullType_String?, offlineAccess: Boolean?, hostedDomain: Variant_NullType_String?, nonce: Variant_NullType_String?, scopes: Variant_NullType_Array_String_?): OneTapConfigureParams {
-      return OneTapConfigureParams(webClientId, iosClientId, offlineAccess, hostedDomain, nonce, scopes)
+    private fun fromCpp(webClientId: String, iosClientId: Variant_NullType_String?, offlineAccess: Boolean?, hostedDomain: Variant_NullType_String?, nonce: Variant_NullType_String?, scopes: Variant_NullType_Array_String_?, autoSelectOnSignIn: Boolean?): OneTapConfigureParams {
+      return OneTapConfigureParams(webClientId, iosClientId, offlineAccess, hostedDomain, nonce, scopes, autoSelectOnSignIn)
     }
   }
 }
