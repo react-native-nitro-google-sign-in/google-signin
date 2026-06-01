@@ -1,0 +1,16 @@
+# Nitro codegen — mark as generated on GitHub
+nitrogen/generated/** linguist-generated=true
+
+# Normalize line endings
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.webm binary
+*.mov binary
+*.mp4 binary

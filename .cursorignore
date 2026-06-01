@@ -1,0 +1,39 @@
+# Dependencies & build outputs
+node_modules/
+lib/
+**/Pods/
+**/build/
+**/.gradle/
+**/.cxx/
+DerivedData/
+
+# Generated Nitro bindings
+nitrogen/generated/
+
+# Docs site artifacts
+docs/node_modules/
+docs/build/
+docs/.docusaurus/
+website/
+
+# Example app trees (large native projects)
+example/ios/
+example/android/
+example-expo/ios/
+example-expo/android/
+example-expo/.expo/
+
+# Media / assets (optional sources; docs use docs/static/)
+assets/
+**/*.webm
+**/*.mov
+**/*.mp4
+
+# Lockfiles
+bun.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Git
+.git/

@@ -1,0 +1,43 @@
+# Agent instructions — react-native-nitro-google-signin
+
+## Install the skill
+
+```bash
+npx skills add react-native-nitro-google-signin/google-signin -g -y
+```
+
+Per-provider (`-a cursor`, `-a claude-code`, `-a github-copilot`, …):  
+https://react-native-nitro-google-signin.github.io/google-signin/docs/agents/skill
+
+Skill path: `skills/react-native-nitro-google-signin/` (`SKILL.md`, `reference.md`, `examples.md`).
+
+## Package
+
+- **npm:** `react-native-nitro-google-signin`
+- **Peer:** `react-native-nitro-modules` (required)
+- **API:** `GoogleOneTapSignIn`
+- **RN:** ≥ 0.76 · **Platforms:** Android, iOS · **Expo:** dev client only
+
+## When editing this repo
+
+| Path | Purpose |
+| ---- | ------- |
+| `src/` | TypeScript API and Nitro specs |
+| `android/`, `ios/` | Native code |
+| `plugin/` | Expo config plugin |
+| `skills/react-native-nitro-google-signin/` | Agent skill — keep in sync with API |
+| `docs/content/` | Docusaurus docs |
+
+Update the skill when changing public API or setup requirements.
+
+## Commands
+
+```bash
+bun install
+bun run build
+cd docs && bun run build
+```
+
+## Docs
+
+https://react-native-nitro-google-signin.github.io/google-signin/

@@ -38,7 +38,9 @@
     "app.plugin.js",
     "plugin",
     "*.podspec",
-    "README.md"
+    "README.md",
+    "AGENTS.md",
+    "skills"
   ],
   "exports": {
     ".": {
@@ -121,7 +123,13 @@
   },
   "eslintIgnore": [
     "node_modules/",
-    "lib/"
+    "lib/",
+    "nitrogen/generated/",
+    "docs/",
+    "website/",
+    "example/",
+    "example-expo/",
+    "coverage/"
   ],
   "prettier": {
     "quoteProps": "consistent",

@@ -1,0 +1,23 @@
+# Build & generated
+lib/
+nitrogen/generated/
+docs/build/
+docs/.docusaurus/
+website/build/
+website/.docusaurus/
+
+# Dependencies & native
+node_modules/
+**/Pods/
+**/build/
+**/.gradle/
+**/.cxx/
+
+# Lockfiles (formatting not useful)
+bun.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Misc
+coverage/

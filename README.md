@@ -2,6 +2,10 @@
 
 High-performance [Universal (One Tap) Google Sign-In](https://react-native-google-signin.github.io/docs/one-tap) for React Native, powered by [Nitro Modules](https://nitro.margelo.com).
 
+📘 **Documentation:** [react-native-nitro-google-signin.github.io/google-signin](https://react-native-nitro-google-signin.github.io/google-signin/) (source in [`docs/`](docs/))
+
+🤖 **AI agents:** install the skill — `npx skills add react-native-nitro-google-signin/google-signin -g -y` · [docs](https://react-native-nitro-google-signin.github.io/google-signin/docs/agents/skill)
+
 - **Android**: [Credential Manager](https://developer.android.com/identity/sign-in/credential-manager-siwg-implementation) + Google ID (`GetGoogleIdOption` / `GetSignInWithGoogleOption`)
 - **iOS**: [Google Sign-In SDK for iOS](https://developers.google.com/identity/sign-in/ios) (`restorePreviousSignIn`, interactive `signIn`)
 
@@ -14,7 +18,7 @@ High-performance [Universal (One Tap) Google Sign-In](https://react-native-googl
 
 ```bash
 bun add react-native-nitro-google-signin react-native-nitro-modules
-cd ios && pod install
+bundle exec pod install --project-directory="ios"
 ```
 
 ## Expo

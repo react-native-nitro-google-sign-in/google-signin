@@ -9,6 +9,21 @@ Development-build Expo app that verifies the config plugin, Google Services file
 - Node 22+
 - Xcode (iOS) / Android Studio (Android)
 - [Bun](https://bun.sh) or npm at the monorepo root
+- **`google-services.json`** and **`GoogleService-Info.plist`** in this folder (same files as bare RN — see below)
+
+## Google config files
+
+Both files are **gitignored**. You need them for `webClientId: 'autoDetect'` on **Android and iOS** (not Expo-specific).
+
+| File | Place here |
+| ---- | ---------- |
+| `google-services.json` | `example-expo/google-services.json` |
+| `GoogleService-Info.plist` | `example-expo/GoogleService-Info.plist` |
+
+Use Firebase app IDs: **`com.nitrogooglesigninexample`** (matches `app.config.js`).
+
+**Full guide (OAuth, Firebase, SHA-1, bare vs Expo paths):**  
+https://react-native-nitro-google-signin.github.io/google-signin/docs/setup/google-cloud
 
 ## Setup
 
@@ -28,25 +43,17 @@ bun run prebuild:clean
 ## Run
 
 ```bash
-# Terminal 1 — Metro
-bun run start
-
-# Terminal 2 — native build (simulator or device)
-bun run ios
-# or
-bun run android
+bun run start          # Metro
+bun run ios            # or android — separate terminal
 ```
 
-The app calls `GoogleOneTapSignIn.configure({ webClientId: 'autoDetect' })`, which reads `WEB_CLIENT_ID` / `default_web_client_id` from the bundled Google config files.
-
-## Google Cloud
-
-This example uses the same OAuth project as `example/` (`com.nitrogooglesigninexample`). Replace `google-services.json` and `GoogleService-Info.plist` with your own files for a different app.
+The app uses `GoogleOneTapSignIn.configure({ webClientId: 'autoDetect' })`.
 
 ## Troubleshooting
 
 | Issue | Fix |
 |-------|-----|
-| TurboModule / Nitro not found | Rebuild dev client: `bun run prebuild:clean` then `bun run ios` |
-| iOS URL scheme error | Confirm `REVERSED_CLIENT_ID` in plist; re-run prebuild |
-| Android `default_web_client_id` missing | Ensure `google-services.json` matches `android.package` in `app.config.js` |
+| Missing config files | See [Google Cloud & config files](https://react-native-nitro-google-signin.github.io/google-signin/docs/setup/google-cloud) |
+| TurboModule / Nitro not found | `bun run prebuild:clean` then rebuild |
+| `default_web_client_id` missing | JSON `package_name` must match `android.package` in `app.config.js` |
+| `DEVELOPER_ERROR` | Add SHA-1 in Firebase / Google Cloud |

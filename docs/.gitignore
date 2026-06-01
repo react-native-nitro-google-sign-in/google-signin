@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Docusaurus
+build/
+.docusaurus/
+.cache-loader/
+
+# Misc
+.DS_Store
+*.log
+.env
+.env.*

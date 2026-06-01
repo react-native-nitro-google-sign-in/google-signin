@@ -1,0 +1,92 @@
+.heroBanner {
+  position: relative;
+  padding: 5rem 0 4.5rem;
+  text-align: center;
+  overflow: hidden;
+  background: var(--ngs-hero-bg);
+  color: #f8fafc;
+}
+
+.heroBanner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ngs-hero-glow);
+  pointer-events: none;
+}
+
+.heroBanner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(129, 140, 248, 0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+  pointer-events: none;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+}
+
+.heroLogo {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 1.25rem;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));
+}
+
+.heroTitle {
+  color: #fff;
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.75rem;
+}
+
+.heroSubtitle {
+  color: #cbd5e1;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  max-width: 36rem;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, #7c3aed 0%, #6366f1 50%, #2563eb 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.btnPrimary:hover {
+  opacity: 0.92;
+  color: #fff !important;
+}
+
+.btnOutline {
+  background: transparent !important;
+  border: 1.5px solid rgba(199, 210, 254, 0.55) !important;
+  color: #e0e7ff !important;
+  font-weight: 600;
+}
+
+.btnOutline:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: #c7d2fe !important;
+  color: #fff !important;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 3rem 1.5rem 2.5rem;
+  }
+}

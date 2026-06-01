@@ -1,0 +1,60 @@
+# npm publish uses package.json "files" as the primary allowlist.
+# Patterns here exclude paths from that set (and document what must not ship).
+
+# Repository & docs
+.github/
+docs/
+website/
+assets/
+
+# Examples & workspaces (not part of the library package)
+example/
+example-expo/
+
+# Tests & coverage
+__tests__/
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+coverage/
+
+# Tooling & config (consumers do not need these)
+.eslintrc*
+.prettierrc*
+.prettierignore
+.eslintignore
+.editorconfig
+.watchmanconfig
+tsconfig.json
+babel.config.js
+metro.config.js
+bunfig.toml
+bun.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# CI & release
+.releaserc*
+release.config.*
+
+# Secrets (should never be in the tarball)
+.env
+.env.*
+google-services.json
+GoogleService-Info.plist
+**/google-services.json
+**/GoogleService-Info.plist
+
+# Local / IDE
+.vscode/
+.idea/
+.cursor/
+.claude/
+.DS_Store
+*.log
+
+# Source maps optional — omit if you add them to lib/ later
+**/*.map
