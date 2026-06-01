@@ -36,11 +36,25 @@
     "ios/**/*.cpp",
     "ios/**/*.swift",
     "app.plugin.js",
+    "plugin",
     "*.podspec",
     "README.md"
   ],
+  "exports": {
+    ".": {
+      "types": "./lib/typescript/src/index.d.ts",
+      "import": "./lib/module/index.js",
+      "require": "./lib/commonjs/index.js"
+    },
+    "./app.plugin.js": "./app.plugin.js",
+    "./package.json": "./package.json"
+  },
+  "expo": {
+    "plugin": "./app.plugin.js"
+  },
   "workspaces": [
-    "example"
+    "example",
+    "example-expo"
   ],
   "repository": {
     "type": "git",
@@ -69,10 +83,19 @@
     "semantic-release": "^25.0.3",
     "typescript": "^5.8.3"
   },
+  "dependencies": {
+    "@expo/config-plugins": ">=9.0.0"
+  },
   "peerDependencies": {
+    "expo": ">=49.0.0",
     "react": "*",
     "react-native": "*",
     "react-native-nitro-modules": "*"
+  },
+  "peerDependenciesMeta": {
+    "expo": {
+      "optional": true
+    }
   },
   "eslintConfig": {
     "root": true,

@@ -15,8 +15,7 @@ import {
   OneTapSuccessData,
 } from 'react-native-nitro-google-signin';
 
-const WEB_CLIENT_ID =
-  '662359549373-tr50ibd41c85pcb6mefk76ouaocooc6u.apps.googleusercontent.com';
+const WEB_CLIENT_ID = 'your-web-client-id';
 
 const CALENDAR_READONLY_SCOPE =
   'https://www.googleapis.com/auth/calendar.readonly';

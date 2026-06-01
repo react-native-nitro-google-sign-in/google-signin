@@ -17,6 +17,75 @@ bun add react-native-nitro-google-signin react-native-nitro-modules
 cd ios && pod install
 ```
 
+## Expo
+
+This library uses native code (Nitro + Google Sign-In SDK). It does **not** run in Expo Go; use a [development build](https://docs.expo.dev/develop/development-builds/introduction/).
+
+### Config plugin
+
+Add the plugin to `app.json` or `app.config.js`, then run `npx expo prebuild`.
+
+**With Firebase / Google Services files** (recommended for `webClientId: 'autoDetect'`):
+
+```json
+{
+  "expo": {
+    "plugins": ["react-native-nitro-google-signin"],
+    "android": {
+      "googleServicesFile": "./google-services.json"
+    },
+    "ios": {
+      "googleServicesFile": "./GoogleService-Info.plist"
+    }
+  }
+}
+```
+
+The plugin applies the Google Services Gradle plugin on Android (generates `default_web_client_id`), copies `GoogleService-Info.plist` into the iOS target, and adds the **reversed client ID** URL scheme from `REVERSED_CLIENT_ID` in the plist.
+
+You can also pass file paths via plugin options instead of top-level `expo.android` / `expo.ios`:
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "react-native-nitro-google-signin",
+        {
+          "iosGoogleServicesFile": "./GoogleService-Info.plist",
+          "androidGoogleServicesFile": "./google-services.json"
+        }
+      ]
+    ]
+  }
+}
+```
+
+**Without Firebase** (manual iOS URL scheme only):
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "react-native-nitro-google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.YOUR_IOS_CLIENT_ID"
+        }
+      ]
+    ]
+  }
+}
+```
+
+Use the `REVERSED_CLIENT_ID` value from the Google Cloud Console iOS OAuth client (or from `GoogleService-Info.plist`). On Android without `google-services.json`, pass an explicit `webClientId` in `configure()` instead of `'autoDetect'`.
+
+```bash
+npx expo prebuild --clean
+npx expo run:ios
+npx expo run:android
+```
+
 ## Google Cloud setup
 
 1. Create OAuth clients in [Google Cloud Console](https://console.cloud.google.com/): **Web**, **Android**, and **iOS**.
@@ -68,9 +137,14 @@ const startSignInFlow = async () => {
 
 Helpers: `isSuccessResponse`, `isNoSavedCredentialFoundResponse`, `isCancelledResponse`, `isErrorWithCode`, `statusCodes`.
 
-## Example app
+## Example apps
 
-See [`example/`](example/). Configure Firebase / `GoogleService-Info.plist` and `google-services.json` before testing on device.
+| App | Description |
+|-----|-------------|
+| [`example/`](example/) | Bare React Native app |
+| [`example-expo/`](example-expo/) | Expo dev-client app (config plugin + `autoDetect`) |
+
+Configure Firebase / `GoogleService-Info.plist` and `google-services.json` before testing on device. See [`example-expo/README.md`](example-expo/README.md) for Expo prebuild steps.
 
 ## License
 
