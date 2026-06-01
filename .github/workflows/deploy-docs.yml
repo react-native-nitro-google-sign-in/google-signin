@@ -1,3 +1,6 @@
+# Based on GitHub's "Deploy Jekyll with GitHub Pages" sample, adapted for Docusaurus.
+# Prerequisite: Settings → Pages → Source: GitHub Actions
+# https://github.com/react-native-nitro-google-signin/google-signin/settings/pages
 name: Deploy documentation
 
 on:
@@ -12,28 +15,25 @@ on:
       - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
-# Prerequisite (repo admin, one-time): Settings → Pages → Build and deployment → Source: GitHub Actions
-# https://github.com/react-native-nitro-google-signin/google-signin/settings/pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
 concurrency:
-  group: pages
+  group: 'pages'
   cancel-in-progress: false
 
 jobs:
   build:
-    name: Build Docusaurus site
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -50,7 +50,8 @@ jobs:
       - name: Build site
         working-directory: docs
         env:
-          DOCUSAURUS_BASE_URL: ${{ vars.DOCUSAURUS_BASE_URL || '/google-signin/' }}
+          # configure-pages sets base_path (e.g. /google-signin); Docusaurus expects a trailing slash
+          DOCUSAURUS_BASE_URL: ${{ vars.DOCUSAURUS_BASE_URL || format('{0}/', steps.pages.outputs.base_path) }}
         run: bun run build
 
       - name: Upload artifact
@@ -59,28 +60,12 @@ jobs:
           path: docs/build
 
   deploy:
-    name: Deploy to GitHub Pages
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: Deployment summary
-        if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          SITE="https://react-native-nitro-google-signin.github.io/google-signin/"
-          if [ "$(gh api "repos/${GITHUB_REPOSITORY}" --jq '.has_pages')" = "true" ]; then
-            echo "::notice title=Documentation site::$SITE"
-            exit 0
-          fi
-          echo "::warning title=Enable GitHub Pages::Source must be **GitHub Actions** at https://github.com/${GITHUB_REPOSITORY}/settings/pages — then re-run this workflow."
+        uses: actions/deploy-pages@v5
