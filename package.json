@@ -42,11 +42,14 @@
   "workspaces": [
     "example"
   ],
-  "repository": "https://github.com/rutvik24/react-native-nitro-google-signin.git",
-  "author": "rutvik24",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/react-native-nitro-google-signin/google-signin.git"
+  },
+  "author": "react-native-nitro-google-signin <rutviknabhoya2001@gmail.com> (https://github.com/react-native-nitro-google-signin)",
   "license": "MIT",
-  "bugs": "https://github.com/rutvik24/react-native-nitro-google-signin/issues",
-  "homepage": "https://github.com/rutvik24/react-native-nitro-google-signin#readme",
+  "bugs": "https://github.com/react-native-nitro-google-signin/google-signin/issues",
+  "homepage": "https://github.com/react-native-nitro-google-signin/google-signin#readme",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
