@@ -23,14 +23,14 @@ Pushes to `main` that touch `docs/` run [`.github/workflows/deploy-docs.yml`](..
 
 ### One-time GitHub setup (required)
 
-1. Repo → **Settings** → **Pages**
+The deploy workflow only **pushes** to the `gh-pages` branch. GitHub does **not** serve the site until Pages is enabled in Settings (`has_pages` must be `true`).
+
+1. Open **https://github.com/react-native-nitro-google-signin/google-signin/settings/pages**
 2. **Build and deployment** → **Source**: **Deploy from a branch**
 3. **Branch**: **`gh-pages`** · folder **`/ (root)`** → **Save**
-4. Merge a change under `docs/` to `main`, or run **Deploy documentation** manually under **Actions**
+4. Wait 1–2 minutes, then open **https://react-native-nitro-google-signin.github.io/google-signin/**
 
-After the first successful run, the site is available at:
-
-**https://react-native-nitro-google-signin.github.io/google-signin/**
+If **Actions** shows green but the URL 404s, Pages is still off — complete the steps above (not “GitHub Actions” as the source).
 
 (`DOCUSAURUS_BASE_URL` defaults to `/google-signin/`. For a custom domain at the site root, set repository variable `DOCUSAURUS_BASE_URL` to `/` and add `docs/static/CNAME`.)
 

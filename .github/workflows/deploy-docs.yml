@@ -49,3 +49,27 @@ jobs:
           publish_dir: docs/build
           publish_branch: gh-pages
           commit_message: 'docs: deploy ${{ github.sha }}'
+
+      # Workflow can succeed while the public URL still 404s until Pages is turned on in repo Settings.
+      - name: Verify GitHub Pages is enabled
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$(gh api "repos/${GITHUB_REPOSITORY}" --jq '.has_pages')" = "true" ]; then
+            echo "GitHub Pages is enabled. Site: https://react-native-nitro-google-signin.github.io/google-signin/"
+            exit 0
+          fi
+          echo "::error::Docs were pushed to the gh-pages branch, but GitHub Pages is not enabled for this repository (has_pages=false)."
+          echo ""
+          echo "Enable hosting (one-time, repo admin):"
+          echo "  https://github.com/${GITHUB_REPOSITORY}/settings/pages"
+          echo ""
+          echo "  Build and deployment → Source: Deploy from a branch"
+          echo "  Branch: gh-pages"
+          echo "  Folder: / (root)"
+          echo ""
+          echo "Save, wait 1–2 minutes, then open:"
+          echo "  https://react-native-nitro-google-signin.github.io/google-signin/"
+          echo ""
+          echo "Re-run this workflow after Pages is enabled (optional)."
+          exit 1
