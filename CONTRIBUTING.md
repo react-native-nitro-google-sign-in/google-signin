@@ -92,7 +92,7 @@ Use clear, imperative subjects (e.g. `fix(android): handle missing Play Services
 
 ### CI
 
-PRs run GitHub Actions for Android/iOS example builds and docs deploy (on `main`). Fix failing checks before merge.
+PRs run GitHub Actions for Android/iOS example builds. Documentation deploys from the [`docs` submodule repo](https://github.com/react-native-nitro-google-signin/react-native-nitro-google-signin.github.io) on pushes to its `main`. Fix failing checks before merge.
 
 ## Project layout
 
