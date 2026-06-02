@@ -1,3 +1,8 @@
+[![npm version](https://img.shields.io/npm/v/react-native-nitro-google-signin.svg)](https://www.npmjs.com/package/react-native-nitro-google-signin)
+[![Downloads](https://img.shields.io/npm/dm/react-native-nitro-google-signin.svg)](https://www.npmjs.com/package/react-native-nitro-google-signin)
+[![GitHub stars](https://img.shields.io/github/stars/react-native-nitro-google-signin/google-signin?style=social)](https://github.com/react-native-nitro-google-signin/google-signin)
+[![License](https://img.shields.io/npm/l/react-native-nitro-google-signin.svg)](https://github.com/react-native-nitro-google-signin/google-signin/blob/main/LICENSE)
+
 # react-native-nitro-google-signin
 
 High-performance [Universal (One Tap) Google Sign-In](https://react-native-nitro-google-signin.github.io/docs/guide/usage) for React Native, powered by [Nitro Modules](https://nitro.margelo.com).
