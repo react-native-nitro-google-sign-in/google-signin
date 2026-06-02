@@ -74,4 +74,4 @@ if (isSuccessResponse(response)) {
 
 - [reference.md](reference.md) — API, Expo/bare setup, errors
 - [examples.md](examples.md) — copy-paste snippets
-- Docs: https://react-native-nitro-google-signin.github.io/google-signin/
+- Docs: https://react-native-nitro-google-signin.github.io/

@@ -4,9 +4,9 @@
 
 Start here:
 
-- **Site:** [react-native-nitro-google-signin.github.io/google-signin](https://react-native-nitro-google-signin.github.io/google-signin/)
-- **Quick start:** [Installation](https://react-native-nitro-google-signin.github.io/google-signin/docs/getting-started/installation) · [Platform setup](https://react-native-nitro-google-signin.github.io/google-signin/docs/setup/google-cloud)
-- **Troubleshooting:** [Common issues](https://react-native-nitro-google-signin.github.io/google-signin/docs/guide/troubleshooting)
+- **Site:** [react-native-nitro-google-signin.github.io](https://react-native-nitro-google-signin.github.io/)
+- **Quick start:** [Installation](https://react-native-nitro-google-signin.github.io/docs/getting-started/installation) · [Platform setup](https://react-native-nitro-google-signin.github.io/docs/setup/google-cloud)
+- **Troubleshooting:** [Common issues](https://react-native-nitro-google-signin.github.io/docs/guide/troubleshooting)
 
 ## Bug reports and feature requests
 
@@ -29,7 +29,7 @@ Install the agent skill:
 npx skills add react-native-nitro-google-signin/google-signin -g -y
 ```
 
-See [For AI agents](https://react-native-nitro-google-signin.github.io/google-signin/docs/agents/overview).
+See [For AI agents](https://react-native-nitro-google-signin.github.io/docs/agents/overview).
 
 ## Community guidelines
 

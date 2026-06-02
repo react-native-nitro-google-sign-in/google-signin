@@ -2,7 +2,7 @@
 
 Thank you for helping improve **react-native-nitro-google-signin**. This document explains how to set up the repo, submit changes, and what we expect from pull requests.
 
-**Also on the docs site:** [Contributing guide](https://react-native-nitro-google-signin.github.io/google-signin/docs/community/contributing)
+**Also on the docs site:** [Contributing guide](https://react-native-nitro-google-signin.github.io/docs/community/contributing)
 
 ## Code of Conduct
 
@@ -14,7 +14,7 @@ This project follows the [Contributor Covenant Code of Conduct](./CODE_OF_CONDUC
 - **Setup help** — [Setup / configuration template](https://github.com/react-native-nitro-google-signin/google-signin/issues/new?template=setup_help.yml) for SHA-1, `autoDetect`, Gradle, URL scheme, Expo.
 - **Feature requests** — [Feature request template](https://github.com/react-native-nitro-google-signin/google-signin/issues/new?template=feature_request.yml); discuss scope before large PRs.
 - **Documentation** — [Documentation template](https://github.com/react-native-nitro-google-signin/google-signin/issues/new?template=documentation.yml).
-- **Documentation** — fixes and clarifications in `docs/content/` are always welcome.
+- **Documentation** — fixes and clarifications in the [`docs` submodule](https://github.com/react-native-nitro-google-signin/react-native-nitro-google-signin.github.io) (`content/`) are always welcome.
 - **Code** — native (Kotlin/Swift), TypeScript, Expo config plugin, Nitro specs.
 - **Agent skill** — keep `skills/react-native-nitro-google-signin/` in sync when the public API or setup steps change.
 
@@ -102,12 +102,12 @@ PRs run GitHub Actions for Android/iOS example builds. Documentation deploys fro
 | `android/`, `ios/` | Native implementations |
 | `plugin/` | Expo config plugin |
 | `nitrogen/generated/` | Nitro codegen output |
-| `docs/content/` | Docusaurus documentation |
+| `docs/` | Docusaurus site (git submodule → [docs repo](https://github.com/react-native-nitro-google-signin/react-native-nitro-google-signin.github.io)) |
 | `skills/react-native-nitro-google-signin/` | Installable agent skill |
 | `example/`, `example-expo/` | Sample apps |
 
 ## Questions
 
-- **Usage / setup:** [Documentation](https://react-native-nitro-google-signin.github.io/google-signin/) or [Issues](https://github.com/react-native-nitro-google-signin/google-signin/issues)
+- **Usage / setup:** [Documentation](https://react-native-nitro-google-signin.github.io/) or [Issues](https://github.com/react-native-nitro-google-signin/google-signin/issues)
 - **Security:** [SECURITY.md](./SECURITY.md)
 - **Conduct:** [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)

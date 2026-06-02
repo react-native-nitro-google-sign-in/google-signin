@@ -40,4 +40,4 @@ We aim to acknowledge reports within **5 business days** and will work with you 
 
 We appreciate responsible disclosure. Credit will be given in the advisory or release notes when you agree.
 
-**Docs:** [Security policy on the documentation site](https://react-native-nitro-google-signin.github.io/google-signin/docs/community/security)
+**Docs:** [Security policy on the documentation site](https://react-native-nitro-google-signin.github.io/docs/community/security)

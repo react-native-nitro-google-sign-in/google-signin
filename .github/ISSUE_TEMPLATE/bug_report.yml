@@ -10,7 +10,7 @@ body:
 
         **Do not** paste ID tokens, `google-services.json`, `GoogleService-Info.plist`, or client secrets.
 
-        See [Troubleshooting](https://react-native-nitro-google-signin.github.io/google-signin/docs/guide/troubleshooting) for common fixes (`DEVELOPER_ERROR`, `default_web_client_id`, iOS redirect).
+        See [Troubleshooting](https://react-native-nitro-google-signin.github.io/docs/guide/troubleshooting) for common fixes (`DEVELOPER_ERROR`, `default_web_client_id`, iOS redirect).
 
   - type: dropdown
     id: platform

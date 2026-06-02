@@ -23,7 +23,7 @@ Both files are **gitignored**. You need them for `webClientId: 'autoDetect'` on 
 Use Firebase app IDs: **`com.nitrogooglesigninexample`** (matches `app.config.js`).
 
 **Full guide (OAuth, Firebase, SHA-1, bare vs Expo paths):**  
-https://react-native-nitro-google-signin.github.io/google-signin/docs/setup/google-cloud
+https://react-native-nitro-google-signin.github.io/docs/setup/google-cloud
 
 ## Setup
 
@@ -53,7 +53,7 @@ The app uses `GoogleOneTapSignIn.configure({ webClientId: 'autoDetect' })`.
 
 | Issue | Fix |
 |-------|-----|
-| Missing config files | See [Google Cloud & config files](https://react-native-nitro-google-signin.github.io/google-signin/docs/setup/google-cloud) |
+| Missing config files | See [Google Cloud & config files](https://react-native-nitro-google-signin.github.io/docs/setup/google-cloud) |
 | TurboModule / Nitro not found | `bun run prebuild:clean` then rebuild |
 | `default_web_client_id` missing | JSON `package_name` must match `android.package` in `app.config.js` |
 | `DEVELOPER_ERROR` | Add SHA-1 in Firebase / Google Cloud |

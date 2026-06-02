@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Documentation lives in [`docs/content/`](https://github.com/react-native-nitro-google-signin/google-signin/tree/main/docs/content) and is published at [react-native-nitro-google-signin.github.io/google-signin](https://react-native-nitro-google-signin.github.io/google-signin/).
+        Documentation lives in [`content/`](https://github.com/react-native-nitro-google-signin/react-native-nitro-google-signin.github.io/tree/main/content) (docs repo; submodule at `docs/` in the package repo) and is published at [react-native-nitro-google-signin.github.io](https://react-native-nitro-google-signin.github.io/).
 
   - type: input
     id: page

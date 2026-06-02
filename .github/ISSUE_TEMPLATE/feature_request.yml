@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Feature requests help us prioritize. For usage questions, see [Support](https://react-native-nitro-google-signin.github.io/google-signin/docs/community/support) and [Documentation](https://react-native-nitro-google-signin.github.io/google-signin/docs/intro).
+        Feature requests help us prioritize. For usage questions, see [Support](https://react-native-nitro-google-signin.github.io/docs/community/support) and [Documentation](https://react-native-nitro-google-signin.github.io/docs/intro).
 
   - type: textarea
     id: problem

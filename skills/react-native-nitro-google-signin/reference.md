@@ -8,7 +8,7 @@
 
 ## API
 
-Full types: https://react-native-nitro-google-signin.github.io/google-signin/docs/guide/api-reference
+Full types: https://react-native-nitro-google-signin.github.io/docs/guide/api-reference
 
 | Method | Description |
 | ------ | ----------- |
@@ -40,7 +40,7 @@ Helpers: `isSuccessResponse`, `isNoSavedCredentialFoundResponse`, `isCancelledRe
 ## Google Cloud & config files (bare + Expo)
 
 OAuth clients, SHA-1, `google-services.json`, `GoogleService-Info.plist`, file paths:  
-https://react-native-nitro-google-signin.github.io/google-signin/docs/setup/google-cloud
+https://react-native-nitro-google-signin.github.io/docs/setup/google-cloud
 
 ## Expo {#expo}
 
