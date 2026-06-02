@@ -6,8 +6,10 @@
 npx skills add react-native-nitro-google-signin/google-signin -g -y
 ```
 
-Per-provider (`-a cursor`, `-a claude-code`, `-a github-copilot`, …):  
+Per-provider (`-a cursor`, `-a claude-code`, `-a github-copilot`, …): 
 https://react-native-nitro-google-signin.github.io/docs/agents/skill
+
+List on [skills.sh](https://skills.sh): https://react-native-nitro-google-signin.github.io/docs/agents/skills-sh
 
 Skill path: `skills/react-native-nitro-google-signin/` (`SKILL.md`, `reference.md`, `examples.md`).
 

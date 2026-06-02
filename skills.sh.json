@@ -1,0 +1,10 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "groupings": [
+    {
+      "title": "React Native",
+      "description": "Universal (One Tap) Google Sign-In for React Native and Expo, powered by Nitro Modules.",
+      "skills": ["react-native-nitro-google-signin"]
+    }
+  ]
+}

@@ -40,7 +40,8 @@
     "*.podspec",
     "README.md",
     "AGENTS.md",
-    "skills"
+    "skills",
+    "skills.sh.json"
   ],
   "exports": {
     ".": {

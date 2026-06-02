@@ -20,7 +20,7 @@ High-performance [Universal (One Tap) Google Sign-In](https://react-native-nitro
 | Troubleshooting               | [Troubleshooting](https://react-native-nitro-google-signin.github.io/docs/guide/troubleshooting)     |
 
 
-🤖 **AI agents:** install the skill — `npx skills add react-native-nitro-google-signin/google-signin -g -y` · [docs](https://react-native-nitro-google-signin.github.io/docs/agents/skill)
+🤖 **AI agents:** install the skill — `npx skills add react-native-nitro-google-signin/google-signin -g -y` · [docs](https://react-native-nitro-google-signin.github.io/docs/agents/skill) · [list on skills.sh](https://react-native-nitro-google-signin.github.io/docs/agents/skills-sh)
 
 - **Android**: [Credential Manager](https://developer.android.com/identity/sign-in/credential-manager-siwg-implementation) + Google ID (`GetGoogleIdOption` / `GetSignInWithGoogleOption`)
 - **iOS**: [Google Sign-In SDK for iOS](https://developers.google.com/identity/sign-in/ios) (`restorePreviousSignIn`, interactive `signIn`)
