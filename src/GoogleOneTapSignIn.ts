@@ -10,10 +10,9 @@ const hybrid =
   NitroModules.createHybridObject<NitroGoogleSignin>('NitroGoogleSignin')
 
 /**
- * Universal (One Tap) Google Sign-In — mirrors the licensed
- * `@react-native-google-signin/google-signin` One Tap API on native iOS/Android.
+ * Universal (One Tap) Google Sign-In for React Native on iOS and Android.
  *
- * @see https://react-native-google-signin.github.io/docs/one-tap
+ * @see https://react-native-nitro-google-signin.github.io/docs/guide/usage
  */
 export const GoogleOneTapSignIn = {
   configure(params: OneTapConfigureParams): void {

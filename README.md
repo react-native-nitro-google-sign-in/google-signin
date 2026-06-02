@@ -1,12 +1,13 @@
 # react-native-nitro-google-signin
 
-High-performance [Universal (One Tap) Google Sign-In](https://react-native-google-signin.github.io/docs/one-tap) for React Native, powered by [Nitro Modules](https://nitro.margelo.com).
+High-performance [Universal (One Tap) Google Sign-In](https://react-native-nitro-google-signin.github.io/docs/guide/usage) for React Native, powered by [Nitro Modules](https://nitro.margelo.com).
 
-📘 **Documentation:** [react-native-nitro-google-signin.github.io](https://react-native-nitro-google-signin.github.io/) (source: `[docs/](docs/)` submodule → [docs repo](https://github.com/react-native-nitro-google-signin/react-native-nitro-google-signin.github.io))
+📘 **Documentation:** [react-native-nitro-google-signin.github.io](https://react-native-nitro-google-signin.github.io/) (source: [`docs/`](docs/) submodule → [docs repo](https://github.com/react-native-nitro-google-signin/react-native-nitro-google-signin.github.io))
 
 
 | Guide                         | Link                                                                                                 |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **npm package**               | [react-native-nitro-google-signin](https://www.npmjs.com/package/react-native-nitro-google-signin) |
 | Installation & native linking | [Installation](https://react-native-nitro-google-signin.github.io/docs/getting-started/installation) |
 | Quick start                   | [Quick Start](https://react-native-nitro-google-signin.github.io/docs/getting-started/quick-start)   |
 | Google Cloud & config files   | [Setup](https://react-native-nitro-google-signin.github.io/docs/setup/google-cloud)                  |
@@ -22,7 +23,7 @@ High-performance [Universal (One Tap) Google Sign-In](https://react-native-googl
 ## Requirements
 
 - React Native ≥ 0.76
-- `[react-native-nitro-modules](https://nitro.margelo.com)` (required peer dependency)
+- [`react-native-nitro-modules`](https://nitro.margelo.com) (required peer dependency)
 
 ## Installation
 
@@ -137,7 +138,7 @@ Step-by-step: [Google Cloud & config files](https://react-native-nitro-google-si
 
 ## Usage
 
-Same flow as the [Universal sign-in guide](https://react-native-google-signin.github.io/docs/one-tap):
+Same flow as the [Usage guide](https://react-native-nitro-google-signin.github.io/docs/guide/usage) and [Quick Start](https://react-native-nitro-google-signin.github.io/docs/getting-started/quick-start):
 
 ```ts
 import {
@@ -173,8 +174,8 @@ You can request Google API access in two ways. Use **full scope URLs** (not shor
 
 | Approach                    | When to use                                                                                                |
 | --------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `**configure({ scopes })`** | You know which scopes you need **before** the user signs in (consent may appear during sign-in).           |
-| `**requestScopes()`**       | You need **extra** permissions **after** sign-in (e.g. user taps “Connect calendar” on a settings screen). |
+| **`configure({ scopes })`** | You know which scopes you need **before** the user signs in (consent may appear during sign-in). |
+| **`requestScopes()`** | You need **extra** permissions **after** sign-in (e.g. user taps “Connect calendar” on a settings screen). |
 
 
 #### Option A — scopes at configure time (first sign-in)
@@ -255,9 +256,9 @@ const enableCalendarAccess = async () => {
 }
 ```
 
-`requestScopes()` requires an active signed-in session. See [Usage — OAuth scopes](https://react-native-nitro-google-signin.github.io/docs/guide/usage#oauth-scopes-more-access) · [API reference — `requestScopes](https://react-native-nitro-google-signin.github.io/docs/guide/api-reference#requestscopesscopes-string-promiseonetapauthorizationresult)`.
+`requestScopes()` requires an active signed-in session. See [Usage — OAuth scopes](https://react-native-nitro-google-signin.github.io/docs/guide/usage#oauth-scopes-more-access) · [API reference — `requestScopes`](https://react-native-nitro-google-signin.github.io/docs/guide/api-reference#requestscopesscopes-string-promiseonetapauthorizationresult).
 
-Live demos: `[example/App.tsx](example/App.tsx)` and `[example-expo/App.tsx](example-expo/App.tsx)` (`requestAdditionalScopes`).
+Live demos: [`example/App.tsx`](example/App.tsx) and [`example-expo/App.tsx`](example-expo/App.tsx) (`requestAdditionalScopes`).
 
 ### API
 
@@ -274,37 +275,29 @@ Live demos: `[example/App.tsx](example/App.tsx)` and `[example-expo/App.tsx](exa
 | `revokeAccess(id)`        | Disconnect app (iOS); no-op token revoke on Android CredMan.                                                                                     |
 
 
-Also exported: native `[GoogleSignInButton](https://react-native-nitro-google-signin.github.io/docs/guide/google-sign-in-button)`, `useGoogleSignInFromButton`, response helpers (`isSuccessResponse`, `isNoSavedCredentialFoundResponse`, `isCancelledResponse`, `isErrorWithCode`), and `statusCodes`.
+Also exported: native [`GoogleSignInButton`](https://react-native-nitro-google-signin.github.io/docs/guide/google-sign-in-button), `useGoogleSignInFromButton`, response helpers (`isSuccessResponse`, `isNoSavedCredentialFoundResponse`, `isCancelledResponse`, `isErrorWithCode`), and `statusCodes`.
 
 Full types and parameters: [API reference](https://react-native-nitro-google-signin.github.io/docs/guide/api-reference).
 
 ## Example apps
 
 
-| App                              | Description                                           |
-| -------------------------------- | ----------------------------------------------------- |
-| `[example/](example/)`           | Bare React Native app (includes `requestScopes` demo) |
-| `[example-expo/](example-expo/)` | Expo dev-client app (config plugin + `autoDetect`)    |
+| App | Description |
+|-----|-------------|
+| [`example/`](example/) | Bare React Native app (includes `requestScopes` demo) |
+| [`example-expo/`](example-expo/) | Expo dev-client app (config plugin + `autoDetect`) |
 
-
-Configure Firebase / `GoogleService-Info.plist` and `google-services.json` before testing on device. See `[example-expo/README.md](example-expo/README.md)` for Expo prebuild steps.
+Configure Firebase / `GoogleService-Info.plist` and `google-services.json` before testing on device. See [`example-expo/README.md`](example-expo/README.md) for Expo prebuild steps.
 
 ## Contributing & community
 
-- [Contributingcd /Users/rutvik/Documents/ReactNative/packages/react-native-nitro-google-signin](./CONTRIBUTING.md)
-  [git add README.md LICENSE docs](./CONTRIBUTING.md)
-  [git commit -m "$(cat <<'EOF'](./CONTRIBUTING.md)
-  [docs: expand README with scope examples and update license holder](./CONTRIBUTING.md)
-  [Add configure-time vs requestScopes examples in README, align LICENSE](./CONTRIBUTING.md)
-  [copyright with react-native-nitro-google-signin, bump docs submodule.](./CONTRIBUTING.md)
-  [EOF](./CONTRIBUTING.md)
-  [)"](./CONTRIBUTING.md)
-  [git log -1 --format=full](./CONTRIBUTING.md)
-  [git push origin main](./CONTRIBUTING.md)
+- [Contributing](./CONTRIBUTING.md) — development setup and PR guidelines ([docs site](https://react-native-nitro-google-signin.github.io/docs/community/contributing))
 - [Code of Conduct](./CODE_OF_CONDUCT.md)
 - [Security policy](./SECURITY.md)
 - [Support](./SUPPORT.md)
 - [Documentation — Community](https://react-native-nitro-google-signin.github.io/docs/community/overview)
+
+Contributors: keep sign-in flows and API docs aligned with the [Usage guide](https://react-native-nitro-google-signin.github.io/docs/guide/usage) and [API reference](https://react-native-nitro-google-signin.github.io/docs/guide/api-reference).
 
 ## License
 

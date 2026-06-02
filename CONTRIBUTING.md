@@ -81,7 +81,7 @@ Screenshots live in `docs/static/`. Optional sources are in `assets/` (see `asse
 
 1. **One concern per PR** when possible (feature, fix, or docs — not unrelated mixes).
 2. **Describe the change** — what, why, and how you tested (device/OS, bare vs Expo).
-3. **Update docs** if you change public API, setup steps, or error messages users see.
+3. **Update docs** if you change public API, setup steps, or error messages users see. For sign-in flows, follow the [Usage guide](https://react-native-nitro-google-signin.github.io/docs/guide/usage) and [API reference](https://react-native-nitro-google-signin.github.io/docs/guide/api-reference) on the docs site.
 4. **Update the agent skill** (`skills/react-native-nitro-google-signin/`) when behavior or setup changes.
 5. **No secrets** — OAuth files, API keys, or personal Firebase configs.
 6. **License** — you agree that your contributions are licensed under the project [MIT License](./LICENSE).

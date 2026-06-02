@@ -27,7 +27,7 @@ body:
     id: suggestion
     attributes:
       label: Suggested improvement
-      description: Optional wording, screenshot, or link to licensed guide
+      description: Optional wording, screenshot, or link to a relevant docs page
     validations:
       required: false
 

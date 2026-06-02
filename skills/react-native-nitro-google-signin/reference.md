@@ -10,16 +10,16 @@
 
 Full types: https://react-native-nitro-google-signin.github.io/docs/guide/api-reference
 
-| Method | Description |
-| ------ | ----------- |
-| `configure(params)` | Required first. `webClientId` string or `'autoDetect'`; iOS needs `iosClientId` or plist `CLIENT_ID` |
-| `checkPlayServices(showDialog?)` | Android Play Services; iOS no-op |
-| `signIn()` | Android: authorized CredMan accounts; iOS: current user or restore |
-| `createAccount()` | All accounts / interactive |
-| `presentExplicitSignIn()` | Explicit Sign in with Google UI (Android dialog) |
-| `requestScopes(scopes)` | `{ serverAuthCode }` after sign-in |
-| `signOut()` | iOS GIDSignOut; Android disables auto sign-in semantics |
-| `revokeAccess(id)` | iOS disconnect; Android ≈ signOut |
+| Method                           | Description                                                                                          |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `configure(params)`              | Required first. `webClientId` string or `'autoDetect'`; iOS needs `iosClientId` or plist `CLIENT_ID` |
+| `checkPlayServices(showDialog?)` | Android Play Services; iOS no-op                                                                     |
+| `signIn()`                       | Android: authorized CredMan accounts; iOS: current user or restore                                   |
+| `createAccount()`                | All accounts / interactive                                                                           |
+| `presentExplicitSignIn()`        | Explicit Sign in with Google UI (Android dialog)                                                     |
+| `requestScopes(scopes)`          | `{ serverAuthCode }` after sign-in                                                                   |
+| `signOut()`                      | iOS GIDSignOut; Android disables auto sign-in semantics                                              |
+| `revokeAccess(id)`               | iOS disconnect; Android ≈ signOut                                                                    |
 
 ### Types
 
@@ -59,7 +59,12 @@ bunx expo run:ios   # or android
 Without Firebase plist/json:
 
 ```js
-plugins: [['react-native-nitro-google-signin', { iosUrlScheme: 'com.googleusercontent.apps.XXX' }]]
+plugins: [
+  [
+    'react-native-nitro-google-signin',
+    { iosUrlScheme: 'com.googleusercontent.apps.XXX' },
+  ],
+]
 ```
 
 Use explicit `webClientId` on Android (no `google-services.json`).
@@ -72,7 +77,7 @@ Use explicit `webClientId` on Android (no `google-services.json`).
 
 **Omit `google-services.json` + Gradle plugin** when using explicit `webClientId` (SHA-1 still required).
 
-**autoDetect:** requires `google-services.json` in `android/app/` AND Gradle (licensed guide: [update gradle files](https://react-native-google-signin.github.io/docs/setting-up/android#2-update-gradle-files)):
+**autoDetect:** requires `google-services.json` in `android/app/` AND Gradle ([Android setup — update Gradle files](https://react-native-nitro-google-signin.github.io/docs/setup/android)):
 
 ```gradle
 // android/build.gradle — buildscript.dependencies
