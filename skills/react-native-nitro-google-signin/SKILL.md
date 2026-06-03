@@ -77,6 +77,7 @@ if (isSuccessResponse(response)) {
 | `default_web_client_id was not found` | Add `google-services.json` + Gradle plugin |
 | iOS redirect fails | Fix `REVERSED_CLIENT_ID` URL scheme |
 | Nitro not found | Rebuild dev client / `bundle exec pod install --project-directory="ios"` |
+| Sign-in OK in debug, fails in release | Consumer ProGuard rules ship with library; avoid `-keep androidx.**`; test `assembleRelease` |
 
 ## More detail
 

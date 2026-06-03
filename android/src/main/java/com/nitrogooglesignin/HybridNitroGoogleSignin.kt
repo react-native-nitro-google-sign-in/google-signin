@@ -1,5 +1,7 @@
 package com.nitrogooglesignin
 
+import androidx.annotation.Keep
+import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.nitrogooglesignin.HybridNitroGoogleSigninSpec
 import com.margelo.nitro.nitrogooglesignin.OneTapAuthorizationResult
@@ -11,6 +13,8 @@ import com.nitrogooglesignin.GoogleSignInController
  * Nitrogen autolinking instantiates this class via JNI
  * (`com.margelo.nitro.nitrogooglesignin.HybridNitroGoogleSignin`).
  */
+@Keep
+@DoNotStrip
 class HybridNitroGoogleSignin : HybridNitroGoogleSigninSpec() {
   override fun configure(params: OneTapConfigureParams) {
     GoogleSignInController.configure(params)

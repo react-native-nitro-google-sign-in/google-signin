@@ -91,6 +91,8 @@ apply plugin: "com.google.gms.google-services"
 
 Expo: config plugin applies Gradle on `prebuild` when `googleServicesFile` is set.
 
+**ProGuard / R8:** Library ships `android/consumer-rules.pro` (merged via `consumerProguardFiles`). No manual keeps for `androidx.credentials` / GMS. Do not add `-keep class androidx.**`. Test release builds after `minifyEnabled true`. [Android setup — ProGuard](https://react-native-nitro-google-signin.github.io/docs/setup/android#proguard-r8)
+
 ## iOS {#ios}
 
 - Add `GoogleService-Info.plist` to target
