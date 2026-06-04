@@ -1,3 +1,3 @@
 [submodule "docs"]
 	path = docs
-	url = git@google.github.com:react-native-nitro-google-signin/react-native-nitro-google-signin.github.io.git
+	url = git@google.github.com:react-native-nitro-google-signin/react-native-nitro-google-sign-in.github.io.git

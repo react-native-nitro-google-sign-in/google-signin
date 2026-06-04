@@ -3,13 +3,13 @@
 ## Install the skill
 
 ```bash
-npx skills add react-native-nitro-google-signin/google-signin -g -y
+npx skills add react-native-nitro-google-sign-in/google-signin -g -y
 ```
 
 Per-provider (`-a cursor`, `-a claude-code`, `-a github-copilot`, …): 
-https://react-native-nitro-google-signin.github.io/docs/agents/skill
+https://react-native-nitro-google-sign-in.github.io/docs/agents/skill
 
-List on [skills.sh](https://skills.sh): https://react-native-nitro-google-signin.github.io/docs/agents/skills-sh
+List on [skills.sh](https://skills.sh): https://react-native-nitro-google-sign-in.github.io/docs/agents/skills-sh
 
 Skill path: `skills/react-native-nitro-google-signin/` (`SKILL.md`, `reference.md`, `examples.md`).
 
@@ -28,7 +28,7 @@ Skill path: `skills/react-native-nitro-google-signin/` (`SKILL.md`, `reference.m
 | `android/`, `ios/` | Native code |
 | `plugin/` | Expo config plugin |
 | `skills/react-native-nitro-google-signin/` | Agent skill — keep in sync with API |
-| `docs/` | Docusaurus site ([submodule](https://github.com/react-native-nitro-google-signin/react-native-nitro-google-signin.github.io)) — edit `content/` there |
+| `docs/` | Docusaurus site ([submodule](https://github.com/react-native-nitro-google-sign-in/react-native-nitro-google-sign-in.github.io)) — edit `content/` there |
 
 Update the skill when changing public API or setup requirements.
 
@@ -42,4 +42,4 @@ cd docs && bun run build
 
 ## Docs
 
-https://react-native-nitro-google-signin.github.io/
+https://react-native-nitro-google-sign-in.github.io/

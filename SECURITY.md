@@ -15,7 +15,7 @@ Security fixes are applied to the **latest release** on npm. Older major/minor v
 
 Instead:
 
-1. Use [GitHub Security Advisories](https://github.com/react-native-nitro-google-signin/google-signin/security/advisories/new) (**Report a vulnerability**) on this repository, **or**
+1. Use [GitHub Security Advisories](https://github.com/react-native-nitro-google-sign-in/google-signin/security/advisories/new) (**Report a vulnerability**) on this repository, **or**
 2. Email **rutviknabhoya2001@gmail.com** with:
    - Description of the issue and impact
    - Steps to reproduce
@@ -40,4 +40,4 @@ We aim to acknowledge reports within **5 business days** and will work with you 
 
 We appreciate responsible disclosure. Credit will be given in the advisory or release notes when you agree.
 
-**Docs:** [Security policy on the documentation site](https://react-native-nitro-google-signin.github.io/docs/community/security)
+**Docs:** [Security policy on the documentation site](https://react-native-nitro-google-sign-in.github.io/docs/community/security)

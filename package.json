@@ -1,6 +1,6 @@
 {
   "name": "react-native-nitro-google-signin",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "High-Performance Google Sign-In for React Native (Nitro Powered)",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
@@ -62,12 +62,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/react-native-nitro-google-signin/google-signin.git"
+    "url": "git+https://github.com/react-native-nitro-google-sign-in/google-signin.git"
   },
-  "author": "react-native-nitro-google-signin <rutviknabhoya2001@gmail.com> (https://github.com/react-native-nitro-google-signin)",
+  "author": "react24 <rutviknabhoya2001@gmail.com> (https://github.com/react-native-nitro-google-sign-in)",
   "license": "MIT",
-  "bugs": "https://github.com/react-native-nitro-google-signin/google-signin/issues",
-  "homepage": "https://react-native-nitro-google-signin.github.io/",
+  "bugs": "https://github.com/react-native-nitro-google-sign-in/google-signin/issues",
+  "homepage": "https://react-native-nitro-google-sign-in.github.io/",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"

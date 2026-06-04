@@ -6,11 +6,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting a bug. Search [existing issues](https://github.com/react-native-nitro-google-signin/google-signin/issues) first.
+        Thanks for reporting a bug. Search [existing issues](https://github.com/react-native-nitro-google-sign-in/google-signin/issues) first.
 
         **Do not** paste ID tokens, `google-services.json`, `GoogleService-Info.plist`, or client secrets.
 
-        See [Troubleshooting](https://react-native-nitro-google-signin.github.io/docs/guide/troubleshooting) for common fixes (`DEVELOPER_ERROR`, `default_web_client_id`, iOS redirect).
+        See [Troubleshooting](https://react-native-nitro-google-sign-in.github.io/docs/guide/troubleshooting) for common fixes (`DEVELOPER_ERROR`, `default_web_client_id`, iOS redirect).
 
   - type: dropdown
     id: platform

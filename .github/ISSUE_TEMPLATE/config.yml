@@ -1,13 +1,13 @@
 blank_issues_enabled: false
 contact_links:
   - name: Documentation & troubleshooting
-    url: https://react-native-nitro-google-signin.github.io/docs/guide/troubleshooting
+    url: https://react-native-nitro-google-sign-in.github.io/docs/guide/troubleshooting
     about: Setup guides, API reference, and common fixes before opening an issue
   - name: Google Cloud & config files
-    url: https://react-native-nitro-google-signin.github.io/docs/setup/google-cloud
+    url: https://react-native-nitro-google-sign-in.github.io/docs/setup/google-cloud
     about: OAuth, SHA-1, google-services.json, and GoogleService-Info.plist
   - name: Security vulnerability
-    url: https://github.com/react-native-nitro-google-signin/google-signin/security/advisories/new
+    url: https://github.com/react-native-nitro-google-sign-in/google-signin/security/advisories/new
     about: Report security issues privately (do not use public issues)
   - name: Code of Conduct concern
     url: mailto:rutviknabhoya2001@gmail.com

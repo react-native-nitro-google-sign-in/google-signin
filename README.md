@@ -1,26 +1,26 @@
 [![npm version](https://img.shields.io/npm/v/react-native-nitro-google-signin.svg)](https://www.npmjs.com/package/react-native-nitro-google-signin)
 [![Downloads](https://img.shields.io/npm/dm/react-native-nitro-google-signin.svg)](https://www.npmjs.com/package/react-native-nitro-google-signin)
-[![GitHub stars](https://img.shields.io/github/stars/react-native-nitro-google-signin/google-signin?style=social)](https://github.com/react-native-nitro-google-signin/google-signin)
-[![License](https://img.shields.io/npm/l/react-native-nitro-google-signin.svg)](https://github.com/react-native-nitro-google-signin/google-signin/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/react-native-nitro-google-sign-in/google-signin?style=social)](https://github.com/react-native-nitro-google-sign-in/google-signin)
+[![License](https://img.shields.io/npm/l/react-native-nitro-google-signin.svg)](https://github.com/react-native-nitro-google-sign-in/google-signin/blob/main/LICENSE)
 
 # react-native-nitro-google-signin
 
-High-performance [Universal (One Tap) Google Sign-In](https://react-native-nitro-google-signin.github.io/docs/guide/usage) for React Native, powered by [Nitro Modules](https://nitro.margelo.com).
+High-performance [Universal (One Tap) Google Sign-In](https://react-native-nitro-google-sign-in.github.io/docs/guide/usage) for React Native, powered by [Nitro Modules](https://nitro.margelo.com).
 
-📘 **Documentation:** [react-native-nitro-google-signin.github.io](https://react-native-nitro-google-signin.github.io/) (source: [`docs/`](docs/) submodule → [docs repo](https://github.com/react-native-nitro-google-signin/react-native-nitro-google-signin.github.io))
+📘 **Documentation:** [react-native-nitro-google-sign-in.github.io](https://react-native-nitro-google-sign-in.github.io/) (source: [`docs/`](docs/) submodule → [docs repo](https://github.com/react-native-nitro-google-sign-in/react-native-nitro-google-sign-in.github.io))
 
 
 | Guide                         | Link                                                                                                 |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------- |
 | **npm package**               | [react-native-nitro-google-signin](https://www.npmjs.com/package/react-native-nitro-google-signin) |
-| Installation & native linking | [Installation](https://react-native-nitro-google-signin.github.io/docs/getting-started/installation) |
-| Quick start                   | [Quick Start](https://react-native-nitro-google-signin.github.io/docs/getting-started/quick-start)   |
-| Google Cloud & config files   | [Setup](https://react-native-nitro-google-signin.github.io/docs/setup/google-cloud)                  |
-| API reference                 | [API reference](https://react-native-nitro-google-signin.github.io/docs/guide/api-reference)         |
-| Troubleshooting               | [Troubleshooting](https://react-native-nitro-google-signin.github.io/docs/guide/troubleshooting)     |
+| Installation & native linking | [Installation](https://react-native-nitro-google-sign-in.github.io/docs/getting-started/installation) |
+| Quick start                   | [Quick Start](https://react-native-nitro-google-sign-in.github.io/docs/getting-started/quick-start)   |
+| Google Cloud & config files   | [Setup](https://react-native-nitro-google-sign-in.github.io/docs/setup/google-cloud)                  |
+| API reference                 | [API reference](https://react-native-nitro-google-sign-in.github.io/docs/guide/api-reference)         |
+| Troubleshooting               | [Troubleshooting](https://react-native-nitro-google-sign-in.github.io/docs/guide/troubleshooting)     |
 
 
-🤖 **AI agents:** install the skill — `npx skills add react-native-nitro-google-signin/google-signin -g -y` · [docs](https://react-native-nitro-google-signin.github.io/docs/agents/skill) · [list on skills.sh](https://react-native-nitro-google-signin.github.io/docs/agents/skills-sh)
+🤖 **AI agents:** install the skill — `npx skills add react-native-nitro-google-sign-in/google-signin -g -y` · [docs](https://react-native-nitro-google-sign-in.github.io/docs/agents/skill) · [list on skills.sh](https://react-native-nitro-google-sign-in.github.io/docs/agents/skills-sh)
 
 - **Android**: [Credential Manager](https://developer.android.com/identity/sign-in/credential-manager-siwg-implementation) + Google ID (`GetGoogleIdOption` / `GetSignInWithGoogleOption`)
 - **iOS**: [Google Sign-In SDK for iOS](https://developers.google.com/identity/sign-in/ios) (`restorePreviousSignIn`, interactive `signIn`)
@@ -60,7 +60,7 @@ bundle exec pod install --project-directory="ios"
 
 Run `bundle install` once first if your app has a `Gemfile`. Rebuild the native app after install — Metro alone is not enough.
 
-Full steps: [Installation guide](https://react-native-nitro-google-signin.github.io/docs/getting-started/installation).
+Full steps: [Installation guide](https://react-native-nitro-google-sign-in.github.io/docs/getting-started/installation).
 
 ## Expo
 
@@ -131,7 +131,7 @@ npx expo run:ios
 npx expo run:android
 ```
 
-See [Expo setup](https://react-native-nitro-google-signin.github.io/docs/setup/expo) for the full guide.
+See [Expo setup](https://react-native-nitro-google-sign-in.github.io/docs/setup/expo) for the full guide.
 
 ## Google Cloud setup
 
@@ -139,11 +139,11 @@ See [Expo setup](https://react-native-nitro-google-signin.github.io/docs/setup/e
 2. **Android**: add your app SHA-1 and package name; apply the Google Services plugin so `default_web_client_id` is generated, or pass `webClientId` explicitly.
 3. **iOS**: add `GoogleService-Info.plist`, URL scheme (`REVERSED_CLIENT_ID`), and optionally `WEB_CLIENT_ID` for `webClientId: 'autoDetect'`.
 
-Step-by-step: [Google Cloud & config files](https://react-native-nitro-google-signin.github.io/docs/setup/google-cloud) · [Android](https://react-native-nitro-google-signin.github.io/docs/setup/android) · [iOS](https://react-native-nitro-google-signin.github.io/docs/setup/ios).
+Step-by-step: [Google Cloud & config files](https://react-native-nitro-google-sign-in.github.io/docs/setup/google-cloud) · [Android](https://react-native-nitro-google-sign-in.github.io/docs/setup/android) · [iOS](https://react-native-nitro-google-sign-in.github.io/docs/setup/ios).
 
 ## Usage
 
-Same flow as the [Usage guide](https://react-native-nitro-google-signin.github.io/docs/guide/usage) and [Quick Start](https://react-native-nitro-google-signin.github.io/docs/getting-started/quick-start):
+Same flow as the [Usage guide](https://react-native-nitro-google-sign-in.github.io/docs/guide/usage) and [Quick Start](https://react-native-nitro-google-sign-in.github.io/docs/getting-started/quick-start):
 
 ```ts
 import {
@@ -261,7 +261,7 @@ const enableCalendarAccess = async () => {
 }
 ```
 
-`requestScopes()` requires an active signed-in session. See [Usage — OAuth scopes](https://react-native-nitro-google-signin.github.io/docs/guide/usage#oauth-scopes-more-access) · [API reference — `requestScopes`](https://react-native-nitro-google-signin.github.io/docs/guide/api-reference#requestscopesscopes-string-promiseonetapauthorizationresult).
+`requestScopes()` requires an active signed-in session. See [Usage — OAuth scopes](https://react-native-nitro-google-sign-in.github.io/docs/guide/usage#oauth-scopes-more-access) · [API reference — `requestScopes`](https://react-native-nitro-google-sign-in.github.io/docs/guide/api-reference#requestscopesscopes-string-promiseonetapauthorizationresult).
 
 Live demos: [`example/App.tsx`](example/App.tsx) and [`example-expo/App.tsx`](example-expo/App.tsx) (`requestAdditionalScopes`).
 
@@ -280,9 +280,9 @@ Live demos: [`example/App.tsx`](example/App.tsx) and [`example-expo/App.tsx`](ex
 | `revokeAccess(id)`        | Disconnect app (iOS); no-op token revoke on Android CredMan.                                                                                     |
 
 
-Also exported: native [`GoogleSignInButton`](https://react-native-nitro-google-signin.github.io/docs/guide/google-sign-in-button), `useGoogleSignInFromButton`, response helpers (`isSuccessResponse`, `isNoSavedCredentialFoundResponse`, `isCancelledResponse`, `isErrorWithCode`), and `statusCodes`.
+Also exported: native [`GoogleSignInButton`](https://react-native-nitro-google-sign-in.github.io/docs/guide/google-sign-in-button), `useGoogleSignInFromButton`, response helpers (`isSuccessResponse`, `isNoSavedCredentialFoundResponse`, `isCancelledResponse`, `isErrorWithCode`), and `statusCodes`.
 
-Full types and parameters: [API reference](https://react-native-nitro-google-signin.github.io/docs/guide/api-reference).
+Full types and parameters: [API reference](https://react-native-nitro-google-sign-in.github.io/docs/guide/api-reference).
 
 ## Example apps
 
@@ -296,13 +296,13 @@ Configure Firebase / `GoogleService-Info.plist` and `google-services.json` befor
 
 ## Contributing & community
 
-- [Contributing](./CONTRIBUTING.md) — development setup and PR guidelines ([docs site](https://react-native-nitro-google-signin.github.io/docs/community/contributing))
+- [Contributing](./CONTRIBUTING.md) — development setup and PR guidelines ([docs site](https://react-native-nitro-google-sign-in.github.io/docs/community/contributing))
 - [Code of Conduct](./CODE_OF_CONDUCT.md)
 - [Security policy](./SECURITY.md)
 - [Support](./SUPPORT.md)
-- [Documentation — Community](https://react-native-nitro-google-signin.github.io/docs/community/overview)
+- [Documentation — Community](https://react-native-nitro-google-sign-in.github.io/docs/community/overview)
 
-Contributors: keep sign-in flows and API docs aligned with the [Usage guide](https://react-native-nitro-google-signin.github.io/docs/guide/usage) and [API reference](https://react-native-nitro-google-signin.github.io/docs/guide/api-reference).
+Contributors: keep sign-in flows and API docs aligned with the [Usage guide](https://react-native-nitro-google-sign-in.github.io/docs/guide/usage) and [API reference](https://react-native-nitro-google-sign-in.github.io/docs/guide/api-reference).
 
 ## License
 

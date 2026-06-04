@@ -12,4 +12,4 @@
 
 ## Checklist
 
-- [ ] I have read the [Contributing guide](https://github.com/react-native-nitro-google-signin/google-signin/blob/main/CONTRIBUTING.md) and agree to the [Code of Conduct](https://github.com/react-native-nitro-google-signin/google-signin/blob/main/CODE_OF_CONDUCT.md)
+- [ ] I have read the [Contributing guide](https://github.com/react-native-nitro-google-sign-in/google-signin/blob/main/CONTRIBUTING.md) and agree to the [Code of Conduct](https://github.com/react-native-nitro-google-sign-in/google-signin/blob/main/CODE_OF_CONDUCT.md)

@@ -12,7 +12,7 @@ const hybrid =
 /**
  * Universal (One Tap) Google Sign-In for React Native on iOS and Android.
  *
- * @see https://react-native-nitro-google-signin.github.io/docs/guide/usage
+ * @see https://react-native-nitro-google-sign-in.github.io/docs/guide/usage
  */
 export const GoogleOneTapSignIn = {
   configure(params: OneTapConfigureParams): void {

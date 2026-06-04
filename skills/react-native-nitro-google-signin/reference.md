@@ -8,7 +8,7 @@
 
 ## API
 
-Full types: https://react-native-nitro-google-signin.github.io/docs/guide/api-reference
+Full types: https://react-native-nitro-google-sign-in.github.io/docs/guide/api-reference
 
 | Method                           | Description                                                                                          |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------- |
@@ -40,7 +40,7 @@ Helpers: `isSuccessResponse`, `isNoSavedCredentialFoundResponse`, `isCancelledRe
 ## Google Cloud & config files (bare + Expo)
 
 OAuth clients, SHA-1, `google-services.json`, `GoogleService-Info.plist`, file paths:  
-https://react-native-nitro-google-signin.github.io/docs/setup/google-cloud
+https://react-native-nitro-google-sign-in.github.io/docs/setup/google-cloud
 
 ## Expo {#expo}
 
@@ -77,7 +77,7 @@ Use explicit `webClientId` on Android (no `google-services.json`).
 
 **Omit `google-services.json` + Gradle plugin** when using explicit `webClientId` (SHA-1 still required).
 
-**autoDetect:** requires `google-services.json` in `android/app/` AND Gradle ([Android setup — update Gradle files](https://react-native-nitro-google-signin.github.io/docs/setup/android)):
+**autoDetect:** requires `google-services.json` in `android/app/` AND Gradle ([Android setup — update Gradle files](https://react-native-nitro-google-sign-in.github.io/docs/setup/android)):
 
 ```gradle
 // android/build.gradle — buildscript.dependencies
@@ -91,7 +91,7 @@ apply plugin: "com.google.gms.google-services"
 
 Expo: config plugin applies Gradle on `prebuild` when `googleServicesFile` is set.
 
-**ProGuard / R8:** Library ships `android/consumer-rules.pro` (merged via `consumerProguardFiles`). No manual keeps for `androidx.credentials` / GMS. Do not add `-keep class androidx.**`. Test release builds after `minifyEnabled true`. [Android setup — ProGuard](https://react-native-nitro-google-signin.github.io/docs/setup/android#proguard-r8)
+**ProGuard / R8:** Library ships `android/consumer-rules.pro` (merged via `consumerProguardFiles`). No manual keeps for `androidx.credentials` / GMS. Do not add `-keep class androidx.**`. Test release builds after `minifyEnabled true`. [Android setup — ProGuard](https://react-native-nitro-google-sign-in.github.io/docs/setup/android#proguard-r8)
 
 ## iOS {#ios}
 

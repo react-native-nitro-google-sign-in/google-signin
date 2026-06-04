@@ -9,9 +9,9 @@ body:
         Use this template for **Google Cloud / native setup** problems, not runtime crashes inside library code.
 
         **Check first:**
-        - [Google Cloud & config files](https://react-native-nitro-google-signin.github.io/docs/setup/google-cloud)
-        - [Android setup](https://react-native-nitro-google-signin.github.io/docs/setup/android) · [iOS setup](https://react-native-nitro-google-signin.github.io/docs/setup/ios) · [Expo setup](https://react-native-nitro-google-signin.github.io/docs/setup/expo)
-        - [Troubleshooting](https://react-native-nitro-google-signin.github.io/docs/guide/troubleshooting)
+        - [Google Cloud & config files](https://react-native-nitro-google-sign-in.github.io/docs/setup/google-cloud)
+        - [Android setup](https://react-native-nitro-google-sign-in.github.io/docs/setup/android) · [iOS setup](https://react-native-nitro-google-sign-in.github.io/docs/setup/ios) · [Expo setup](https://react-native-nitro-google-sign-in.github.io/docs/setup/expo)
+        - [Troubleshooting](https://react-native-nitro-google-sign-in.github.io/docs/guide/troubleshooting)
 
         **Do not** attach `google-services.json`, plist files, or OAuth client secrets.
 

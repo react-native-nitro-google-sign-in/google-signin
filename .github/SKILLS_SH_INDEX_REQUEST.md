@@ -12,7 +12,7 @@ Requesting indexing so the skill appears on the leaderboard, is discoverable via
 
 https://skills.sh/react-native-nitro-google-signin/google-signin/react-native-nitro-google-signin
 
-**Repository:** https://github.com/react-native-nitro-google-signin/google-signin  
+**Repository:** https://github.com/react-native-nitro-google-sign-in/google-signin  
 **License:** MIT
 
 ### Skills included (1)
@@ -24,13 +24,13 @@ https://skills.sh/react-native-nitro-google-signin/google-signin/react-native-ni
 ### Install
 
 ```bash
-npx skills add react-native-nitro-google-signin/google-signin -g -y
+npx skills add react-native-nitro-google-sign-in/google-signin -g -y
 ```
 
 Per agent:
 
 ```bash
-npx skills add react-native-nitro-google-signin/google-signin \
+npx skills add react-native-nitro-google-sign-in/google-signin \
   --skill react-native-nitro-google-signin \
   -a cursor -g -y
 ```
@@ -41,6 +41,6 @@ npx skills add react-native-nitro-google-signin/google-signin \
 - [x] MIT license
 - [x] Open Agent Skills format — `skills/react-native-nitro-google-signin/SKILL.md` with `name` + `description` frontmatter
 - [x] `skills.sh.json` at repo root for directory grouping
-- [x] Installable via `npx skills add react-native-nitro-google-signin/google-signin --list` (verify after merge to `main`)
+- [x] Installable via `npx skills add react-native-nitro-google-sign-in/google-signin --list` (verify after merge to `main`)
 
-**Docs:** https://react-native-nitro-google-signin.github.io/docs/agents/skill
+**Docs:** https://react-native-nitro-google-sign-in.github.io/docs/agents/skill

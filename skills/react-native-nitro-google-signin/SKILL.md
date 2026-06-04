@@ -13,10 +13,10 @@ description: >-
 ## Agent skill (install first for coding agents)
 
 ```bash
-npx skills add react-native-nitro-google-signin/google-signin -g -y
+npx skills add react-native-nitro-google-sign-in/google-signin -g -y
 ```
 
-Docs: https://react-native-nitro-google-signin.github.io/docs/agents/skill
+Docs: https://react-native-nitro-google-sign-in.github.io/docs/agents/skill
 
 ## Package install
 
@@ -83,4 +83,4 @@ if (isSuccessResponse(response)) {
 
 - [reference.md](reference.md) — API, Expo/bare setup, errors
 - [examples.md](examples.md) — copy-paste snippets
-- Docs: https://react-native-nitro-google-signin.github.io/
+- Docs: https://react-native-nitro-google-sign-in.github.io/
