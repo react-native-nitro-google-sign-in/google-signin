@@ -51,6 +51,10 @@ jobs:
     runs-on: macOS-15
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
       - uses: oven-sh/setup-bun@v2
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
