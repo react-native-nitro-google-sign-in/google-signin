@@ -65,14 +65,12 @@ jobs:
             scheme: NitroGoogleSigninExample
             use-bundler: true
             cache-path: example/ios/Pods
-            cache-key: bare-${{ hashFiles('example/ios/Podfile.lock', 'NitroGoogleSignin.podspec') }}
           - label: expo
             ios-dir: example-expo/ios
             workspace: NitroGoogleSignInExpo.xcworkspace
             scheme: NitroGoogleSignInExpo
             use-bundler: false
             cache-path: example-expo/ios/Pods
-            cache-key: expo-${{ hashFiles('example-expo/package.json', 'plugin/withNitroGoogleSignIn.js', 'NitroGoogleSignin.podspec') }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js
@@ -99,14 +97,28 @@ jobs:
       - name: Install xcpretty
         run: gem install xcpretty
 
-      - name: Cache CocoaPods
+      - name: Cache CocoaPods (bare)
+        if: matrix.label == 'bare'
         uses: actions/cache@v4
         with:
           path: |
             ~/.cocoapods/repos
             ${{ matrix.cache-path }}
-          key: ${{ runner.os }}-pods-${{ matrix.cache-key }}
+          key: ${{ runner.os }}-pods-bare-${{ hashFiles('example/ios/Podfile.lock', 'NitroGoogleSignin.podspec') }}
           restore-keys: |
+            ${{ runner.os }}-pods-bare-
+            ${{ runner.os }}-pods-
+
+      - name: Cache CocoaPods (expo)
+        if: matrix.label == 'expo'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cocoapods/repos
+            ${{ matrix.cache-path }}
+          key: ${{ runner.os }}-pods-expo-${{ hashFiles('example-expo/package.json', 'plugin/withNitroGoogleSignIn.js', 'NitroGoogleSignin.podspec') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-expo-
             ${{ runner.os }}-pods-
 
       - name: Install Pods (bare)
