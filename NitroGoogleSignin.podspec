@@ -27,10 +27,10 @@ Pod::Spec.new do |s|
 
   s.dependency 'React-jsi'
   s.dependency 'React-callinvoker'
-  s.dependency 'GoogleSignIn', '~> 9.0'
-  # AppCheckCore 11.3.0 adds RecaptchaInterop, which breaks Expo's default static
-  # CocoaPods setup (Swift pods need modular headers). Pin to 11.2.x until upstream
-  # resolves or modular headers are configured. See issue #24.
-  s.dependency 'AppCheckCore', '< 11.3.0'
+  # GoogleSignIn 9.2.0 can resolve AppCheckCore 11.3.0, which adds RecaptchaInterop and
+  # breaks static CocoaPods integration on Expo 56. Cap GoogleSignIn until upstream resolves.
+  # Do not add AppCheckCore as a direct dependency — NitroGoogleSignin is a Swift pod and
+  # AppCheckCore does not define modules. See issue #24.
+  s.dependency 'GoogleSignIn', '~> 9.0', '< 9.2.0'
   install_modules_dependencies(s)
 end
