@@ -54,10 +54,13 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
     offlineAccess = params.offlineAccess ?? false
     configuredNonce = Self.variantToString(params.nonce)
     configuredScopes = Self.variantToStringArray(params.scopes)
+    let hostedDomain = Self.variantToString(params.hostedDomain)
 
     let config = GIDConfiguration(
       clientID: iosClientId,
-      serverClientID: resolvedWeb
+      serverClientID: resolvedWeb,
+      hostedDomain: hostedDomain,
+      openIDRealm: nil
     )
     GIDSignIn.sharedInstance.configuration = config
     configured = true
