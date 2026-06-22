@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "000000000000",
+    "project_id": "ci-dummy-nitro-google-signin",
+    "storage_bucket": "ci-dummy-nitro-google-signin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:ci-dummy-app-id",
+        "android_client_info": {
+          "package_name": "com.nitrogooglesigninexample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "000000000000-ci-dummy-web-client-id.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "ci-dummy-android-api-key"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "000000000000-ci-dummy-web-client-id.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "000000000000-ci-dummy-ios-client-id.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.nitrogooglesigninexample"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

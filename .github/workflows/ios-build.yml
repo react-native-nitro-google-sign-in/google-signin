@@ -12,6 +12,9 @@ on:
       - 'example/ios/**'
       - 'example/Gemfile'
       - 'example/Gemfile.lock'
+      - 'example-expo/**'
+      - 'plugin/**'
+      - 'app.plugin.js'
       - '**/nitrogen/generated/shared/**'
       - '**/nitrogen/generated/ios/**'
       - 'cpp/**'
@@ -27,6 +30,9 @@ on:
       - 'example/ios/**'
       - 'example/Gemfile'
       - 'example/Gemfile.lock'
+      - 'example-expo/**'
+      - 'plugin/**'
+      - 'app.plugin.js'
       - '**/nitrogen/generated/shared/**'
       - '**/nitrogen/generated/ios/**'
       - 'cpp/**'
@@ -47,24 +53,43 @@ concurrency:
 
 jobs:
   build:
-    name: Build iOS Example App
-    runs-on: macOS-15
+    name: Build iOS (${{ matrix.label }})
+    runs-on: macOS-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: bare
+            ios-dir: example/ios
+            workspace: NitroGoogleSigninExample.xcworkspace
+            scheme: NitroGoogleSigninExample
+            use-bundler: true
+            cache-path: example/ios/Pods
+          - label: expo
+            ios-dir: example-expo/ios
+            workspace: NitroGoogleSignInExpo.xcworkspace
+            scheme: NitroGoogleSignInExpo
+            use-bundler: false
+            cache-path: example-expo/ios/Pods
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
       - uses: oven-sh/setup-bun@v2
+
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 16.4
+          xcode-version: 26.3
 
       - name: Install dependencies (bun)
         run: bun install
 
       - name: Setup Ruby (bundle)
+        if: matrix.use-bundler
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
@@ -74,30 +99,57 @@ jobs:
       - name: Install xcpretty
         run: gem install xcpretty
 
-      - name: Cache CocoaPods
+      - name: Cache CocoaPods (bare)
+        if: matrix.label == 'bare'
         uses: actions/cache@v4
         with:
           path: |
             ~/.cocoapods/repos
-            example/ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('example/ios/Podfile.lock') }}
+            ${{ matrix.cache-path }}
+          key: ${{ runner.os }}-pods-bare-${{ hashFiles('example/ios/Podfile.lock', 'NitroGoogleSignin.podspec') }}
           restore-keys: |
+            ${{ runner.os }}-pods-bare-
             ${{ runner.os }}-pods-
 
-      - name: Install Pods
+      - name: Cache CocoaPods (expo)
+        if: matrix.label == 'expo'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cocoapods/repos
+            ${{ matrix.cache-path }}
+          key: ${{ runner.os }}-pods-expo-${{ hashFiles('example-expo/package.json', 'plugin/withNitroGoogleSignIn.js', 'NitroGoogleSignin.podspec') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-expo-
+            ${{ runner.os }}-pods-
+
+      - name: Install Pods (bare)
+        if: matrix.label == 'bare'
         working-directory: example/ios
         run: pod install
 
+      - name: Prepare Expo Google config for CI
+        if: matrix.label == 'expo'
+        working-directory: example-expo
+        run: |
+          cp ci/GoogleService-Info.plist GoogleService-Info.plist
+          cp ci/google-services.json google-services.json
+
+      - name: Prebuild iOS (expo)
+        if: matrix.label == 'expo'
+        working-directory: example-expo
+        run: bunx expo prebuild --platform ios
+
       - name: Build App
-        working-directory: example/ios
+        working-directory: ${{ matrix.ios-dir }}
         run: |
           set -o pipefail && xcodebuild \
             CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
             -derivedDataPath build -UseModernBuildSystem=YES \
-            -workspace NitroGoogleSigninExample.xcworkspace \
-            -scheme NitroGoogleSigninExample \
+            -workspace ${{ matrix.workspace }} \
+            -scheme ${{ matrix.scheme }} \
             -sdk iphonesimulator \
             -configuration Debug \
-            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -destination 'generic/platform=iOS Simulator' \
             build \
             CODE_SIGNING_ALLOWED=NO | xcpretty

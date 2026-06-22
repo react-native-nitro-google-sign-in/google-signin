@@ -18,6 +18,8 @@ google-services.json
 GoogleService-Info.plist
 **/google-services.json
 **/GoogleService-Info.plist
+!example-expo/ci/google-services.json
+!example-expo/ci/GoogleService-Info.plist
 *.pem
 *.p12
 *.key

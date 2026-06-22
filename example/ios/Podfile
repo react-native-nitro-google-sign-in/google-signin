@@ -15,6 +15,11 @@ if linkage != nil
 end
 
 target 'NitroGoogleSigninExample' do
+  # react-native-nitro-google-signin: AppCheckCore 11.3.0 + static CocoaPods needs modular headers.
+  pod 'AppCheckCore', '< 11.3.0', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'RecaptchaInterop', :modular_headers => true
+
   config = use_native_modules!
 
   use_react_native!(

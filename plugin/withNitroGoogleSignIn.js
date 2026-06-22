@@ -4,7 +4,9 @@ const {
   createRunOncePlugin,
   withPlugins,
   withInfoPlist,
+  withPodfile,
 } = require('@expo/config-plugins')
+const { mergeContents } = require('@expo/config-plugins/build/utils/generateCode')
 
 const pkg = require('../package.json')
 
@@ -74,6 +76,49 @@ const withGoogleServicesFilePaths = (config, options) => {
   return config
 }
 
+const GOOGLE_SIGN_IN_PODFILE_TAG = 'react-native-nitro-google-signin-google-pods'
+
+/** Pods required for static CocoaPods / Expo 56 when GoogleSignIn pulls AppCheckCore. */
+const GOOGLE_SIGN_IN_PODFILE_PODS = `  pod 'AppCheckCore', '< 11.3.0', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'RecaptchaInterop', :modular_headers => true`
+
+/**
+ * @param {string} src
+ */
+function addGoogleSignInCocoaPods(src) {
+  return mergeContents({
+    tag: GOOGLE_SIGN_IN_PODFILE_TAG,
+    src,
+    newSrc: GOOGLE_SIGN_IN_PODFILE_PODS,
+    anchor: /use_native_modules/,
+    offset: 0,
+    comment: '#',
+  })
+}
+
+/** @type {ConfigPlugin} */
+const withGoogleSignInCocoaPods = (config) => {
+  return withPodfile(config, (config) => {
+    let results
+    try {
+      results = addGoogleSignInCocoaPods(config.modResults.contents)
+    } catch (error) {
+      if (/** @type {NodeJS.ErrnoException} */ (error).code === 'ERR_NO_MATCH') {
+        throw new Error(
+          'react-native-nitro-google-signin config plugin: could not patch ios/Podfile. ' +
+            'Ensure the Podfile contains use_native_modules! inside the app target.',
+        )
+      }
+      throw error
+    }
+    if (results.didMerge || results.didClear) {
+      config.modResults.contents = results.contents
+    }
+    return config
+  })
+}
+
 /** Firebase / Google Services: copies plist & json, adds Android plugin, iOS URL scheme from REVERSED_CLIENT_ID. */
 /** @type {ConfigPlugin} */
 const withNitroGoogleSignInFirebase = (config) => {
@@ -91,24 +136,27 @@ const withNitroGoogleSignInFirebase = (config) => {
  * @param {NitroGoogleSignInPluginOptions | undefined} options
  */
 const withNitroGoogleSignInRoot = (config, options) => {
+  let configWithPlugin
   if (options?.iosUrlScheme) {
-    return withNitroGoogleSignInWithoutFirebase(config, options)
+    configWithPlugin = withNitroGoogleSignInWithoutFirebase(config, options)
+  } else {
+    const configWithPaths = withGoogleServicesFilePaths(config, options ?? {})
+    const hasFirebaseFiles =
+      configWithPaths.ios?.googleServicesFile != null ||
+      configWithPaths.android?.googleServicesFile != null
+
+    if (hasFirebaseFiles) {
+      configWithPlugin = withNitroGoogleSignInFirebase(configWithPaths)
+    } else {
+      throw new Error(
+        'react-native-nitro-google-signin config plugin: configure either:\n' +
+          '  • Firebase: set expo.ios.googleServicesFile & expo.android.googleServicesFile, or pass iosGoogleServicesFile / androidGoogleServicesFile in plugin options\n' +
+          '  • Without Firebase: pass iosUrlScheme (REVERSED_CLIENT_ID) in plugin options',
+      )
+    }
   }
 
-  const configWithPaths = withGoogleServicesFilePaths(config, options ?? {})
-  const hasFirebaseFiles =
-    configWithPaths.ios?.googleServicesFile != null ||
-    configWithPaths.android?.googleServicesFile != null
-
-  if (hasFirebaseFiles) {
-    return withNitroGoogleSignInFirebase(configWithPaths)
-  }
-
-  throw new Error(
-    'react-native-nitro-google-signin config plugin: configure either:\n' +
-      '  • Firebase: set expo.ios.googleServicesFile & expo.android.googleServicesFile, or pass iosGoogleServicesFile / androidGoogleServicesFile in plugin options\n' +
-      '  • Without Firebase: pass iosUrlScheme (REVERSED_CLIENT_ID) in plugin options',
-  )
+  return withGoogleSignInCocoaPods(configWithPlugin)
 }
 
 module.exports = createRunOncePlugin(

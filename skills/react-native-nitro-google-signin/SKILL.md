@@ -76,6 +76,7 @@ if (isSuccessResponse(response)) {
 | `DEVELOPER_ERROR` (Android) | Wrong SHA-1 or package on OAuth client |
 | `default_web_client_id was not found` | Add `google-services.json` + Gradle plugin |
 | iOS redirect fails | Fix `REVERSED_CLIENT_ID` URL scheme |
+| `pod install` / Expo prebuild — AppCheckCore modular headers | Expo: `prebuild --clean` (plugin patches Podfile). Bare: add AppCheckCore/GoogleUtilities/RecaptchaInterop pods to `ios/Podfile` — [troubleshooting](https://react-native-nitro-google-sign-in.github.io/docs/guide/troubleshooting#ios-pod-install-fails--appcheckcore--recaptchainterop-expo-56) |
 | Nitro not found | Rebuild dev client / `bundle exec pod install --project-directory="ios"` |
 | Sign-in OK in debug, fails in release | Consumer ProGuard rules ship with library; avoid `-keep androidx.**`; test `assembleRelease` |
 
