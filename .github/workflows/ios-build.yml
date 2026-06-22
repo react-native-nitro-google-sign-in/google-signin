@@ -24,7 +24,6 @@ on:
       - '**/*.podspec'
       - '**/react-native.config.js'
       - '**/nitro.json'
-      - '**/withNitroGoogleSignIn.js'
   pull_request:
     paths:
       - '.github/workflows/ios-build.yml'
@@ -43,7 +42,6 @@ on:
       - '**/*.podspec'
       - '**/react-native.config.js'
       - '**/nitro.json'
-      - '**/withNitroGoogleSignIn.js'
   workflow_dispatch:
 
 env:
