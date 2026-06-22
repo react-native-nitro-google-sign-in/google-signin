@@ -126,6 +126,13 @@ jobs:
         working-directory: example/ios
         run: pod install
 
+      - name: Prepare Expo Google config for CI
+        if: matrix.label == 'expo'
+        working-directory: example-expo
+        run: |
+          cp ci/GoogleService-Info.plist GoogleService-Info.plist
+          cp ci/google-services.json google-services.json
+
       - name: Prebuild iOS (expo)
         if: matrix.label == 'expo'
         working-directory: example-expo

@@ -13,7 +13,7 @@ Development-build Expo app that verifies the config plugin, Google Services file
 
 ## Google config files
 
-Both files are **gitignored**. You need them for `webClientId: 'autoDetect'` on **Android and iOS** (not Expo-specific).
+Both files are **gitignored** for local development. For CI builds, committed placeholders live in [`ci/`](./ci/) and are copied before `expo prebuild`.
 
 | File | Place here |
 | ---- | ---------- |

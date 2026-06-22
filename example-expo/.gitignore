@@ -41,8 +41,8 @@ yarn-error.*
 /android
 
 # Google / Firebase config (place at project root for the config plugin)
-google-services.json
-GoogleService-Info.plist
+/google-services.json
+/GoogleService-Info.plist
 
 # Agent IDE local settings
 .claude/
