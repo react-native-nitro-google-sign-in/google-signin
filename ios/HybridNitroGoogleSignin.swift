@@ -258,6 +258,22 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
     guard let presenting = Self.topViewController() else {
       throw GoogleSignInNativeError.noActivity
     }
+    guard GIDSignIn.sharedInstance.currentUser != nil else {
+      throw GoogleSignInNativeError.oneTapStartFailed(
+        "No signed-in Google user. Sign in before requesting additional scopes."
+      )
+    }
+
+    // When offline access is enabled, use the shared GIDSignIn configuration (includes
+    // serverClientID) instead of GIDGoogleUser.addScopes, which reads the user's
+    // snapshot configuration and may omit serverClientID from an earlier session.
+    if offlineAccess {
+      return try await requestAdditionalScopesWithOfflineAccess(
+        scopes: scopes,
+        presenting: presenting
+      )
+    }
+
     guard let user = GIDSignIn.sharedInstance.currentUser else {
       throw GoogleSignInNativeError.oneTapStartFailed(
         "No signed-in Google user. Sign in before requesting additional scopes."
@@ -266,33 +282,82 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
 
     return try await withCheckedThrowingContinuation { continuation in
       user.addScopes(scopes, presenting: presenting) { result, error in
-        if let error = error as NSError? {
-          if error.code == GIDSignInError.canceled.rawValue {
-            continuation.resume(
-              returning: OneTapAuthorizationResult(serverAuthCode: Self.optionalStringVariant(nil))
-            )
-            return
-          }
-          if error.code == GIDSignInError.scopesAlreadyGranted.rawValue {
-            continuation.resume(
-              returning: OneTapAuthorizationResult(
-                serverAuthCode: Self.optionalStringVariant(result?.serverAuthCode)
-              )
-            )
-            return
-          }
-          continuation.resume(
-            throwing: GoogleSignInNativeError.oneTapStartFailed(error.localizedDescription)
-          )
-          return
-        }
-        continuation.resume(
-          returning: OneTapAuthorizationResult(
-            serverAuthCode: Self.optionalStringVariant(result?.serverAuthCode)
-          )
+        Self.completeScopeRequest(
+          continuation: continuation,
+          result: result,
+          error: error
         )
       }
     }
+  }
+
+  private func requestAdditionalScopesWithOfflineAccess(
+    scopes: [String],
+    presenting: UIViewController
+  ) async throws -> OneTapAuthorizationResult {
+    let hint = GIDSignIn.sharedInstance.currentUser?.profile?.email
+    let nonce = Self.resolveNonce(configuredNonce)
+
+    return try await withCheckedThrowingContinuation { continuation in
+      if let hint, !hint.isEmpty {
+        GIDSignIn.sharedInstance.signIn(
+          withPresenting: presenting,
+          hint: hint,
+          additionalScopes: scopes,
+          nonce: nonce
+        ) { result, error in
+          Self.completeScopeRequest(
+            continuation: continuation,
+            result: result,
+            error: error
+          )
+        }
+      } else {
+        Self.signIn(
+          presenting: presenting,
+          additionalScopes: scopes,
+          nonce: nonce
+        ) { result, error in
+          Self.completeScopeRequest(
+            continuation: continuation,
+            result: result,
+            error: error
+          )
+        }
+      }
+    }
+  }
+
+  private static func completeScopeRequest(
+    continuation: CheckedContinuation<OneTapAuthorizationResult, Error>,
+    result: GIDSignInResult?,
+    error: Error?
+  ) {
+    if let error = error as NSError? {
+      if error.code == GIDSignInError.canceled.rawValue {
+        continuation.resume(
+          returning: OneTapAuthorizationResult(serverAuthCode: optionalStringVariant(nil))
+        )
+        return
+      }
+      if error.code == GIDSignInError.scopesAlreadyGranted.rawValue {
+        continuation.resume(
+          returning: OneTapAuthorizationResult(
+            serverAuthCode: optionalStringVariant(result?.serverAuthCode)
+          )
+        )
+        return
+      }
+      continuation.resume(
+        throwing: GoogleSignInNativeError.oneTapStartFailed(error.localizedDescription)
+      )
+      return
+    }
+    continuation.resume(
+      returning: OneTapAuthorizationResult(
+        serverAuthCode: optionalStringVariant(result?.serverAuthCode)
+      )
+    )
   }
 
   private static func resolveNonce(_ configured: String?) -> String {
