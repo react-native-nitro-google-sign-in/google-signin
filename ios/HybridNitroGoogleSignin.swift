@@ -62,7 +62,13 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
       hostedDomain: hostedDomain,
       openIDRealm: nil
     )
-    GIDSignIn.sharedInstance.configuration = config
+    if Thread.isMainThread {
+      GIDSignIn.sharedInstance.configuration = config
+    } else {
+      DispatchQueue.main.sync {
+        GIDSignIn.sharedInstance.configuration = config
+      }
+    }
     configured = true
   }
 
@@ -74,7 +80,10 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
   func signIn() throws -> Promise<OneTapResponse> {
     try ensureConfigured()
     return Promise.async {
-      if let user = GIDSignIn.sharedInstance.currentUser {
+      let user = await MainActor.run {
+        GIDSignIn.sharedInstance.currentUser
+      }
+      if let user {
         return Self.success(from: user, serverAuthCode: nil)
       }
       return try await self.restorePreviousSignIn()
@@ -97,7 +106,9 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
 
   func signOut() throws -> Promise<Void> {
     return Promise.async {
-      GIDSignIn.sharedInstance.signOut()
+      await MainActor.run {
+        GIDSignIn.sharedInstance.signOut()
+      }
     }
   }
 
@@ -105,11 +116,13 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
     return Promise.async {
       try await withCheckedThrowingContinuation {
         (continuation: CheckedContinuation<Void, Error>) in
-        GIDSignIn.sharedInstance.disconnect { error in
-          if let error {
-            continuation.resume(throwing: error)
-          } else {
-            continuation.resume()
+        DispatchQueue.main.async {
+          GIDSignIn.sharedInstance.disconnect { error in
+            if let error {
+              continuation.resume(throwing: error)
+            } else {
+              continuation.resume()
+            }
           }
         }
       }
@@ -125,28 +138,32 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
 
   // MARK: - Sign-in flows
 
+  @MainActor
   private func restorePreviousSignIn() async throws -> OneTapResponse {
     try await withCheckedThrowingContinuation { continuation in
-      GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
-        if let error = error as NSError? {
-          if let response = Self.response(forSignInError: error) {
-            continuation.resume(returning: response)
+      DispatchQueue.main.async {
+        GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
+          if let error = error as NSError? {
+            if let response = Self.response(forSignInError: error) {
+              continuation.resume(returning: response)
+              return
+            }
+            continuation.resume(
+              throwing: GoogleSignInNativeError.oneTapStartFailed(error.localizedDescription)
+            )
             return
           }
-          continuation.resume(
-            throwing: GoogleSignInNativeError.oneTapStartFailed(error.localizedDescription)
-          )
-          return
+          guard let user else {
+            continuation.resume(returning: Self.noSavedCredential())
+            return
+          }
+          continuation.resume(returning: Self.success(from: user, serverAuthCode: nil))
         }
-        guard let user else {
-          continuation.resume(returning: Self.noSavedCredential())
-          return
-        }
-        continuation.resume(returning: Self.success(from: user, serverAuthCode: nil))
       }
     }
   }
 
+  @MainActor
   private func interactiveSignIn() async throws -> OneTapResponse {
     guard let presenting = Self.topViewController() else {
       throw GoogleSignInNativeError.noActivity
@@ -156,28 +173,30 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
     let nonce = Self.resolveNonce(configuredNonce)
 
     return try await withCheckedThrowingContinuation { continuation in
-      Self.signIn(
-        presenting: presenting,
-        additionalScopes: additionalScopes,
-        nonce: nonce
-      ) { result, error in
-        if let error = error as NSError? {
-          if let response = Self.response(forSignInError: error) {
-            continuation.resume(returning: response)
+      DispatchQueue.main.async {
+        Self.signIn(
+          presenting: presenting,
+          additionalScopes: additionalScopes,
+          nonce: nonce
+        ) { result, error in
+          if let error = error as NSError? {
+            if let response = Self.response(forSignInError: error) {
+              continuation.resume(returning: response)
+              return
+            }
+            continuation.resume(
+              throwing: GoogleSignInNativeError.oneTapStartFailed(error.localizedDescription)
+            )
+            return
+          }
+          guard let user = result?.user else {
+            continuation.resume(returning: Self.cancelled())
             return
           }
           continuation.resume(
-            throwing: GoogleSignInNativeError.oneTapStartFailed(error.localizedDescription)
+            returning: Self.success(from: user, serverAuthCode: result?.serverAuthCode)
           )
-          return
         }
-        guard let user = result?.user else {
-          continuation.resume(returning: Self.cancelled())
-          return
-        }
-        continuation.resume(
-          returning: Self.success(from: user, serverAuthCode: result?.serverAuthCode)
-        )
       }
     }
   }
@@ -254,10 +273,27 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
     }
   }
 
+  @MainActor
   private func requestAdditionalScopes(_ scopes: [String]) async throws -> OneTapAuthorizationResult {
     guard let presenting = Self.topViewController() else {
       throw GoogleSignInNativeError.noActivity
     }
+    guard GIDSignIn.sharedInstance.currentUser != nil else {
+      throw GoogleSignInNativeError.oneTapStartFailed(
+        "No signed-in Google user. Sign in before requesting additional scopes."
+      )
+    }
+
+    // When offline access is enabled, use the shared GIDSignIn configuration (includes
+    // serverClientID) instead of GIDGoogleUser.addScopes, which reads the user's
+    // snapshot configuration and may omit serverClientID from an earlier session.
+    if offlineAccess {
+      return try await requestAdditionalScopesWithOfflineAccess(
+        scopes: scopes,
+        presenting: presenting
+      )
+    }
+
     guard let user = GIDSignIn.sharedInstance.currentUser else {
       throw GoogleSignInNativeError.oneTapStartFailed(
         "No signed-in Google user. Sign in before requesting additional scopes."
@@ -265,34 +301,74 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
     }
 
     return try await withCheckedThrowingContinuation { continuation in
-      user.addScopes(scopes, presenting: presenting) { result, error in
-        if let error = error as NSError? {
-          if error.code == GIDSignInError.canceled.rawValue {
-            continuation.resume(
-              returning: OneTapAuthorizationResult(serverAuthCode: Self.optionalStringVariant(nil))
-            )
-            return
-          }
-          if error.code == GIDSignInError.scopesAlreadyGranted.rawValue {
-            continuation.resume(
-              returning: OneTapAuthorizationResult(
-                serverAuthCode: Self.optionalStringVariant(result?.serverAuthCode)
-              )
-            )
-            return
-          }
-          continuation.resume(
-            throwing: GoogleSignInNativeError.oneTapStartFailed(error.localizedDescription)
+      DispatchQueue.main.async {
+        user.addScopes(scopes, presenting: presenting) { result, error in
+          Self.completeScopeRequest(
+            continuation: continuation,
+            result: result,
+            error: error
           )
-          return
         }
-        continuation.resume(
-          returning: OneTapAuthorizationResult(
-            serverAuthCode: Self.optionalStringVariant(result?.serverAuthCode)
-          )
-        )
       }
     }
+  }
+
+  @MainActor
+  private func requestAdditionalScopesWithOfflineAccess(
+    scopes: [String],
+    presenting: UIViewController
+  ) async throws -> OneTapAuthorizationResult {
+    let hint = GIDSignIn.sharedInstance.currentUser?.profile?.email
+    let nonce = Self.resolveNonce(configuredNonce)
+
+    return try await withCheckedThrowingContinuation { continuation in
+      DispatchQueue.main.async {
+        GIDSignIn.sharedInstance.signIn(
+          withPresenting: presenting,
+          hint: hint,
+          additionalScopes: scopes,
+          nonce: nonce
+        ) { result, error in
+          Self.completeScopeRequest(
+            continuation: continuation,
+            result: result,
+            error: error
+          )
+        }
+      }
+    }
+  }
+
+  private static func completeScopeRequest(
+    continuation: CheckedContinuation<OneTapAuthorizationResult, Error>,
+    result: GIDSignInResult?,
+    error: Error?
+  ) {
+    if let error = error as NSError? {
+      if error.code == GIDSignInError.canceled.rawValue {
+        continuation.resume(
+          returning: OneTapAuthorizationResult(serverAuthCode: optionalStringVariant(nil))
+        )
+        return
+      }
+      if error.code == GIDSignInError.scopesAlreadyGranted.rawValue {
+        continuation.resume(
+          returning: OneTapAuthorizationResult(
+            serverAuthCode: optionalStringVariant(result?.serverAuthCode)
+          )
+        )
+        return
+      }
+      continuation.resume(
+        throwing: GoogleSignInNativeError.oneTapStartFailed(error.localizedDescription)
+      )
+      return
+    }
+    continuation.resume(
+      returning: OneTapAuthorizationResult(
+        serverAuthCode: optionalStringVariant(result?.serverAuthCode)
+      )
+    )
   }
 
   private static func resolveNonce(_ configured: String?) -> String {
@@ -360,6 +436,7 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
     return value
   }
 
+  @MainActor
   private static func topViewController() -> UIViewController? {
     let scenes = UIApplication.shared.connectedScenes
       .compactMap { $0 as? UIWindowScene }
