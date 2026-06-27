@@ -23,6 +23,11 @@ await GoogleOneTapSignIn.signOut()
 ## Extra scopes
 
 ```ts
+GoogleOneTapSignIn.configure({
+  webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
+  offlineAccess: true,
+})
+
 await GoogleOneTapSignIn.requestScopes([
   'https://www.googleapis.com/auth/calendar.readonly',
 ])

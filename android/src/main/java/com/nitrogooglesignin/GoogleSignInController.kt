@@ -126,7 +126,7 @@ internal object GoogleSignInController {
         context = requireContext(),
         serverClientId = webClientId!!,
         scopes = scopes.toList(),
-        offlineAccess = false,
+        offlineAccess = offlineAccess,
       )
     return OneTapAuthorizationResult(serverAuthCode = authCode.toOptionalStringVariant())
   }

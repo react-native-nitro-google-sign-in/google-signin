@@ -123,6 +123,12 @@ jobs:
             ${{ runner.os }}-pods-expo-
             ${{ runner.os }}-pods-
 
+      - name: Prepare Bare Google config for CI
+        if: matrix.label == 'bare'
+        working-directory: example/ios
+        run: |
+          cp ../../example-expo/ci/GoogleService-Info.plist GoogleService-Info.plist
+
       - name: Install Pods (bare)
         if: matrix.label == 'bare'
         working-directory: example/ios

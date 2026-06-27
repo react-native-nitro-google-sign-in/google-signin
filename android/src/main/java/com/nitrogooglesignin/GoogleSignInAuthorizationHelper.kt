@@ -18,6 +18,16 @@ import kotlin.coroutines.resumeWithException
  */
 internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
   private const val AUTH_REQUEST_CODE = 53212
+  /**
+   * AuthorizationClient requires at least one scope even when only offline access is requested.
+   * Matches the default Google Sign-In scopes (openid / email / profile).
+   */
+  private val DEFAULT_OFFLINE_ACCESS_SCOPES =
+    listOf(
+      "openid",
+      "email",
+      "profile",
+    )
   private var listenerRegistered = false
   private var pendingContinuation: CancellableContinuation<String?>? = null
 
@@ -35,7 +45,11 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
     scopes: List<String>,
     offlineAccess: Boolean,
   ): String? {
-    if (!offlineAccess && scopes.isEmpty()) return null
+    val resolvedScopes =
+      scopes.filter { it.isNotBlank() }.ifEmpty {
+        if (offlineAccess) DEFAULT_OFFLINE_ACCESS_SCOPES else emptyList()
+      }
+    if (resolvedScopes.isEmpty()) return null
 
     ensureRegistered(context)
 
@@ -43,10 +57,9 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
       pendingContinuation = continuation
       continuation.invokeOnCancellation { pendingContinuation = null }
 
-      val requestBuilder = AuthorizationRequest.builder()
-      if (scopes.isNotEmpty()) {
-        requestBuilder.setRequestedScopes(scopes.map { Scope(it) })
-      }
+      val requestBuilder =
+        AuthorizationRequest.builder()
+          .setRequestedScopes(resolvedScopes.map { Scope(it) })
       if (offlineAccess) {
         requestBuilder.requestOfflineAccess(serverClientId)
       }
