@@ -143,7 +143,7 @@ jobs:
       - name: Install Pods (bare)
         if: matrix.label == 'bare'
         working-directory: example/ios
-        run: bundle exec pod install
+        run: pod install
 
       - name: Prepare Expo Google config for CI
         if: matrix.label == 'expo'
