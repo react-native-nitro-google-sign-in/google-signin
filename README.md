@@ -185,7 +185,7 @@ You can request Google API access in two ways. Use **full scope URLs** (not shor
 
 #### Option A — scopes at configure time (first sign-in)
 
-Request scopes up front. Set `offlineAccess: true` if your backend needs a `serverAuthCode` to exchange for refresh tokens:
+Request scopes up front. **`offlineAccess: true` is required** when your backend needs a `serverAuthCode` to exchange for refresh tokens:
 
 ```ts
 import {
@@ -221,7 +221,9 @@ const signInWithScopesUpFront = async () => {
 
 #### Option B — scopes after sign-in (`requestScopes`)
 
-Start with basic sign-in, then request more access when the user needs a feature:
+Start with basic sign-in, then request more access when the user needs a feature.
+
+**`offlineAccess: true` in `configure()` is required** for a non-null `serverAuthCode` from `requestScopes()`:
 
 ```ts
 import {
@@ -231,7 +233,10 @@ import {
 
 const CALENDAR_READONLY = 'https://www.googleapis.com/auth/calendar.readonly'
 
-GoogleOneTapSignIn.configure({ webClientId: 'autoDetect' })
+GoogleOneTapSignIn.configure({
+  webClientId: 'autoDetect',
+  offlineAccess: true,
+})
 
 // 1) Sign in first (basic profile / idToken only)
 const signInThenRequestScopes = async () => {
@@ -270,14 +275,14 @@ Live demos: [`example/App.tsx`](example/App.tsx) and [`example-expo/App.tsx`](ex
 
 | Method                    | Description                                                                                                                                      |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `configure(params)`       | Required before other calls. `webClientId` or `'autoDetect'`; optional `scopes`, `offlineAccess`, `hostedDomain`, `nonce`, `autoSelectOnSignIn`. |
+| `configure(params)`       | Required before other calls. `webClientId` or `'autoDetect'`; optional `scopes`, `offlineAccess` (**required for `serverAuthCode`**), `hostedDomain`, `nonce`, `autoSelectOnSignIn`. |
 | `checkPlayServices()`     | Android: validates Play Services. iOS: no-op resolve.                                                                                            |
 | `signIn()`                | Silent / restore previous sign-in.                                                                                                               |
 | `createAccount()`         | Interactive account picker (sign-up).                                                                                                            |
 | `presentExplicitSignIn()` | Explicit Sign in with Google UI.                                                                                                                 |
-| `requestScopes(scopes)`   | Request **additional** OAuth access after sign-in; returns `{ serverAuthCode }`.                                                                 |
+| `requestScopes(scopes)`   | Request **additional** OAuth access after sign-in; returns `{ serverAuthCode }`. Requires `offlineAccess: true` in `configure()` for a non-null code. |
 | `signOut()`               | Clears local Google session (iOS SDK); disable auto sign-in on Android.                                                                          |
-| `revokeAccess(id)`        | Disconnect app (iOS); no-op token revoke on Android CredMan.                                                                                     |
+| `revokeAccess(id)`        | Disconnect app (revokes app access / OAuth grant on both iOS and Android).                                                                       |
 
 
 Also exported: native [`GoogleSignInButton`](https://react-native-nitro-google-sign-in.github.io/docs/guide/google-sign-in-button), `useGoogleSignInFromButton`, response helpers (`isSuccessResponse`, `isNoSavedCredentialFoundResponse`, `isCancelledResponse`, `isErrorWithCode`), and `statusCodes`.

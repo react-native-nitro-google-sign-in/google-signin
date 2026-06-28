@@ -106,7 +106,7 @@ jobs:
           path: |
             ~/.cocoapods/repos
             ${{ matrix.cache-path }}
-          key: ${{ runner.os }}-pods-bare-${{ hashFiles('example/ios/Podfile.lock', 'NitroGoogleSignin.podspec') }}
+          key: ${{ runner.os }}-pods-bare-${{ hashFiles('example/ios/Podfile.lock', 'example/package.json', 'bun.lock', 'NitroGoogleSignin.podspec') }}
           restore-keys: |
             ${{ runner.os }}-pods-bare-
             ${{ runner.os }}-pods-
@@ -143,7 +143,10 @@ jobs:
       - name: Install Pods (bare)
         if: matrix.label == 'bare'
         working-directory: example/ios
-        run: bundle exec pod install
+        run: |
+          # Restored Pods cache can leave stale Local Podspecs (e.g. hermes-engine).
+          rm -rf "Pods/Local Podspecs"
+          pod install
 
       - name: Prepare Expo Google config for CI
         if: matrix.label == 'expo'
