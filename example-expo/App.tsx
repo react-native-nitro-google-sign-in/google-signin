@@ -19,6 +19,8 @@ import {
 const CALENDAR_READONLY_SCOPE =
   'https://www.googleapis.com/auth/calendar.readonly'
 
+const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_WEB_CLIENT_ID ?? ''
+
 export default function App() {
   const [status, setStatus] = useState('Sign in below (Expo dev build)')
   const [loading, setLoading] = useState(false)
@@ -29,7 +31,7 @@ export default function App() {
 
   useEffect(() => {
     GoogleOneTapSignIn.configure({
-      webClientId: 'your-web-client-id',
+      webClientId: WEB_CLIENT_ID,
     })
   }, [])
 

@@ -129,6 +129,10 @@ jobs:
         run: |
           cp ../../example-expo/ci/GoogleService-Info.plist GoogleService-Info.plist
 
+      - name: Prepare Bare env for CI
+        if: matrix.label == 'bare'
+        run: cp example/ci/.env example/.env
+
       - name: Install Pods (bare)
         if: matrix.label == 'bare'
         working-directory: example/ios
@@ -140,6 +144,7 @@ jobs:
         run: |
           cp ci/GoogleService-Info.plist GoogleService-Info.plist
           cp ci/google-services.json google-services.json
+          cp ci/.env .env
 
       - name: Prebuild iOS (expo)
         if: matrix.label == 'expo'

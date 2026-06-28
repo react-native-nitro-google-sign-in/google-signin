@@ -14,8 +14,9 @@ import {
   isSuccessResponse,
   OneTapSuccessData,
 } from 'react-native-nitro-google-signin';
+import Config from 'react-native-config';
 
-const WEB_CLIENT_ID = 'your-web-client-id';
+const WEB_CLIENT_ID = Config.WEB_CLIENT_ID;
 
 const CALENDAR_READONLY_SCOPE =
   'https://www.googleapis.com/auth/calendar.readonly';

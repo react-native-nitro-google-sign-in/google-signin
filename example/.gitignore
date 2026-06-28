@@ -74,10 +74,11 @@ yarn-error.log
 !.yarn/sdks
 !.yarn/versions
 
-# Google / Firebase config (use your own; see package docs)
-/google-services.json
-/GoogleService-Info.plist
-
 # Env
 .env
 .env.*
+!.env.example
+
+# Google / Firebase config (use your own; see package docs)
+/google-services.json
+/GoogleService-Info.plist
