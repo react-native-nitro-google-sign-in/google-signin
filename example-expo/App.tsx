@@ -16,8 +16,7 @@ import {
   type OneTapSuccessData,
 } from 'react-native-nitro-google-signin'
 
-const CALENDAR_READONLY_SCOPE =
-  'https://www.googleapis.com/auth/calendar.readonly'
+const DRIVE_FULL_SCOPE = 'https://www.googleapis.com/auth/drive'
 
 const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_WEB_CLIENT_ID ?? ''
 
@@ -75,9 +74,7 @@ export default function App() {
     setLoading(true)
     setExtraScopesStatus('Requesting calendar read access…')
     try {
-      const result = await GoogleOneTapSignIn.requestScopes([
-        CALENDAR_READONLY_SCOPE,
-      ])
+      const result = await GoogleOneTapSignIn.requestScopes([DRIVE_FULL_SCOPE])
       if (result.serverAuthCode) {
         setExtraScopesStatus(
           `Scope granted. Server auth code received (${result.serverAuthCode.slice(0, 12)}…).`
@@ -106,6 +103,22 @@ export default function App() {
       setStatus('Signed out')
     } catch (e) {
       setStatus(e instanceof Error ? e.message : 'Sign out failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const revokeAccess = async () => {
+    try {
+      setLoading(true)
+      setStatus('Revoking access…')
+      await GoogleOneTapSignIn.revokeAccess(user?.user.id ?? '')
+      setUser(null)
+      setExtraScopesStatus(null)
+      setStatus('Access revoked')
+    } catch (e) {
+      setStatus(e instanceof Error ? e.message : 'Revoke access failed')
+      console.log('revokeAccess error', e)
     } finally {
       setLoading(false)
     }
@@ -164,7 +177,7 @@ export default function App() {
               onPress={loading ? undefined : requestAdditionalScopes}
               style={[styles.action, loading && styles.actionDisabled]}
             >
-              Request calendar read access
+              Request drive full access
             </Text>
             <Text
               accessibilityRole="button"
@@ -172,6 +185,13 @@ export default function App() {
               style={[styles.action, loading && styles.actionDisabled]}
             >
               Sign out
+            </Text>
+            <Text
+              accessibilityRole="button"
+              onPress={loading ? undefined : revokeAccess}
+              style={[styles.action, loading && styles.actionDisabled]}
+            >
+              Revoke access
             </Text>
           </View>
         )}

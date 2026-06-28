@@ -145,10 +145,23 @@ internal object GoogleSignInController {
       getEmailFromStorage(context, emailOrUniqueId) ?: emailOrUniqueId
     }
 
+    val uniqueId = if (emailOrUniqueId.contains("@")) {
+      getUniqueIdFromStorage(context, emailOrUniqueId) ?: emailOrUniqueId
+    } else {
+      emailOrUniqueId
+    }
+
+    val savedScopes = getScopesFromStorage(context, uniqueId)
+    val finalScopes = if (savedScopes.isEmpty()) {
+      (configuredScopes + listOf("openid", "email", "profile")).toSet()
+    } else {
+      savedScopes
+    }
+
     val account = Account(email, "com.google")
     val request = RevokeAccessRequest.builder()
       .setAccount(account)
-      .setScopes(emptyList<Scope>())
+      .setScopes(finalScopes.map { Scope(it) })
       .build()
 
     try {
@@ -168,7 +181,7 @@ internal object GoogleSignInController {
         message = e.message ?: "Failed to revoke access.",
       )
     } finally {
-      removeEmailFromStorage(context, emailOrUniqueId)
+      removeUserDataFromStorage(context, emailOrUniqueId)
       signOut()
     }
   }
@@ -183,6 +196,15 @@ internal object GoogleSignInController {
         scopes = scopes.toList(),
         offlineAccess = offlineAccess,
       )
+
+    val context = requireContext()
+    val lastUserId = getLastSignedInUserId(context)
+    if (lastUserId != null) {
+      val existingScopes = getScopesFromStorage(context, lastUserId)
+      val updatedScopes = existingScopes + scopes.toList()
+      saveScopesToStorage(context, lastUserId, updatedScopes)
+    }
+
     return OneTapAuthorizationResult(serverAuthCode = authCode.toOptionalStringVariant())
   }
 
@@ -275,6 +297,8 @@ internal object GoogleSignInController {
 
     email?.let {
       saveEmailToStorage(requireContext(), userId, it)
+      val initialScopes = (configuredScopes + listOf("openid", "email", "profile")).toSet()
+      saveScopesToStorage(requireContext(), userId, initialScopes)
     }
 
     return OneTapSuccessData(
@@ -347,7 +371,11 @@ internal object GoogleSignInController {
   private fun saveEmailToStorage(context: Context, uniqueId: String, email: String) {
     try {
       val prefs = getEncryptedPrefs(context)
-      prefs.edit().putString(uniqueId, email).apply()
+      prefs.edit()
+        .putString(uniqueId, email)
+        .putString(email, uniqueId)
+        .putString("last_signed_in_user_id", uniqueId)
+        .apply()
     } catch (e: Exception) {
       // Log or silently ignore to not crash sign-in on encrypted prefs failure
     }
@@ -362,21 +390,59 @@ internal object GoogleSignInController {
     }
   }
 
-  private fun removeEmailFromStorage(context: Context, emailOrUniqueId: String) {
+  private fun getUniqueIdFromStorage(context: Context, email: String): String? {
+    return try {
+      val prefs = getEncryptedPrefs(context)
+      prefs.getString(email, null)
+    } catch (e: Exception) {
+      null
+    }
+  }
+
+  private fun getLastSignedInUserId(context: Context): String? {
+    return try {
+      val prefs = getEncryptedPrefs(context)
+      prefs.getString("last_signed_in_user_id", null)
+    } catch (e: Exception) {
+      null
+    }
+  }
+
+  private fun saveScopesToStorage(context: Context, uniqueId: String, scopes: Set<String>) {
     try {
       val prefs = getEncryptedPrefs(context)
-      if (emailOrUniqueId.contains("@")) {
-        // If it is an email, find the key (uniqueId) that maps to this email, and remove it.
-        val allPrefs = prefs.all
-        for ((key, value) in allPrefs) {
-          if (value == emailOrUniqueId) {
-            prefs.edit().remove(key).apply()
-          }
-        }
+      prefs.edit().putStringSet("${uniqueId}_scopes", scopes).apply()
+    } catch (e: Exception) {}
+  }
+
+  private fun getScopesFromStorage(context: Context, uniqueId: String): Set<String> {
+    return try {
+      val prefs = getEncryptedPrefs(context)
+      prefs.getStringSet("${uniqueId}_scopes", null) ?: emptySet()
+    } catch (e: Exception) {
+      emptySet()
+    }
+  }
+
+  private fun removeUserDataFromStorage(context: Context, emailOrUniqueId: String) {
+    try {
+      val prefs = getEncryptedPrefs(context)
+      val (email, uniqueId) = if (emailOrUniqueId.contains("@")) {
+        val resolvedId = prefs.getString(emailOrUniqueId, null)
+        Pair(emailOrUniqueId, resolvedId)
       } else {
-        // If it's a uniqueId, remove it directly.
-        prefs.edit().remove(emailOrUniqueId).apply()
+        val resolvedEmail = prefs.getString(emailOrUniqueId, null)
+        Pair(resolvedEmail, emailOrUniqueId)
       }
+
+      val editor = prefs.edit()
+      email?.let { editor.remove(it) }
+      uniqueId?.let {
+        editor.remove(it)
+        editor.remove("${uniqueId}_scopes")
+      }
+      editor.remove("last_signed_in_user_id")
+      editor.apply()
     } catch (e: Exception) {
       // Silently ignore
     }
