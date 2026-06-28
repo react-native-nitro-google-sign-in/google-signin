@@ -1,6 +1,6 @@
 {
   "name": "react-native-nitro-google-signin",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "description": "High-Performance Google Sign-In for React Native (Nitro Powered)",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
