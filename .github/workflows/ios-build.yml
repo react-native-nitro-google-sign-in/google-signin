@@ -133,6 +133,13 @@ jobs:
         if: matrix.label == 'bare'
         run: cp example/ci/.env example/.env
 
+      - name: Generate iOS env config (bare)
+        if: matrix.label == 'bare'
+        working-directory: example/ios
+        run: |
+          RN_CONFIG_SCRIPT=$(cd .. && node -p "require('path').join(require('path').dirname(require.resolve('react-native-config/package.json')), 'ios/ReactNativeConfig/BuildXCConfig.rb')")
+          ruby "$RN_CONFIG_SCRIPT" .. tmp.xcconfig
+
       - name: Install Pods (bare)
         if: matrix.label == 'bare'
         working-directory: example/ios

@@ -5,6 +5,25 @@
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
+      <PreActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Generate env config"
+               scriptText = "export ENVFILE=&quot;${ENVFILE:-$SRCROOT/../.env}&quot;&#10;RN_CONFIG_SCRIPT=$(cd &quot;$SRCROOT/..&quot; &amp;&amp; node -p &quot;require(&apos;path&apos;).join(require(&apos;path&apos;).dirname(require.resolve(&apos;react-native-config/package.json&apos;)), &apos;ios/ReactNativeConfig/BuildXCConfig.rb&apos;)&quot;)&#10;ruby &quot;$RN_CONFIG_SCRIPT&quot; &quot;$SRCROOT/..&quot; &quot;$SRCROOT/tmp.xcconfig&quot;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
+                     BuildableName = "NitroGoogleSigninExample.app"
+                     BlueprintName = "NitroGoogleSigninExample"
+                     ReferencedContainer = "container:NitroGoogleSigninExample.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PreActions>
+
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"

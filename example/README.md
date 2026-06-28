@@ -1,97 +1,95 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Bare RN example — react-native-nitro-google-signin
 
-# Getting Started
+Development app that exercises the native Google Sign-In flow with `react-native-config` for local credentials.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Prerequisites
 
-## Step 1: Start Metro
+- Node 22+
+- Xcode (iOS) / Android Studio (Android)
+- [Bun](https://bun.sh) or npm at the monorepo root
+- **`google-services.json`** and **`GoogleService-Info.plist`** (gitignored — add your own)
+- **`.env`** copied from [`.env.example`](./.env.example)
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## Google config files
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+| File | Place here |
+| ---- | ---------- |
+| `google-services.json` | `example/google-services.json` |
+| `GoogleService-Info.plist` | `example/ios/GoogleService-Info.plist` |
 
-```sh
-# Using npm
-npm start
+Use OAuth / Firebase app IDs that match the example bundle ID: **`com.nitrogooglesigninexample`**.
 
-# OR using Yarn
-yarn start
+**Full guide (OAuth, Firebase, SHA-1):**  
+https://react-native-nitro-google-sign-in.github.io/docs/setup/google-cloud
+
+## Environment variables
+
+Copy the example env file and fill in your OAuth client IDs:
+
+```bash
+cp .env.example .env
 ```
 
-## Step 2: Build and run your app
+| Variable | Used for |
+| -------- | -------- |
+| `WEB_CLIENT_ID` | Web OAuth client ID — passed to `GoogleOneTapSignIn.configure()` in `App.tsx` |
+| `REVERSED_CLIENT_ID` | iOS URL scheme — must match `REVERSED_CLIENT_ID` in `GoogleService-Info.plist` |
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+Do **not** commit `.env`.
 
-### Android
+## iOS: `tmp.xcconfig`
 
-```sh
-# Using npm
-npm run android
+`Info.plist` reads `$(REVERSED_CLIENT_ID)` from a generated file, `ios/tmp.xcconfig` (gitignored). It is produced from `.env` by [react-native-config](https://github.com/lugg/react-native-config).
 
-# OR using Yarn
-yarn android
+### Automatic (recommended)
+
+Building from Xcode runs the **Generate env config** scheme pre-action and writes `ios/tmp.xcconfig` before compile.
+
+`bun run ios` / `react-native run-ios` uses the same shared scheme, so the file is created on each build.
+
+### Manual
+
+Generate it yourself after creating or editing `.env`:
+
+```bash
+cd ios
+RN_CONFIG_SCRIPT=$(cd .. && node -p "require('path').join(require('path').dirname(require.resolve('react-native-config/package.json')), 'ios/ReactNativeConfig/BuildXCConfig.rb')")
+ruby "$RN_CONFIG_SCRIPT" .. tmp.xcconfig
 ```
 
-### iOS
+Verify the output contains `REVERSED_CLIENT_ID=...`:
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+```bash
+cat ios/tmp.xcconfig
 ```
 
-Then, and every time you update your native dependencies, run:
+Regenerate whenever you change `REVERSED_CLIENT_ID` in `.env`.
 
-```sh
-bundle exec pod install --project-directory="ios"
+## Setup
+
+From the repository root:
+
+```bash
+bun install
+cd example
+cp .env.example .env   # then edit .env
+# Add google-services.json + GoogleService-Info.plist (see above)
+# Generate ios/tmp.xcconfig (see above) if not building via Xcode / react-native run-ios yet
+bundle exec pod install --project-directory=ios
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## Run
 
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+```bash
+bun run start          # Metro
+bun run ios            # or android — separate terminal
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## Troubleshooting
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+| Issue | Fix |
+|-------|-----|
+| Missing config files | See [Google Cloud & config files](https://react-native-nitro-google-sign-in.github.io/docs/setup/google-cloud) |
+| iOS redirect / URL scheme fails | Set `REVERSED_CLIENT_ID` in `.env`, regenerate `ios/tmp.xcconfig`, rebuild |
+| `Config.WEB_CLIENT_ID` is empty | Ensure `.env` exists and Metro was restarted after edits |
+| `DEVELOPER_ERROR` (Android) | Add debug SHA-1 in Google Cloud / Firebase |

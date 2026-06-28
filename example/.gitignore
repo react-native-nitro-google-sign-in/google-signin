@@ -79,6 +79,9 @@ yarn-error.log
 .env.*
 !.env.example
 
+# react-native-config codegen (generated from .env at build time)
+ios/tmp.xcconfig
+
 # Google / Firebase config (use your own; see package docs)
 /google-services.json
 /GoogleService-Info.plist
