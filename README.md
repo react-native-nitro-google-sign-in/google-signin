@@ -277,7 +277,7 @@ Live demos: [`example/App.tsx`](example/App.tsx) and [`example-expo/App.tsx`](ex
 | `presentExplicitSignIn()` | Explicit Sign in with Google UI.                                                                                                                 |
 | `requestScopes(scopes)`   | Request **additional** OAuth access after sign-in; returns `{ serverAuthCode }`.                                                                 |
 | `signOut()`               | Clears local Google session (iOS SDK); disable auto sign-in on Android.                                                                          |
-| `revokeAccess(id)`        | Disconnect app (iOS); no-op token revoke on Android CredMan.                                                                                     |
+| `revokeAccess(id)`        | Disconnect app (revokes app access / OAuth grant on both iOS and Android).                                                                       |
 
 
 Also exported: native [`GoogleSignInButton`](https://react-native-nitro-google-sign-in.github.io/docs/guide/google-sign-in-button), `useGoogleSignInFromButton`, response helpers (`isSuccessResponse`, `isNoSavedCredentialFoundResponse`, `isCancelledResponse`, `isErrorWithCode`), and `statusCodes`.

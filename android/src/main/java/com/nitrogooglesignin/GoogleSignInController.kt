@@ -23,8 +23,17 @@ import com.margelo.nitro.nitrogooglesignin.OneTapSuccessData
 import com.margelo.nitro.nitrogooglesignin.OneTapUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import java.security.MessageDigest
 import java.util.UUID
+import android.accounts.Account
+import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.auth.api.identity.RevokeAccessRequest
 
 internal object GoogleSignInController {
   private var webClientId: String? = null
@@ -125,8 +134,41 @@ internal object GoogleSignInController {
     }
   }
 
-  suspend fun revokeAccess(@Suppress("UNUSED_PARAMETER") emailOrUniqueId: String) {
-    signOut()
+  suspend fun revokeAccess(emailOrUniqueId: String) {
+    val context = requireContext()
+    val activity = requireActivity()
+
+    val email = if (emailOrUniqueId.contains("@")) {
+      emailOrUniqueId
+    } else {
+      getEmailFromStorage(context, emailOrUniqueId) ?: emailOrUniqueId
+    }
+
+    val account = Account(email, "com.google")
+    val request = RevokeAccessRequest.builder()
+      .setAccount(account)
+      .build()
+
+    try {
+      suspendCancellableCoroutine<Void?> { continuation ->
+        Identity.getAuthorizationClient(activity)
+          .revokeAccess(request)
+          .addOnSuccessListener {
+            continuation.resume(null)
+          }
+          .addOnFailureListener { exception ->
+            continuation.resumeWithException(exception)
+          }
+      }
+    } catch (e: Exception) {
+      throw GoogleSignInException(
+        code = "REVOKE_ACCESS_FAILED",
+        message = e.message ?: "Failed to revoke access.",
+      )
+    } finally {
+      removeEmailFromStorage(context, emailOrUniqueId)
+      signOut()
+    }
   }
 
   suspend fun requestScopes(scopes: Array<String>): OneTapAuthorizationResult {
@@ -229,6 +271,10 @@ internal object GoogleSignInController {
         photo = googleCredential.profilePictureUri?.toString().toOptionalStringVariant(),
       )
 
+    email?.let {
+      saveEmailToStorage(requireContext(), userId, it)
+    }
+
     return OneTapSuccessData(
       user = profileUser,
       idToken = googleCredential.idToken,
@@ -279,6 +325,59 @@ internal object GoogleSignInController {
     val raw = UUID.randomUUID().toString()
     val digest = MessageDigest.getInstance("SHA-256").digest(raw.toByteArray())
     return digest.joinToString("") { "%02x".format(it) }
+  }
+
+  private const val PREFS_FILE_NAME = "google_signin_secure_prefs"
+
+  private fun getEncryptedPrefs(context: Context): SharedPreferences {
+    val masterKey = MasterKey.Builder(context)
+      .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+      .build()
+    return EncryptedSharedPreferences.create(
+      context,
+      PREFS_FILE_NAME,
+      masterKey,
+      EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+      EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+    )
+  }
+
+  private fun saveEmailToStorage(context: Context, uniqueId: String, email: String) {
+    try {
+      val prefs = getEncryptedPrefs(context)
+      prefs.edit().putString(uniqueId, email).apply()
+    } catch (e: Exception) {
+      // Log or silently ignore to not crash sign-in on encrypted prefs failure
+    }
+  }
+
+  private fun getEmailFromStorage(context: Context, uniqueId: String): String? {
+    return try {
+      val prefs = getEncryptedPrefs(context)
+      prefs.getString(uniqueId, null)
+    } catch (e: Exception) {
+      null
+    }
+  }
+
+  private fun removeEmailFromStorage(context: Context, emailOrUniqueId: String) {
+    try {
+      val prefs = getEncryptedPrefs(context)
+      if (emailOrUniqueId.contains("@")) {
+        // If it is an email, find the key (uniqueId) that maps to this email, and remove it.
+        val allPrefs = prefs.all
+        for ((key, value) in allPrefs) {
+          if (value == emailOrUniqueId) {
+            prefs.edit().remove(key).apply()
+          }
+        }
+      } else {
+        // If it's a uniqueId, remove it directly.
+        prefs.edit().remove(emailOrUniqueId).apply()
+      }
+    } catch (e: Exception) {
+      // Silently ignore
+    }
   }
 
   private fun requireContext(): ReactApplicationContext =
