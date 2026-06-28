@@ -48,8 +48,13 @@ export class GoogleSignInError extends Error {
 
 export function isErrorWithCode(
   error: unknown
-): error is GoogleSignInError {
-  return error instanceof GoogleSignInError
+): error is Pick<GoogleSignInError, 'code' | 'message' | 'userInfo'> {
+  if (error instanceof GoogleSignInError) return true
+  if (typeof error !== 'object' || error === null) return false
+  const candidate = error as Partial<GoogleSignInError>
+  return (
+    typeof candidate.code === 'string' && typeof candidate.message === 'string'
+  )
 }
 
 export function isSuccessResponse(

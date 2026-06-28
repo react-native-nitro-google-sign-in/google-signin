@@ -10,15 +10,40 @@ import {
 import {
   GoogleOneTapSignIn,
   GoogleSignInButton,
+  isCancelledResponse,
+  isErrorWithCode,
   isNoSavedCredentialFoundResponse,
   isSuccessResponse,
   OneTapSuccessData,
+  statusCodes,
 } from 'react-native-nitro-google-signin';
 import Config from 'react-native-config';
 
 const WEB_CLIENT_ID = Config.WEB_CLIENT_ID;
 
 const DRIVE_FULL_SCOPE = 'https://www.googleapis.com/auth/drive';
+
+function formatGoogleSignInError(error: unknown, fallback: string): string {
+  if (isErrorWithCode(error)) {
+    return `${error.code}: ${error.message}`;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return fallback;
+}
+
+function formatSignInResponse(
+  response: Awaited<ReturnType<typeof GoogleOneTapSignIn.createAccount>>,
+): string {
+  if (isCancelledResponse(response)) {
+    return `${statusCodes.SIGN_IN_CANCELLED}: Sign-in cancelled`;
+  }
+  if (isNoSavedCredentialFoundResponse(response)) {
+    return 'No saved Google account found';
+  }
+  return 'Sign-in did not complete';
+}
 
 function App(): React.JSX.Element {
   const [status, setStatus] = useState<string>('Sign in below');
@@ -31,6 +56,7 @@ function App(): React.JSX.Element {
   useEffect(() => {
     GoogleOneTapSignIn.configure({
       webClientId: WEB_CLIENT_ID,
+      offlineAccess: true,
     });
   }, []);
 
@@ -40,7 +66,7 @@ function App(): React.JSX.Element {
   };
 
   const onSignInError = (e: unknown) => {
-    setStatus(e instanceof Error ? e.message : 'Sign-in failed');
+    setStatus(formatGoogleSignInError(e, 'Sign-in failed'));
   };
 
   const chooseAnotherAccount = async () => {
@@ -56,10 +82,10 @@ function App(): React.JSX.Element {
       if (isSuccessResponse(response)) {
         onSignInSuccess(response.data);
       } else {
-        setStatus('Sign-in cancelled');
+        setStatus(formatSignInResponse(response));
       }
     } catch (e) {
-      setStatus(e instanceof Error ? e.message : 'Account selection failed');
+      setStatus(formatGoogleSignInError(e, 'Account selection failed'));
     } finally {
       setLoading(false);
     }
@@ -72,11 +98,9 @@ function App(): React.JSX.Element {
     }
 
     setLoading(true);
-    setExtraScopesStatus('Requesting calendar read access…');
+    setExtraScopesStatus('Requesting Drive full access…');
     try {
       const result = await GoogleOneTapSignIn.requestScopes([DRIVE_FULL_SCOPE]);
-
-      console.log('result', result);
 
       if (result.serverAuthCode) {
         setExtraScopesStatus(
@@ -89,8 +113,9 @@ function App(): React.JSX.Element {
       }
     } catch (e) {
       setExtraScopesStatus(
-        e instanceof Error ? e.message : 'Failed to request scopes',
+        formatGoogleSignInError(e, 'Failed to request scopes'),
       );
+      console.log('requestAdditionalScopes error', e, (e as Error).name);
     } finally {
       setLoading(false);
     }
@@ -105,7 +130,7 @@ function App(): React.JSX.Element {
       setExtraScopesStatus(null);
       setStatus('Signed out');
     } catch (e) {
-      setStatus(e instanceof Error ? e.message : 'Sign out failed');
+      setStatus(formatGoogleSignInError(e, 'Sign out failed'));
     } finally {
       setLoading(false);
     }
@@ -120,8 +145,7 @@ function App(): React.JSX.Element {
       setExtraScopesStatus(null);
       setStatus('Access revoked');
     } catch (e) {
-      setStatus(e instanceof Error ? e.message : 'Revoke access failed');
-      console.log('revokeAccess error', e);
+      setStatus(formatGoogleSignInError(e, 'Revoke access failed'));
     } finally {
       setLoading(false);
     }

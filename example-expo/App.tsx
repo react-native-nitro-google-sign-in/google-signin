@@ -11,14 +11,39 @@ import {
 import {
   GoogleOneTapSignIn,
   GoogleSignInButton,
+  isCancelledResponse,
+  isErrorWithCode,
   isNoSavedCredentialFoundResponse,
   isSuccessResponse,
+  statusCodes,
   type OneTapSuccessData,
 } from 'react-native-nitro-google-signin'
 
 const DRIVE_FULL_SCOPE = 'https://www.googleapis.com/auth/drive'
 
 const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_WEB_CLIENT_ID ?? ''
+
+function formatGoogleSignInError(error: unknown, fallback: string): string {
+  if (isErrorWithCode(error)) {
+    return `${error.code}: ${error.message}`
+  }
+  if (error instanceof Error) {
+    return error.message
+  }
+  return fallback
+}
+
+function formatSignInResponse(
+  response: Awaited<ReturnType<typeof GoogleOneTapSignIn.createAccount>>
+): string {
+  if (isCancelledResponse(response)) {
+    return `${statusCodes.SIGN_IN_CANCELLED}: Sign-in cancelled`
+  }
+  if (isNoSavedCredentialFoundResponse(response)) {
+    return 'No saved Google account found'
+  }
+  return 'Sign-in did not complete'
+}
 
 export default function App() {
   const [status, setStatus] = useState('Sign in below (Expo dev build)')
@@ -40,7 +65,7 @@ export default function App() {
   }
 
   const onSignInError = (e: unknown) => {
-    setStatus(e instanceof Error ? e.message : 'Sign-in failed')
+    setStatus(formatGoogleSignInError(e, 'Sign-in failed'))
   }
 
   const chooseAnotherAccount = async () => {
@@ -56,10 +81,10 @@ export default function App() {
       if (isSuccessResponse(response)) {
         onSignInSuccess(response.data)
       } else {
-        setStatus('Sign-in cancelled')
+        setStatus(formatSignInResponse(response))
       }
     } catch (e) {
-      setStatus(e instanceof Error ? e.message : 'Account selection failed')
+      setStatus(formatGoogleSignInError(e, 'Account selection failed'))
     } finally {
       setLoading(false)
     }
@@ -72,7 +97,7 @@ export default function App() {
     }
 
     setLoading(true)
-    setExtraScopesStatus('Requesting calendar read access…')
+    setExtraScopesStatus('Requesting Drive full access…')
     try {
       const result = await GoogleOneTapSignIn.requestScopes([DRIVE_FULL_SCOPE])
       if (result.serverAuthCode) {
@@ -86,7 +111,7 @@ export default function App() {
       }
     } catch (e) {
       setExtraScopesStatus(
-        e instanceof Error ? e.message : 'Failed to request scopes'
+        formatGoogleSignInError(e, 'Failed to request scopes')
       )
     } finally {
       setLoading(false)
@@ -102,7 +127,7 @@ export default function App() {
       setExtraScopesStatus(null)
       setStatus('Signed out')
     } catch (e) {
-      setStatus(e instanceof Error ? e.message : 'Sign out failed')
+      setStatus(formatGoogleSignInError(e, 'Sign out failed'))
     } finally {
       setLoading(false)
     }
@@ -117,8 +142,7 @@ export default function App() {
       setExtraScopesStatus(null)
       setStatus('Access revoked')
     } catch (e) {
-      setStatus(e instanceof Error ? e.message : 'Revoke access failed')
-      console.log('revokeAccess error', e)
+      setStatus(formatGoogleSignInError(e, 'Revoke access failed'))
     } finally {
       setLoading(false)
     }
