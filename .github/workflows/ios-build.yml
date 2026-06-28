@@ -101,7 +101,7 @@ jobs:
 
       - name: Cache CocoaPods (bare)
         if: matrix.label == 'bare'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cocoapods/repos
@@ -113,7 +113,7 @@ jobs:
 
       - name: Cache CocoaPods (expo)
         if: matrix.label == 'expo'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cocoapods/repos
