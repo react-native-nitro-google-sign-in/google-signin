@@ -18,8 +18,7 @@ import Config from 'react-native-config';
 
 const WEB_CLIENT_ID = Config.WEB_CLIENT_ID;
 
-const DRIVE_FULL_SCOPE =
-  'https://www.googleapis.com/auth/drive';
+const DRIVE_FULL_SCOPE = 'https://www.googleapis.com/auth/drive';
 
 function App(): React.JSX.Element {
   const [status, setStatus] = useState<string>('Sign in below');
@@ -75,9 +74,9 @@ function App(): React.JSX.Element {
     setLoading(true);
     setExtraScopesStatus('Requesting calendar read access…');
     try {
-      const result = await GoogleOneTapSignIn.requestScopes([
-        DRIVE_FULL_SCOPE,
-      ]);
+      const result = await GoogleOneTapSignIn.requestScopes([DRIVE_FULL_SCOPE]);
+
+      console.log('result', result);
 
       if (result.serverAuthCode) {
         setExtraScopesStatus(
@@ -123,7 +122,6 @@ function App(): React.JSX.Element {
     } catch (e) {
       setStatus(e instanceof Error ? e.message : 'Revoke access failed');
       console.log('revokeAccess error', e);
-      
     } finally {
       setLoading(false);
     }
