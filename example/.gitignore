@@ -78,6 +78,7 @@ yarn-error.log
 .env
 .env.*
 !.env.example
+!ci/.env
 
 # react-native-config codegen (generated from .env at build time)
 ios/tmp.xcconfig

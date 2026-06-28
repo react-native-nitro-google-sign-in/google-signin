@@ -14,6 +14,8 @@ jsconfig.json
 .env
 .env.*
 !.env.example
+!example/ci/.env
+!example-expo/ci/.env
 google-services.json
 GoogleService-Info.plist
 **/google-services.json
