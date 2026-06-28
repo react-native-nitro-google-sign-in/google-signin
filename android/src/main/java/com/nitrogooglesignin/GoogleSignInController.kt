@@ -34,6 +34,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.RevokeAccessRequest
+import com.google.android.gms.common.api.Scope
 
 internal object GoogleSignInController {
   private var webClientId: String? = null
@@ -147,6 +148,7 @@ internal object GoogleSignInController {
     val account = Account(email, "com.google")
     val request = RevokeAccessRequest.builder()
       .setAccount(account)
+      .setScopes(emptyList<Scope>())
       .build()
 
     try {

@@ -18,8 +18,8 @@ import Config from 'react-native-config';
 
 const WEB_CLIENT_ID = Config.WEB_CLIENT_ID;
 
-const CALENDAR_READONLY_SCOPE =
-  'https://www.googleapis.com/auth/calendar.readonly';
+const DRIVE_FULL_SCOPE =
+  'https://www.googleapis.com/auth/drive';
 
 function App(): React.JSX.Element {
   const [status, setStatus] = useState<string>('Sign in below');
@@ -76,7 +76,7 @@ function App(): React.JSX.Element {
     setExtraScopesStatus('Requesting calendar read access…');
     try {
       const result = await GoogleOneTapSignIn.requestScopes([
-        CALENDAR_READONLY_SCOPE,
+        DRIVE_FULL_SCOPE,
       ]);
 
       if (result.serverAuthCode) {
@@ -107,6 +107,23 @@ function App(): React.JSX.Element {
       setStatus('Signed out');
     } catch (e) {
       setStatus(e instanceof Error ? e.message : 'Sign out failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const revokeAccess = async () => {
+    try {
+      setLoading(true);
+      setStatus('Revoking access…');
+      await GoogleOneTapSignIn.revokeAccess(user?.user.id ?? '');
+      setUser(null);
+      setExtraScopesStatus(null);
+      setStatus('Access revoked');
+    } catch (e) {
+      setStatus(e instanceof Error ? e.message : 'Revoke access failed');
+      console.log('revokeAccess error', e);
+      
     } finally {
       setLoading(false);
     }
@@ -163,7 +180,7 @@ function App(): React.JSX.Element {
             onPress={loading ? undefined : requestAdditionalScopes}
             style={[styles.action, loading && styles.actionDisabled]}
           >
-            Request calendar read access
+            Request drive full access
           </Text>
           <Text
             accessibilityRole="button"
@@ -171,6 +188,13 @@ function App(): React.JSX.Element {
             style={[styles.action, loading && styles.actionDisabled]}
           >
             Sign out
+          </Text>
+          <Text
+            accessibilityRole="button"
+            onPress={loading ? undefined : revokeAccess}
+            style={[styles.action, loading && styles.actionDisabled]}
+          >
+            Revoke access
           </Text>
         </View>
       )}
