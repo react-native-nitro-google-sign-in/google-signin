@@ -2,6 +2,7 @@ package com.nitrogooglesignin
 
 import android.app.Activity
 import android.content.Context
+import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -110,8 +111,18 @@ internal object GoogleSignInController {
   }
 
   suspend fun signOut() {
-    // Credential Manager has no global sign-out; JS layer should clear app session.
-    // Matches One Tap behavior: automatic sign-in is disabled until next successful sign-in.
+    val context = requireContext()
+    val credentialManager = CredentialManager.create(context)
+    try {
+      withContext(Dispatchers.Main) {
+        credentialManager.clearCredentialState(ClearCredentialStateRequest())
+      }
+    } catch (e: Exception) {
+      throw GoogleSignInException(
+        code = "SIGN_OUT_FAILED",
+        message = e.message ?: "Sign out failed.",
+      )
+    }
   }
 
   suspend fun revokeAccess(@Suppress("UNUSED_PARAMETER") emailOrUniqueId: String) {
