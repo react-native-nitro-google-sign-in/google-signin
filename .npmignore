@@ -58,3 +58,5 @@ GoogleService-Info.plist
 
 # Source maps optional — omit if you add them to lib/ later
 **/*.map
+security-audit
+.agents/

@@ -140,3 +140,6 @@ buck-out/
 .cache/
 .turbo/
 .eslintcache
+
+# Security audit
+security-audit/
