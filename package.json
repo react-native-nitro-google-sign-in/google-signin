@@ -1,7 +1,7 @@
 {
   "name": "react-native-nitro-google-signin",
-  "version": "0.8.0",
-  "description": "High-Performance Google Sign-In for React Native (Nitro Powered)",
+  "version": "0.8.2",
+  "description": "Google Sign-In and One Tap for React Native and Expo — OAuth 2.0 / OpenID Connect with Android Credential Manager and Google Sign-In SDK (iOS). Powered by Nitro Modules.",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -16,7 +16,26 @@
   },
   "keywords": [
     "react-native",
-    "react-native-nitro-google-signin"
+    "react native-nitro-google-signin",
+    "expo",
+    "google sign in",
+    "google sign-in",
+    "google signin",
+    "google login",
+    "sign in with google",
+    "google one tap",
+    "one tap sign in",
+    "universal sign in",
+    "credential manager",
+    "oauth",
+    "oauth2",
+    "oidc",
+    "openid connect",
+    "authentication",
+    "google auth",
+    "nitro modules",
+    "android",
+    "ios"
   ],
   "files": [
     "src",

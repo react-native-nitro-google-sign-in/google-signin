@@ -62,6 +62,7 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
           .setRequestedScopes(resolvedScopes.map { Scope(it) })
       if (offlineAccess) {
         requestBuilder.requestOfflineAccess(serverClientId)
+        requestBuilder.setPrompt(AuthorizationRequest.Prompt.CONSENT)
       }
 
       Identity.getAuthorizationClient(activity)
@@ -130,7 +131,12 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
     clearPending(continuation)
 
     if (resultCode != Activity.RESULT_OK || data == null) {
-      continuation.resume(null)
+      continuation.resumeWithException(
+        GoogleSignInException(
+          code = "SIGN_IN_CANCELLED",
+          message = "Flow cancelled or failed with resultCode: $resultCode"
+        )
+      )
       return
     }
 

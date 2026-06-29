@@ -23,8 +23,25 @@ import com.margelo.nitro.nitrogooglesignin.OneTapSuccessData
 import com.margelo.nitro.nitrogooglesignin.OneTapUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import java.security.MessageDigest
 import java.util.UUID
+import android.accounts.Account
+import android.content.SharedPreferences
+import android.os.Build
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
+import java.security.KeyStore
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
+import android.util.Base64
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.auth.api.identity.RevokeAccessRequest
+import com.google.android.gms.common.api.Scope
 
 internal object GoogleSignInController {
   private var webClientId: String? = null
@@ -125,8 +142,55 @@ internal object GoogleSignInController {
     }
   }
 
-  suspend fun revokeAccess(@Suppress("UNUSED_PARAMETER") emailOrUniqueId: String) {
-    signOut()
+  suspend fun revokeAccess(emailOrUniqueId: String) {
+    val context = requireContext()
+    val activity = requireActivity()
+
+    val email = if (emailOrUniqueId.contains("@")) {
+      emailOrUniqueId
+    } else {
+      getEmailFromStorage(context, emailOrUniqueId) ?: emailOrUniqueId
+    }
+
+    val uniqueId = if (emailOrUniqueId.contains("@")) {
+      getUniqueIdFromStorage(context, emailOrUniqueId) ?: emailOrUniqueId
+    } else {
+      emailOrUniqueId
+    }
+
+    val savedScopes = getScopesFromStorage(context, uniqueId)
+    val finalScopes = if (savedScopes.isEmpty()) {
+      (configuredScopes + listOf("openid", "email", "profile")).toSet()
+    } else {
+      savedScopes
+    }
+
+    val account = Account(email, "com.google")
+    val request = RevokeAccessRequest.builder()
+      .setAccount(account)
+      .setScopes(finalScopes.map { Scope(it) })
+      .build()
+
+    try {
+      suspendCancellableCoroutine<Void?> { continuation ->
+        Identity.getAuthorizationClient(activity)
+          .revokeAccess(request)
+          .addOnSuccessListener {
+            continuation.resume(null)
+          }
+          .addOnFailureListener { exception ->
+            continuation.resumeWithException(exception)
+          }
+      }
+    } catch (e: Exception) {
+      throw GoogleSignInException(
+        code = "REVOKE_ACCESS_FAILED",
+        message = e.message ?: "Failed to revoke access.",
+      )
+    } finally {
+      removeUserDataFromStorage(context, emailOrUniqueId)
+      signOut()
+    }
   }
 
   suspend fun requestScopes(scopes: Array<String>): OneTapAuthorizationResult {
@@ -139,6 +203,15 @@ internal object GoogleSignInController {
         scopes = scopes.toList(),
         offlineAccess = offlineAccess,
       )
+
+    val context = requireContext()
+    val lastUserId = getLastSignedInUserId(context)
+    if (lastUserId != null) {
+      val existingScopes = getScopesFromStorage(context, lastUserId)
+      val updatedScopes = existingScopes + scopes.toList()
+      saveScopesToStorage(context, lastUserId, updatedScopes)
+    }
+
     return OneTapAuthorizationResult(serverAuthCode = authCode.toOptionalStringVariant())
   }
 
@@ -229,6 +302,12 @@ internal object GoogleSignInController {
         photo = googleCredential.profilePictureUri?.toString().toOptionalStringVariant(),
       )
 
+    email?.let {
+      saveEmailToStorage(requireContext(), userId, it)
+      val initialScopes = (configuredScopes + listOf("openid", "email", "profile")).toSet()
+      saveScopesToStorage(requireContext(), userId, initialScopes)
+    }
+
     return OneTapSuccessData(
       user = profileUser,
       idToken = googleCredential.idToken,
@@ -279,6 +358,225 @@ internal object GoogleSignInController {
     val raw = UUID.randomUUID().toString()
     val digest = MessageDigest.getInstance("SHA-256").digest(raw.toByteArray())
     return digest.joinToString("") { "%02x".format(it) }
+  }
+
+  private const val PREFS_FILE_NAME = "google_signin_prefs"
+
+  private var oldPrefsCleaned = false
+
+  private fun getPrefs(context: Context): SharedPreferences {
+    if (!oldPrefsCleaned) {
+      cleanupOldPrefs(context)
+      oldPrefsCleaned = true
+    }
+    return context.getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE)
+  }
+
+  private fun cleanupOldPrefs(context: Context) {
+    try {
+      val oldPrefsName = "google_signin_secure_prefs"
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        context.deleteSharedPreferences(oldPrefsName)
+      } else {
+        val sharedPrefsDir = java.io.File(context.applicationInfo.dataDir, "shared_prefs")
+        val prefsFile = java.io.File(sharedPrefsDir, "$oldPrefsName.xml")
+        if (prefsFile.exists()) {
+          prefsFile.delete()
+        }
+      }
+    } catch (e: Exception) {
+      // Silently ignore to avoid crashing during cleanup
+    }
+  }
+
+  private object SecureStorageHelper {
+    private const val KEY_ALIAS = "google_signin_secure_key"
+    private const val ANDROID_KEYSTORE = "AndroidKeyStore"
+    private const val TRANSFORMATION = "AES/GCM/NoPadding"
+
+    private fun getOrCreateSecretKey(): SecretKey {
+      val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
+      if (keyStore.containsAlias(KEY_ALIAS)) {
+        try {
+          val entry = keyStore.getEntry(KEY_ALIAS, null) as? KeyStore.SecretKeyEntry
+          if (entry != null) {
+            return entry.secretKey
+          }
+        } catch (e: Exception) {
+          try {
+            keyStore.deleteEntry(KEY_ALIAS)
+          } catch (ignored: Exception) {}
+        }
+      }
+
+      val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
+      val spec = KeyGenParameterSpec.Builder(
+        KEY_ALIAS,
+        KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+      )
+        .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+        .build()
+      keyGenerator.init(spec)
+      return keyGenerator.generateKey()
+    }
+
+    fun encrypt(plainText: String): String? {
+      return try {
+        val secretKey = getOrCreateSecretKey()
+        val cipher = Cipher.getInstance(TRANSFORMATION)
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+        val iv = cipher.iv
+        val encryptedBytes = cipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
+        val ivBase64 = Base64.encodeToString(iv, Base64.NO_WRAP)
+        val encryptedBase64 = Base64.encodeToString(encryptedBytes, Base64.NO_WRAP)
+        "$ivBase64:$encryptedBase64"
+      } catch (e: Exception) {
+        try {
+          val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
+          keyStore.deleteEntry(KEY_ALIAS)
+          val secretKey = getOrCreateSecretKey()
+          val cipher = Cipher.getInstance(TRANSFORMATION)
+          cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+          val iv = cipher.iv
+          val encryptedBytes = cipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
+          val ivBase64 = Base64.encodeToString(iv, Base64.NO_WRAP)
+          val encryptedBase64 = Base64.encodeToString(encryptedBytes, Base64.NO_WRAP)
+          "$ivBase64:$encryptedBase64"
+        } catch (e2: Exception) {
+          null
+        }
+      }
+    }
+
+    fun decrypt(encryptedData: String): String? {
+      return try {
+        val parts = encryptedData.split(":")
+        if (parts.size != 2) return null
+        val iv = Base64.decode(parts[0], Base64.NO_WRAP)
+        val encryptedBytes = Base64.decode(parts[1], Base64.NO_WRAP)
+
+        val secretKey = getOrCreateSecretKey()
+        val cipher = Cipher.getInstance(TRANSFORMATION)
+        val spec = GCMParameterSpec(128, iv)
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, spec)
+        val decryptedBytes = cipher.doFinal(encryptedBytes)
+        String(decryptedBytes, Charsets.UTF_8)
+      } catch (e: Exception) {
+        null
+      }
+    }
+
+    fun hashKey(key: String): String {
+      return try {
+        val digest = MessageDigest.getInstance("SHA-256").digest(key.toByteArray(Charsets.UTF_8))
+        Base64.encodeToString(digest, Base64.NO_WRAP or Base64.URL_SAFE or Base64.NO_PADDING)
+      } catch (e: Exception) {
+        key
+      }
+    }
+  }
+
+  private fun saveEmailToStorage(context: Context, uniqueId: String, email: String) {
+    try {
+      val prefs = getPrefs(context)
+      val encryptedEmail = SecureStorageHelper.encrypt(email) ?: return
+      val encryptedUniqueId = SecureStorageHelper.encrypt(uniqueId) ?: return
+      val hashedUniqueId = SecureStorageHelper.hashKey(uniqueId)
+      val hashedEmail = SecureStorageHelper.hashKey(email)
+      val hashedLastSignedIn = SecureStorageHelper.hashKey("last_signed_in_user_id")
+
+      prefs.edit()
+        .putString(hashedUniqueId, encryptedEmail)
+        .putString(hashedEmail, encryptedUniqueId)
+        .putString(hashedLastSignedIn, encryptedUniqueId)
+        .apply()
+    } catch (e: Exception) {
+      // Log or silently ignore to not crash sign-in on prefs failure
+    }
+  }
+
+  private fun getEmailFromStorage(context: Context, uniqueId: String): String? {
+    return try {
+      val prefs = getPrefs(context)
+      val hashedUniqueId = SecureStorageHelper.hashKey(uniqueId)
+      val encryptedEmail = prefs.getString(hashedUniqueId, null) ?: return null
+      SecureStorageHelper.decrypt(encryptedEmail)
+    } catch (e: Exception) {
+      null
+    }
+  }
+
+  private fun getUniqueIdFromStorage(context: Context, email: String): String? {
+    return try {
+      val prefs = getPrefs(context)
+      val hashedEmail = SecureStorageHelper.hashKey(email)
+      val encryptedUniqueId = prefs.getString(hashedEmail, null) ?: return null
+      SecureStorageHelper.decrypt(encryptedUniqueId)
+    } catch (e: Exception) {
+      null
+    }
+  }
+
+  private fun getLastSignedInUserId(context: Context): String? {
+    return try {
+      val prefs = getPrefs(context)
+      val hashedLastSignedIn = SecureStorageHelper.hashKey("last_signed_in_user_id")
+      val encryptedUniqueId = prefs.getString(hashedLastSignedIn, null) ?: return null
+      SecureStorageHelper.decrypt(encryptedUniqueId)
+    } catch (e: Exception) {
+      null
+    }
+  }
+
+  private fun saveScopesToStorage(context: Context, uniqueId: String, scopes: Set<String>) {
+    try {
+      val prefs = getPrefs(context)
+      val scopesString = scopes.joinToString(",")
+      val encryptedScopes = SecureStorageHelper.encrypt(scopesString) ?: return
+      val hashedScopesKey = SecureStorageHelper.hashKey("${uniqueId}_scopes")
+      prefs.edit().putString(hashedScopesKey, encryptedScopes).apply()
+    } catch (e: Exception) {}
+  }
+
+  private fun getScopesFromStorage(context: Context, uniqueId: String): Set<String> {
+    return try {
+      val prefs = getPrefs(context)
+      val hashedScopesKey = SecureStorageHelper.hashKey("${uniqueId}_scopes")
+      val encryptedScopes = prefs.getString(hashedScopesKey, null) ?: return emptySet()
+      val decryptedScopes = SecureStorageHelper.decrypt(encryptedScopes) ?: return emptySet()
+      if (decryptedScopes.isEmpty()) {
+        emptySet()
+      } else {
+        decryptedScopes.split(",").toSet()
+      }
+    } catch (e: Exception) {
+      emptySet()
+    }
+  }
+
+  private fun removeUserDataFromStorage(context: Context, emailOrUniqueId: String) {
+    try {
+      val prefs = getPrefs(context)
+      val (email, uniqueId) = if (emailOrUniqueId.contains("@")) {
+        val resolvedId = getUniqueIdFromStorage(context, emailOrUniqueId)
+        Pair(emailOrUniqueId, resolvedId)
+      } else {
+        val resolvedEmail = getEmailFromStorage(context, emailOrUniqueId)
+        Pair(resolvedEmail, emailOrUniqueId)
+      }
+
+      val editor = prefs.edit()
+      email?.let { editor.remove(SecureStorageHelper.hashKey(it)) }
+      uniqueId?.let {
+        editor.remove(SecureStorageHelper.hashKey(it))
+        editor.remove(SecureStorageHelper.hashKey("${it}_scopes"))
+      }
+      editor.remove(SecureStorageHelper.hashKey("last_signed_in_user_id"))
+      editor.apply()
+    } catch (e: Exception) {
+      // Silently ignore
+    }
   }
 
   private fun requireContext(): ReactApplicationContext =

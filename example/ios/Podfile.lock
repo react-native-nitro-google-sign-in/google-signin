@@ -62,7 +62,7 @@ PODS:
   - hermes-engine (250829098.0.14):
     - hermes-engine/Pre-built (= 250829098.0.14)
   - hermes-engine/Pre-built (250829098.0.14)
-  - NitroGoogleSignin (0.8.0):
+  - NitroGoogleSignin (0.8.1):
     - GoogleSignIn (< 9.2.0, ~> 9.0)
     - hermes-engine
     - NitroModules
@@ -2293,7 +2293,7 @@ SPEC CHECKSUMS:
   GTMAppAuth: 217a876b249c3c585a54fd6f73e6b58c4f5c4238
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hermes-engine: 77880c98268570c547adcad251253b3187c9457b
-  NitroGoogleSignin: 76a679ee6e551aff839baf289dd9b01bac9be2a9
+  NitroGoogleSignin: 495889306c08082e2e080f2980a6cd6079e96bc2
   NitroModules: 16bc17a076b12304d608f7c915b9d321f56dfc19
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RCTDeprecation: 2a74a2c57675e64419bd89078efde81f7c1de90b

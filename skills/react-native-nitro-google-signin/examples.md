@@ -22,6 +22,8 @@ await GoogleOneTapSignIn.signOut()
 
 ## Extra scopes
 
+`offlineAccess: true` in `configure()` is **required** for a non-null `serverAuthCode`:
+
 ```ts
 GoogleOneTapSignIn.configure({
   webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
