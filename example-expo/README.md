@@ -49,6 +49,8 @@ bun run ios            # or android — separate terminal
 
 The app uses `GoogleOneTapSignIn.configure({ webClientId: 'autoDetect' })`.
 
+After sign-in, use **Get tokens** and **Clear cached access token** to test `getTokens()` / `clearCachedAccessToken()` (same as the bare `example/` app).
+
 ## Troubleshooting
 
 | Issue | Fix |

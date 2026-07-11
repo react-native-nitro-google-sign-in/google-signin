@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.nitrogooglesignin.HybridNitroGoogleSigninSpec
+import com.margelo.nitro.nitrogooglesignin.GetTokensResponse
 import com.margelo.nitro.nitrogooglesignin.OneTapAuthorizationResult
 import com.margelo.nitro.nitrogooglesignin.OneTapConfigureParams
 import com.margelo.nitro.nitrogooglesignin.OneTapResponse
@@ -36,6 +37,14 @@ class HybridNitroGoogleSignin : HybridNitroGoogleSigninSpec() {
 
   override fun requestScopes(scopes: Array<String>): Promise<OneTapAuthorizationResult> =
     Promise.async { GoogleSignInController.requestScopes(scopes) }
+
+  override fun getTokens(): Promise<GetTokensResponse> =
+    Promise.async { GoogleSignInController.getTokens() }
+
+  override fun clearCachedAccessToken(accessTokenString: String): Promise<Unit> =
+    Promise.async {
+      GoogleSignInController.clearCachedAccessToken(accessTokenString)
+    }
 
   override fun signOut(): Promise<Unit> =
     Promise.async {

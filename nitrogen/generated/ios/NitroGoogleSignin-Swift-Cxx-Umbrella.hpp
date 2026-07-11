@@ -8,6 +8,8 @@
 #pragma once
 
 // Forward declarations of C++ defined types
+// Forward declaration of `GetTokensResponse` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct GetTokensResponse; }
 // Forward declaration of `GoogleSignInButtonColorScheme` to properly resolve imports.
 namespace margelo::nitro::nitrogooglesignin { enum class GoogleSignInButtonColorScheme; }
 // Forward declaration of `GoogleSignInButtonContentAlignment` to properly resolve imports.
@@ -32,6 +34,7 @@ namespace margelo::nitro::nitrogooglesignin { struct OneTapSuccessData; }
 namespace margelo::nitro::nitrogooglesignin { struct OneTapUser; }
 
 // Include C++ defined types
+#include "GetTokensResponse.hpp"
 #include "GoogleSignInButtonColorScheme.hpp"
 #include "GoogleSignInButtonContentAlignment.hpp"
 #include "GoogleSignInButtonNativeSize.hpp"

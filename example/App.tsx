@@ -52,6 +52,8 @@ function App(): React.JSX.Element {
   const [extraScopesStatus, setExtraScopesStatus] = useState<string | null>(
     null,
   );
+  const [tokensStatus, setTokensStatus] = useState<string | null>(null);
+  const [lastAccessToken, setLastAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
     GoogleOneTapSignIn.configure({
@@ -60,8 +62,13 @@ function App(): React.JSX.Element {
     });
   }, []);
 
+  console.log('lastAccessToken', lastAccessToken);
+  console.log('tokensStatus', tokensStatus);
+
   const onSignInSuccess = (data: OneTapSuccessData) => {
     setUser(data);
+    setTokensStatus(null);
+    setLastAccessToken(null);
     setStatus(`Signed in as ${data.user.email ?? data.user.id}`);
   };
 
@@ -121,6 +128,51 @@ function App(): React.JSX.Element {
     }
   };
 
+  const getTokens = async () => {
+    if (!user) {
+      setTokensStatus('Sign in first, then call getTokens().');
+      return;
+    }
+
+    setLoading(true);
+    setTokensStatus('Fetching tokens…');
+    try {
+      const { idToken, accessToken } = await GoogleOneTapSignIn.getTokens();
+      setLastAccessToken(accessToken);
+      setTokensStatus(
+        `getTokens() OK — idToken: ${idToken.slice(0, 16)}…, accessToken: ${accessToken.slice(0, 16)}…`,
+      );
+    } catch (e) {
+      setLastAccessToken(null);
+      setTokensStatus(formatGoogleSignInError(e, 'getTokens() failed'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearCachedAccessToken = async () => {
+    if (!lastAccessToken) {
+      setTokensStatus('Call getTokens() first to obtain an access token.');
+      return;
+    }
+
+    setLoading(true);
+    setTokensStatus('Clearing cached access token…');
+    try {
+      await GoogleOneTapSignIn.clearCachedAccessToken(lastAccessToken);
+      setTokensStatus(
+        'clearCachedAccessToken() OK. Call getTokens() again to fetch a fresh token.',
+      );
+      setLastAccessToken(null);
+    } catch (e) {
+      setTokensStatus(
+        formatGoogleSignInError(e, 'clearCachedAccessToken() failed'),
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const signOut = async () => {
     try {
       setLoading(true);
@@ -128,6 +180,8 @@ function App(): React.JSX.Element {
       await GoogleOneTapSignIn.signOut();
       setUser(null);
       setExtraScopesStatus(null);
+      setTokensStatus(null);
+      setLastAccessToken(null);
       setStatus('Signed out');
     } catch (e) {
       setStatus(formatGoogleSignInError(e, 'Sign out failed'));
@@ -143,6 +197,8 @@ function App(): React.JSX.Element {
       await GoogleOneTapSignIn.revokeAccess(user?.user.id ?? '');
       setUser(null);
       setExtraScopesStatus(null);
+      setTokensStatus(null);
+      setLastAccessToken(null);
       setStatus('Access revoked');
     } catch (e) {
       setStatus(formatGoogleSignInError(e, 'Revoke access failed'));
@@ -176,6 +232,8 @@ function App(): React.JSX.Element {
         <Text style={styles.hint}>{extraScopesStatus}</Text>
       ) : null}
 
+      {tokensStatus ? <Text style={styles.hint}>{tokensStatus}</Text> : null}
+
       {!isSignedIn ? (
         <View style={styles.signInButtonContainer} collapsable={false}>
           <GoogleSignInButton
@@ -203,6 +261,20 @@ function App(): React.JSX.Element {
             style={[styles.action, loading && styles.actionDisabled]}
           >
             Request drive full access
+          </Text>
+          <Text
+            accessibilityRole="button"
+            onPress={loading ? undefined : getTokens}
+            style={[styles.action, loading && styles.actionDisabled]}
+          >
+            Get tokens
+          </Text>
+          <Text
+            accessibilityRole="button"
+            onPress={loading ? undefined : clearCachedAccessToken}
+            style={[styles.action, loading && styles.actionDisabled]}
+          >
+            Clear cached access token
           </Text>
           <Text
             accessibilityRole="button"

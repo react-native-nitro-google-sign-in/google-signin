@@ -63,6 +63,14 @@ namespace margelo::nitro::nitrogooglesignin::bridge::swift {
     };
   }
   
+  // pragma MARK: std::function<void(const GetTokensResponse& /* result */)>
+  Func_void_GetTokensResponse create_Func_void_GetTokensResponse(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroGoogleSignin::Func_void_GetTokensResponse::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const GetTokensResponse& result) mutable -> void {
+      swiftClosure.call(result);
+    };
+  }
+  
   // pragma MARK: std::shared_ptr<HybridNitroGoogleSigninSpec>
   std::shared_ptr<HybridNitroGoogleSigninSpec> create_std__shared_ptr_HybridNitroGoogleSigninSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     NitroGoogleSignin::HybridNitroGoogleSigninSpec_cxx swiftPart = NitroGoogleSignin::HybridNitroGoogleSigninSpec_cxx::fromUnsafe(swiftUnsafePointer);

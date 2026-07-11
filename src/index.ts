@@ -22,6 +22,7 @@ export {
   statusCodes,
 } from './types'
 export type {
+  GetTokensResponse,
   OneTapAuthorizationResult,
   OneTapConfigureParams,
   OneTapCreateAccountParams,

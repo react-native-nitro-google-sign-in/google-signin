@@ -60,6 +60,8 @@ namespace margelo::nitro::nitrogooglesignin {
     std::shared_ptr<Promise<OneTapResponse>> createAccount() override;
     std::shared_ptr<Promise<OneTapResponse>> presentExplicitSignIn() override;
     std::shared_ptr<Promise<OneTapAuthorizationResult>> requestScopes(const std::vector<std::string>& scopes) override;
+    std::shared_ptr<Promise<GetTokensResponse>> getTokens() override;
+    std::shared_ptr<Promise<void>> clearCachedAccessToken(const std::string& accessTokenString) override;
     std::shared_ptr<Promise<void>> signOut() override;
     std::shared_ptr<Promise<void>> revokeAccess(const std::string& emailOrUniqueId) override;
 

@@ -85,6 +85,14 @@ bun run start          # Metro
 bun run ios            # or android — separate terminal
 ```
 
+## What the app demonstrates
+
+After sign-in, the example apps include actions to:
+
+- **Request drive full access** — `requestScopes()`
+- **Get tokens** — `getTokens()` (shows truncated `idToken` / `accessToken`)
+- **Clear cached access token** — `clearCachedAccessToken()` then fetch again
+
 ## Troubleshooting
 
 | Issue | Fix |

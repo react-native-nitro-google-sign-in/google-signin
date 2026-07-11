@@ -17,6 +17,8 @@ namespace margelo::nitro::nitrogooglesignin { struct OneTapSuccessData; }
 namespace margelo::nitro::nitrogooglesignin { struct OneTapUser; }
 // Forward declaration of `OneTapAuthorizationResult` to properly resolve imports.
 namespace margelo::nitro::nitrogooglesignin { struct OneTapAuthorizationResult; }
+// Forward declaration of `GetTokensResponse` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct GetTokensResponse; }
 // Forward declaration of `OneTapConfigureParams` to properly resolve imports.
 namespace margelo::nitro::nitrogooglesignin { struct OneTapConfigureParams; }
 
@@ -40,6 +42,8 @@ namespace margelo::nitro::nitrogooglesignin { struct OneTapConfigureParams; }
 #include "JVariant_NullType_String.hpp"
 #include "OneTapAuthorizationResult.hpp"
 #include "JOneTapAuthorizationResult.hpp"
+#include "GetTokensResponse.hpp"
+#include "JGetTokensResponse.hpp"
 #include "OneTapConfigureParams.hpp"
 #include "JOneTapConfigureParams.hpp"
 #include <vector>
@@ -162,6 +166,37 @@ namespace margelo::nitro::nitrogooglesignin {
       __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
         auto __result = jni::static_ref_cast<JOneTapAuthorizationResult>(__boxedResult);
         __promise->resolve(__result->toCpp());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<GetTokensResponse>> JHybridNitroGoogleSigninSpec::getTokens() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>()>("getTokens");
+    auto __result = method(_javaPart);
+    return [&]() {
+      auto __promise = Promise<GetTokensResponse>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<JGetTokensResponse>(__boxedResult);
+        __promise->resolve(__result->toCpp());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<void>> JHybridNitroGoogleSigninSpec::clearCachedAccessToken(const std::string& accessTokenString) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<jni::JString> /* accessTokenString */)>("clearCachedAccessToken");
+    auto __result = method(_javaPart, jni::make_jstring(accessTokenString));
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
       });
       __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
         jni::JniException __jniError(__throwable);

@@ -55,6 +55,14 @@ abstract class HybridNitroGoogleSigninSpec: HybridObject() {
   
   @DoNotStrip
   @Keep
+  abstract fun getTokens(): Promise<GetTokensResponse>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun clearCachedAccessToken(accessTokenString: String): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
   abstract fun signOut(): Promise<Unit>
   
   @DoNotStrip

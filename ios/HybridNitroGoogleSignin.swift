@@ -1,19 +1,23 @@
+import AppAuth
 import CryptoKit
 import Foundation
 import GoogleSignIn
+import GTMAppAuth
 import NitroModules
 import UIKit
 
 enum GoogleSignInNativeError: Error, LocalizedError {
   case playServicesNotAvailable(String)
   case oneTapStartFailed(String)
+  case signInRequired(String)
   case notConfigured
   case noActivity
 
   var errorDescription: String? {
     switch self {
     case .playServicesNotAvailable(let msg),
-         .oneTapStartFailed(let msg):
+         .oneTapStartFailed(let msg),
+         .signInRequired(let msg):
       return msg
     case .notConfigured:
       return "Google Sign-In is not configured. Call configure() first."
@@ -28,6 +32,8 @@ enum GoogleSignInNativeError: Error, LocalizedError {
       return "PLAY_SERVICES_NOT_AVAILABLE"
     case .oneTapStartFailed:
       return "ONE_TAP_START_FAILED"
+    case .signInRequired:
+      return "SIGN_IN_REQUIRED"
     case .notConfigured, .noActivity:
       return "IN_PROGRESS"
     }
@@ -133,6 +139,20 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
     try ensureConfigured()
     return Promise.async {
       try await self.requestAdditionalScopes(scopes)
+    }
+  }
+
+  func getTokens() throws -> Promise<GetTokensResponse> {
+    try ensureConfigured()
+    return Promise.async {
+      try await self.fetchTokens()
+    }
+  }
+
+  func clearCachedAccessToken(accessTokenString: String) throws -> Promise<Void> {
+    try ensureConfigured()
+    return Promise.async {
+      try await self.invalidateCachedAccessToken(accessTokenString)
     }
   }
 
@@ -270,6 +290,123 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
       return []
     case .second(let strings):
       return strings
+    }
+  }
+
+  @MainActor
+  private func invalidateCachedAccessToken(_ accessTokenString: String) async throws {
+    guard let user = GIDSignIn.sharedInstance.currentUser else {
+      throw GoogleSignInNativeError.signInRequired(
+        "No signed-in Google user. Sign in before clearing a cached access token."
+      )
+    }
+
+    if !accessTokenString.isEmpty, user.accessToken.tokenString != accessTokenString {
+      throw GoogleSignInNativeError.oneTapStartFailed(
+        "The provided access token does not match the current user's access token."
+      )
+    }
+
+    guard let authSession = user.fetcherAuthorizer as? AuthSession else {
+      throw GoogleSignInNativeError.oneTapStartFailed(
+        "Unable to access the Google Sign-In token session."
+      )
+    }
+
+    authSession.authState.setNeedsTokenRefresh()
+  }
+
+  @MainActor
+  private func fetchTokens() async throws -> GetTokensResponse {
+    guard let user = GIDSignIn.sharedInstance.currentUser else {
+      throw GoogleSignInNativeError.signInRequired(
+        "No signed-in Google user. Sign in before calling getTokens()."
+      )
+    }
+
+    if let authSession = user.fetcherAuthorizer as? AuthSession {
+      return try await fetchTokens(using: authSession.authState)
+    }
+
+    return try await fetchTokensViaRefreshIfNeeded(user: user)
+  }
+
+  @MainActor
+  private func fetchTokens(using authState: OIDAuthState) async throws -> GetTokensResponse {
+    try await withCheckedThrowingContinuation { continuation in
+      authState.performAction(freshTokens: { accessToken, idToken, error in
+        if let error {
+          continuation.resume(
+            throwing: GoogleSignInNativeError.oneTapStartFailed(error.localizedDescription)
+          )
+          return
+        }
+
+        guard let accessToken, !accessToken.isEmpty else {
+          continuation.resume(
+            throwing: GoogleSignInNativeError.oneTapStartFailed(
+              "No access token returned from Google Sign-In."
+            )
+          )
+          return
+        }
+
+        guard let idToken, !idToken.isEmpty else {
+          continuation.resume(
+            throwing: GoogleSignInNativeError.oneTapStartFailed(
+              "No ID token returned from Google Sign-In."
+            )
+          )
+          return
+        }
+
+        continuation.resume(
+          returning: GetTokensResponse(idToken: idToken, accessToken: accessToken)
+        )
+      })
+    }
+  }
+
+  @MainActor
+  private func fetchTokensViaRefreshIfNeeded(user: GIDGoogleUser) async throws
+    -> GetTokensResponse
+  {
+    try await withCheckedThrowingContinuation { continuation in
+      user.refreshTokensIfNeeded { refreshedUser, error in
+        if let error {
+          continuation.resume(
+            throwing: GoogleSignInNativeError.oneTapStartFailed(error.localizedDescription)
+          )
+          return
+        }
+
+        guard
+          let refreshedUser,
+          let idToken = refreshedUser.idToken?.tokenString,
+          !idToken.isEmpty
+        else {
+          continuation.resume(
+            throwing: GoogleSignInNativeError.signInRequired(
+              "No signed-in Google user. Sign in before calling getTokens()."
+            )
+          )
+          return
+        }
+
+        let accessToken = refreshedUser.accessToken.tokenString
+        guard !accessToken.isEmpty else {
+          continuation.resume(
+            throwing: GoogleSignInNativeError.oneTapStartFailed(
+              "No access token returned from Google Sign-In."
+            )
+          )
+          return
+        }
+
+        continuation.resume(
+          returning: GetTokensResponse(idToken: idToken, accessToken: accessToken)
+        )
+      }
     }
   }
 

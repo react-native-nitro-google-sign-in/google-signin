@@ -8,6 +8,8 @@
 #pragma once
 
 // Forward declarations of C++ defined types
+// Forward declaration of `GetTokensResponse` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct GetTokensResponse; }
 // Forward declaration of `GoogleSignInButtonContentAlignment` to properly resolve imports.
 namespace margelo::nitro::nitrogooglesignin { enum class GoogleSignInButtonContentAlignment; }
 // Forward declaration of `HybridGoogleSignInButtonSpec` to properly resolve imports.
@@ -32,6 +34,7 @@ namespace NitroGoogleSignin { class HybridGoogleSignInButtonSpec_cxx; }
 namespace NitroGoogleSignin { class HybridNitroGoogleSigninSpec_cxx; }
 
 // Include C++ defined types
+#include "GetTokensResponse.hpp"
 #include "GoogleSignInButtonContentAlignment.hpp"
 #include "HybridGoogleSignInButtonSpec.hpp"
 #include "HybridNitroGoogleSigninSpec.hpp"
@@ -367,6 +370,40 @@ namespace margelo::nitro::nitrogooglesignin::bridge::swift {
     return Func_void_OneTapAuthorizationResult_Wrapper(std::move(value));
   }
   
+  // pragma MARK: std::shared_ptr<Promise<GetTokensResponse>>
+  /**
+   * Specialized version of `std::shared_ptr<Promise<GetTokensResponse>>`.
+   */
+  using std__shared_ptr_Promise_GetTokensResponse__ = std::shared_ptr<Promise<GetTokensResponse>>;
+  inline std::shared_ptr<Promise<GetTokensResponse>> create_std__shared_ptr_Promise_GetTokensResponse__() noexcept {
+    return Promise<GetTokensResponse>::create();
+  }
+  inline PromiseHolder<GetTokensResponse> wrap_std__shared_ptr_Promise_GetTokensResponse__(std::shared_ptr<Promise<GetTokensResponse>> promise) noexcept {
+    return PromiseHolder<GetTokensResponse>(std::move(promise));
+  }
+  
+  // pragma MARK: std::function<void(const GetTokensResponse& /* result */)>
+  /**
+   * Specialized version of `std::function<void(const GetTokensResponse&)>`.
+   */
+  using Func_void_GetTokensResponse = std::function<void(const GetTokensResponse& /* result */)>;
+  /**
+   * Wrapper class for a `std::function<void(const GetTokensResponse& / * result * /)>`, this can be used from Swift.
+   */
+  class Func_void_GetTokensResponse_Wrapper final {
+  public:
+    explicit Func_void_GetTokensResponse_Wrapper(std::function<void(const GetTokensResponse& /* result */)>&& func): _function(std::make_unique<std::function<void(const GetTokensResponse& /* result */)>>(std::move(func))) {}
+    inline void call(GetTokensResponse result) const noexcept {
+      _function->operator()(result);
+    }
+  private:
+    std::unique_ptr<std::function<void(const GetTokensResponse& /* result */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_GetTokensResponse create_Func_void_GetTokensResponse(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_GetTokensResponse_Wrapper wrap_Func_void_GetTokensResponse(Func_void_GetTokensResponse value) noexcept {
+    return Func_void_GetTokensResponse_Wrapper(std::move(value));
+  }
+  
   // pragma MARK: std::shared_ptr<HybridNitroGoogleSigninSpec>
   /**
    * Specialized version of `std::shared_ptr<HybridNitroGoogleSigninSpec>`.
@@ -413,6 +450,15 @@ namespace margelo::nitro::nitrogooglesignin::bridge::swift {
   }
   inline Result_std__shared_ptr_Promise_OneTapAuthorizationResult___ create_Result_std__shared_ptr_Promise_OneTapAuthorizationResult___(const std::exception_ptr& error) noexcept {
     return Result<std::shared_ptr<Promise<OneTapAuthorizationResult>>>::withError(error);
+  }
+  
+  // pragma MARK: Result<std::shared_ptr<Promise<GetTokensResponse>>>
+  using Result_std__shared_ptr_Promise_GetTokensResponse___ = Result<std::shared_ptr<Promise<GetTokensResponse>>>;
+  inline Result_std__shared_ptr_Promise_GetTokensResponse___ create_Result_std__shared_ptr_Promise_GetTokensResponse___(const std::shared_ptr<Promise<GetTokensResponse>>& value) noexcept {
+    return Result<std::shared_ptr<Promise<GetTokensResponse>>>::withValue(value);
+  }
+  inline Result_std__shared_ptr_Promise_GetTokensResponse___ create_Result_std__shared_ptr_Promise_GetTokensResponse___(const std::exception_ptr& error) noexcept {
+    return Result<std::shared_ptr<Promise<GetTokensResponse>>>::withError(error);
   }
 
 } // namespace margelo::nitro::nitrogooglesignin::bridge::swift
