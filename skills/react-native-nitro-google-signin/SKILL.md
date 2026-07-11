@@ -34,6 +34,7 @@ Requires RN ≥ 0.76. **Not Expo Go** — use `expo-dev-client`.
 | API | `GoogleOneTapSignIn` from `react-native-nitro-google-signin` |
 | Configure first | `GoogleOneTapSignIn.configure({ webClientId })` before sign-in |
 | `serverAuthCode` | Requires `offlineAccess: true` in `configure()` — otherwise always `null` |
+| `getTokens` | After sign-in; throws `SIGN_IN_REQUIRED` if no session. iOS: call `clearCachedAccessToken` before retry after 401 |
 | Flow order | `checkPlayServices` → `signIn` → `createAccount` → `presentExplicitSignIn` |
 | Android `autoDetect` | Needs `google-services.json` + `com.google.gms.google-services` plugin |
 | iOS | `GoogleService-Info.plist` + `REVERSED_CLIENT_ID` URL scheme |

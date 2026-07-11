@@ -55,6 +55,8 @@ await GoogleOneTapSignIn.clearCachedAccessToken(accessToken)
 
 Prefer verifying `idToken` or exchanging `serverAuthCode` on your backend over sending raw access tokens.
 
+On iOS, call `clearCachedAccessToken(accessToken)` before `getTokens()` when retrying after a 401 — otherwise consecutive `getTokens()` calls may return the same valid token.
+
 ## Error handling
 
 ```ts

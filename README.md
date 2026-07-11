@@ -268,7 +268,27 @@ const enableCalendarAccess = async () => {
 
 `requestScopes()` requires an active signed-in session. See [Usage — OAuth scopes](https://react-native-nitro-google-sign-in.github.io/docs/guide/usage#oauth-scopes-more-access) · [API reference — `requestScopes`](https://react-native-nitro-google-sign-in.github.io/docs/guide/api-reference#requestscopesscopes-string-promiseonetapauthorizationresult).
 
-Live demos: [`example/App.tsx`](example/App.tsx) and [`example-expo/App.tsx`](example-expo/App.tsx) (`requestAdditionalScopes`).
+Live demos: [`example/App.tsx`](example/App.tsx) and [`example-expo/App.tsx`](example-expo/App.tsx) (`requestAdditionalScopes`, `getTokens`).
+
+### Access tokens (`getTokens`)
+
+For migration from `@react-native-google-signin/google-signin` or when your app calls Google APIs from the device:
+
+```ts
+const response = await GoogleOneTapSignIn.signIn()
+if (isSuccessResponse(response)) {
+  const { idToken, accessToken } = await GoogleOneTapSignIn.getTokens()
+}
+```
+
+If a Google API returns **401**, clear the stale token and fetch again:
+
+```ts
+await GoogleOneTapSignIn.clearCachedAccessToken(accessToken)
+const { accessToken: freshToken } = await GoogleOneTapSignIn.getTokens()
+```
+
+See [Usage — Access tokens](https://react-native-nitro-google-sign-in.github.io/docs/guide/usage#access-tokens-gettokens).
 
 ### API
 
@@ -281,6 +301,8 @@ Live demos: [`example/App.tsx`](example/App.tsx) and [`example-expo/App.tsx`](ex
 | `createAccount()`         | Interactive account picker (sign-up).                                                                                                            |
 | `presentExplicitSignIn()` | Explicit Sign in with Google UI.                                                                                                                 |
 | `requestScopes(scopes)`   | Request **additional** OAuth access after sign-in; returns `{ serverAuthCode }`. Requires `offlineAccess: true` in `configure()` for a non-null code. |
+| `getTokens()`             | Returns `{ idToken, accessToken }` for the signed-in user. Throws `SIGN_IN_REQUIRED` if not signed in. |
+| `clearCachedAccessToken(token)` | Clears stale access token cache (Android) or marks session for refresh (iOS). Call before `getTokens()` after a 401. |
 | `signOut()`               | Clears local Google session (iOS SDK); disable auto sign-in on Android.                                                                          |
 | `revokeAccess(id)`        | Disconnect app (revokes app access / OAuth grant on both iOS and Android).                                                                       |
 
@@ -294,7 +316,7 @@ Full types and parameters: [API reference](https://react-native-nitro-google-sig
 
 | App | Description |
 |-----|-------------|
-| [`example/`](example/) | Bare React Native app (includes `requestScopes` demo) |
+| [`example/`](example/) | Bare React Native app (includes `requestScopes` and `getTokens` demos) |
 | [`example-expo/`](example-expo/) | Expo dev-client app (config plugin + `autoDetect`) |
 
 Configure Firebase / `GoogleService-Info.plist` and `google-services.json` before testing on device. See [`example-expo/README.md`](example-expo/README.md) for Expo prebuild steps.
