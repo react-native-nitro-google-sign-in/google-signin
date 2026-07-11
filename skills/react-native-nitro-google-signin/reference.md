@@ -18,12 +18,14 @@ Full types: https://react-native-nitro-google-sign-in.github.io/docs/guide/api-r
 | `createAccount()`                | All accounts / interactive                                                                           |
 | `presentExplicitSignIn()`        | Explicit Sign in with Google UI (Android dialog)                                                     |
 | `requestScopes(scopes)`          | `{ serverAuthCode }` after sign-in; **`offlineAccess: true` in `configure()` required** for a non-null code |
+| `getTokens()`                      | `{ idToken, accessToken }` after sign-in; throws `SIGN_IN_REQUIRED` if not signed in |
+| `clearCachedAccessToken(token)`    | Clears cached access token (Android) or marks session for refresh (iOS) |
 | `signOut()`                      | iOS GIDSignOut; Android disables auto sign-in semantics                                              |
 | `revokeAccess(id)`               | Revokes app access / OAuth grant (iOS and Android)                                                   |
 
 ### Types
 
-`OneTapConfigureParams`, `OneTapResponse`, `OneTapResponseType`, `OneTapSuccessData`, `OneTapUser`, `OneTapAuthorizationResult`, `OneTapResponseTypes`, `StatusCode`, `GoogleSignInButtonProps`, `GoogleSignInButtonSignInBehavior`, …
+`OneTapConfigureParams`, `OneTapResponse`, `OneTapResponseType`, `OneTapSuccessData`, `OneTapUser`, `OneTapAuthorizationResult`, `GetTokensResponse`, `OneTapResponseTypes`, `StatusCode`, `GoogleSignInButtonProps`, `GoogleSignInButtonSignInBehavior`, …
 
 ### Responses
 

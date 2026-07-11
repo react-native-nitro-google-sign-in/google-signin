@@ -19,6 +19,8 @@ namespace margelo::nitro::nitrogooglesignin { struct OneTapConfigureParams; }
 namespace margelo::nitro::nitrogooglesignin { struct OneTapResponse; }
 // Forward declaration of `OneTapAuthorizationResult` to properly resolve imports.
 namespace margelo::nitro::nitrogooglesignin { struct OneTapAuthorizationResult; }
+// Forward declaration of `GetTokensResponse` to properly resolve imports.
+namespace margelo::nitro::nitrogooglesignin { struct GetTokensResponse; }
 
 #include "OneTapConfigureParams.hpp"
 #include <NitroModules/Promise.hpp>
@@ -27,6 +29,7 @@ namespace margelo::nitro::nitrogooglesignin { struct OneTapAuthorizationResult; 
 #include "OneTapAuthorizationResult.hpp"
 #include <string>
 #include <vector>
+#include "GetTokensResponse.hpp"
 
 namespace margelo::nitro::nitrogooglesignin {
 
@@ -65,6 +68,8 @@ namespace margelo::nitro::nitrogooglesignin {
       virtual std::shared_ptr<Promise<OneTapResponse>> createAccount() = 0;
       virtual std::shared_ptr<Promise<OneTapResponse>> presentExplicitSignIn() = 0;
       virtual std::shared_ptr<Promise<OneTapAuthorizationResult>> requestScopes(const std::vector<std::string>& scopes) = 0;
+      virtual std::shared_ptr<Promise<GetTokensResponse>> getTokens() = 0;
+      virtual std::shared_ptr<Promise<void>> clearCachedAccessToken(const std::string& accessTokenString) = 0;
       virtual std::shared_ptr<Promise<void>> signOut() = 0;
       virtual std::shared_ptr<Promise<void>> revokeAccess(const std::string& emailOrUniqueId) = 0;
 

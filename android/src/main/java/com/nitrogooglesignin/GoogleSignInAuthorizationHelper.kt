@@ -13,8 +13,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * Uses [AuthorizationClient] for server auth codes and incremental OAuth scopes.
- * Credential Manager sign-in alone does not return a server auth code.
+ * Uses [AuthorizationClient] for access tokens, server auth codes, and incremental OAuth scopes.
+ * Credential Manager sign-in alone does not return an access token or server auth code.
  */
 internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
   private const val AUTH_REQUEST_CODE = 53212
@@ -22,14 +22,14 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
    * AuthorizationClient requires at least one scope even when only offline access is requested.
    * Matches the default Google Sign-In scopes (openid / email / profile).
    */
-  private val DEFAULT_OFFLINE_ACCESS_SCOPES =
+  private val DEFAULT_AUTHORIZATION_SCOPES =
     listOf(
       "openid",
       "email",
       "profile",
     )
   private var listenerRegistered = false
-  private var pendingContinuation: CancellableContinuation<String?>? = null
+  private var pendingContinuation: CancellableContinuation<AuthorizationResultData>? = null
 
   fun ensureRegistered(context: ReactApplicationContext) {
     if (!listenerRegistered) {
@@ -44,12 +44,11 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
     serverClientId: String,
     scopes: List<String>,
     offlineAccess: Boolean,
-  ): String? {
+  ): AuthorizationResultData {
     val resolvedScopes =
       scopes.filter { it.isNotBlank() }.ifEmpty {
-        if (offlineAccess) DEFAULT_OFFLINE_ACCESS_SCOPES else emptyList()
+        DEFAULT_AUTHORIZATION_SCOPES
       }
-    if (resolvedScopes.isEmpty()) return null
 
     ensureRegistered(context)
 
@@ -102,9 +101,8 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
               )
             }
           } else {
-            val code = authorizationResult.serverAuthCode
             clearPending(continuation)
-            continuation.resume(code)
+            continuation.resume(authorizationResult.toData())
           }
         }
         .addOnFailureListener { error ->
@@ -143,7 +141,7 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
     try {
       val authorizationResult =
         Identity.getAuthorizationClient(activity).getAuthorizationResultFromIntent(data)
-      continuation.resume(authorizationResult.serverAuthCode)
+      continuation.resume(authorizationResult.toData())
     } catch (e: Exception) {
       continuation.resumeWithException(
         GoogleSignInException(
@@ -156,9 +154,16 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
 
   override fun onNewIntent(intent: Intent) {}
 
-  private fun clearPending(continuation: CancellableContinuation<String?>? = null) {
+  private fun clearPending(continuation: CancellableContinuation<AuthorizationResultData>? = null) {
     if (pendingContinuation === continuation || continuation == null) {
       pendingContinuation = null
     }
   }
+
+  private fun com.google.android.gms.auth.api.identity.AuthorizationResult.toData():
+    AuthorizationResultData =
+    AuthorizationResultData(
+      accessToken = accessToken,
+      serverAuthCode = serverAuthCode,
+    )
 }

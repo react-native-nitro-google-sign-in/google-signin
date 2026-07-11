@@ -1,5 +1,6 @@
 import { NitroModules } from 'react-native-nitro-modules'
 import type {
+  GetTokensResponse,
   NitroGoogleSignin,
   OneTapAuthorizationResult,
   OneTapConfigureParams,
@@ -79,6 +80,31 @@ export const GoogleOneTapSignIn = {
    */
   requestScopes(scopes: string[]): Promise<OneTapAuthorizationResult> {
     return hybrid.requestScopes(scopes)
+  },
+
+  /**
+   * Returns the current user's ID and access tokens after sign-in.
+   *
+   * Use after a successful `signIn()`, `createAccount()`, or `presentExplicitSignIn()`.
+   * Safe to call again later to refresh tokens without re-running the account picker
+   * (iOS refreshes via `GIDSignIn`; Android uses `AuthorizationClient`).
+   *
+   * @throws {@link GoogleSignInError} with `SIGN_IN_REQUIRED` when no user is signed in.
+   */
+  getTokens(): Promise<GetTokensResponse> {
+    return hybrid.getTokens()
+  },
+
+  /**
+   * Clears a cached OAuth access token.
+   *
+   * Call when Google returns an error indicating the access token is invalid.
+   * Android removes the token from `AuthorizationClient`'s local cache.
+   * iOS marks the AppAuth session for refresh so the next `getTokens()` fetches
+   * a new access token from Google.
+   */
+  clearCachedAccessToken(accessTokenString: string): Promise<void> {
+    return hybrid.clearCachedAccessToken(accessTokenString)
   },
 
   /** Clear the Google Sign-In session in the native SDK. */

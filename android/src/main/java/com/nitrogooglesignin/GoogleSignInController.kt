@@ -16,6 +16,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.margelo.nitro.nitrogooglesignin.GetTokensResponse
 import com.margelo.nitro.nitrogooglesignin.OneTapAuthorizationResult
 import com.margelo.nitro.nitrogooglesignin.OneTapConfigureParams
 import com.margelo.nitro.nitrogooglesignin.OneTapResponse
@@ -39,6 +40,7 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import android.util.Base64
+import com.google.android.gms.auth.api.identity.ClearTokenRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.RevokeAccessRequest
 import com.google.android.gms.common.api.Scope
@@ -129,6 +131,7 @@ internal object GoogleSignInController {
 
   suspend fun signOut() {
     val context = requireContext()
+    clearSignedInSession(context)
     val credentialManager = CredentialManager.create(context)
     try {
       withContext(Dispatchers.Main) {
@@ -160,7 +163,7 @@ internal object GoogleSignInController {
 
     val savedScopes = getScopesFromStorage(context, uniqueId)
     val finalScopes = if (savedScopes.isEmpty()) {
-      (configuredScopes + listOf("openid", "email", "profile")).toSet()
+      (configuredScopes + DEFAULT_AUTHORIZATION_SCOPES).toSet()
     } else {
       savedScopes
     }
@@ -195,7 +198,7 @@ internal object GoogleSignInController {
 
   suspend fun requestScopes(scopes: Array<String>): OneTapAuthorizationResult {
     requireConfigured()
-    val authCode =
+    val authResult =
       GoogleSignInAuthorizationHelper.authorize(
         activity = requireActivity(),
         context = requireContext(),
@@ -212,7 +215,73 @@ internal object GoogleSignInController {
       saveScopesToStorage(context, lastUserId, updatedScopes)
     }
 
-    return OneTapAuthorizationResult(serverAuthCode = authCode.toOptionalStringVariant())
+    return OneTapAuthorizationResult(
+      serverAuthCode = authResult.serverAuthCode.toOptionalStringVariant(),
+    )
+  }
+
+  suspend fun getTokens(): GetTokensResponse {
+    requireConfigured()
+    val context = requireContext()
+    val lastUserId =
+      getLastSignedInUserId(context)
+        ?: throw GoogleSignInException(
+          code = "SIGN_IN_REQUIRED",
+          message = "No signed-in Google user. Sign in before calling getTokens().",
+        )
+    val idToken =
+      getIdTokenFromStorage(context, lastUserId)
+        ?: throw GoogleSignInException(
+          code = "SIGN_IN_REQUIRED",
+          message = "No signed-in Google user. Sign in before calling getTokens().",
+        )
+
+    val storedScopes = getScopesFromStorage(context, lastUserId)
+    val scopes =
+      if (storedScopes.isEmpty()) {
+        configuredScopes.ifEmpty { DEFAULT_AUTHORIZATION_SCOPES }
+      } else {
+        storedScopes.toList()
+      }
+
+    val authResult =
+      GoogleSignInAuthorizationHelper.authorize(
+        activity = requireActivity(),
+        context = context,
+        serverClientId = webClientId!!,
+        scopes = scopes,
+        offlineAccess = false,
+      )
+
+    val accessToken =
+      authResult.accessToken
+        ?: throw GoogleSignInException(
+          code = "ONE_TAP_START_FAILED",
+          message = "No access token returned from authorization.",
+        )
+
+    return GetTokensResponse(idToken = idToken, accessToken = accessToken)
+  }
+
+  suspend fun clearCachedAccessToken(accessTokenString: String) {
+    val activity = requireActivity()
+    try {
+      suspendCancellableCoroutine<Void?> { continuation ->
+        Identity.getAuthorizationClient(activity)
+          .clearToken(ClearTokenRequest.builder().setToken(accessTokenString).build())
+          .addOnSuccessListener {
+            continuation.resume(null)
+          }
+          .addOnFailureListener { error ->
+            continuation.resumeWithException(error)
+          }
+      }
+    } catch (e: Exception) {
+      throw GoogleSignInException(
+        code = "ONE_TAP_START_FAILED",
+        message = e.message ?: "Failed to clear cached access token.",
+      )
+    }
   }
 
   private suspend fun getGoogleCredential(
@@ -304,9 +373,10 @@ internal object GoogleSignInController {
 
     email?.let {
       saveEmailToStorage(requireContext(), userId, it)
-      val initialScopes = (configuredScopes + listOf("openid", "email", "profile")).toSet()
+      val initialScopes = (configuredScopes + DEFAULT_AUTHORIZATION_SCOPES).toSet()
       saveScopesToStorage(requireContext(), userId, initialScopes)
     }
+    saveIdTokenToStorage(requireContext(), userId, googleCredential.idToken)
 
     return OneTapSuccessData(
       user = profileUser,
@@ -320,7 +390,7 @@ internal object GoogleSignInController {
       return OneTapResponse.success(data)
     }
 
-    val authCode =
+    val authResult =
       GoogleSignInAuthorizationHelper.authorize(
         activity = requireActivity(),
         context = requireContext(),
@@ -330,7 +400,7 @@ internal object GoogleSignInController {
       )
 
     return OneTapResponse.success(
-      data.copy(serverAuthCode = authCode.toOptionalStringVariant()),
+      data.copy(serverAuthCode = authResult.serverAuthCode.toOptionalStringVariant()),
     )
   }
 
@@ -361,6 +431,7 @@ internal object GoogleSignInController {
   }
 
   private const val PREFS_FILE_NAME = "google_signin_prefs"
+  private val DEFAULT_AUTHORIZATION_SCOPES = listOf("openid", "email", "profile")
 
   private var oldPrefsCleaned = false
 
@@ -529,6 +600,26 @@ internal object GoogleSignInController {
     }
   }
 
+  private fun saveIdTokenToStorage(context: Context, uniqueId: String, idToken: String) {
+    try {
+      val prefs = getPrefs(context)
+      val encryptedIdToken = SecureStorageHelper.encrypt(idToken) ?: return
+      val hashedIdTokenKey = SecureStorageHelper.hashKey("${uniqueId}_id_token")
+      prefs.edit().putString(hashedIdTokenKey, encryptedIdToken).apply()
+    } catch (e: Exception) {}
+  }
+
+  private fun getIdTokenFromStorage(context: Context, uniqueId: String): String? {
+    return try {
+      val prefs = getPrefs(context)
+      val hashedIdTokenKey = SecureStorageHelper.hashKey("${uniqueId}_id_token")
+      val encryptedIdToken = prefs.getString(hashedIdTokenKey, null) ?: return null
+      SecureStorageHelper.decrypt(encryptedIdToken)
+    } catch (e: Exception) {
+      null
+    }
+  }
+
   private fun saveScopesToStorage(context: Context, uniqueId: String, scopes: Set<String>) {
     try {
       val prefs = getPrefs(context)
@@ -555,6 +646,17 @@ internal object GoogleSignInController {
     }
   }
 
+  private fun clearSignedInSession(context: Context) {
+    try {
+      val prefs = getPrefs(context)
+      val lastUserId = getLastSignedInUserId(context) ?: return
+      prefs.edit()
+        .remove(SecureStorageHelper.hashKey("last_signed_in_user_id"))
+        .remove(SecureStorageHelper.hashKey("${lastUserId}_id_token"))
+        .apply()
+    } catch (e: Exception) {}
+  }
+
   private fun removeUserDataFromStorage(context: Context, emailOrUniqueId: String) {
     try {
       val prefs = getPrefs(context)
@@ -571,6 +673,7 @@ internal object GoogleSignInController {
       uniqueId?.let {
         editor.remove(SecureStorageHelper.hashKey(it))
         editor.remove(SecureStorageHelper.hashKey("${it}_scopes"))
+        editor.remove(SecureStorageHelper.hashKey("${it}_id_token"))
       }
       editor.remove(SecureStorageHelper.hashKey("last_signed_in_user_id"))
       editor.apply()

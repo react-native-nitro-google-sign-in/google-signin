@@ -1,6 +1,7 @@
 import type { OneTapResponseType as OneTapResponseTypeLiteral } from './specs/nitro-google-signin.nitro'
 
 export type {
+  GetTokensResponse,
   OneTapAuthorizationResult,
   OneTapConfigureParams,
   OneTapResponse,

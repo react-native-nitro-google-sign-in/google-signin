@@ -5,6 +5,7 @@
   "compilerOptions": {
     "strict": true,
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "react-native-nitro-google-signin": ["../src"]
     }

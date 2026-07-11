@@ -77,6 +77,14 @@ export interface OneTapConfigureParams {
   autoSelectOnSignIn?: boolean
 }
 
+/** Return value of {@link GoogleOneTapSignIn.getTokens}. */
+export interface GetTokensResponse {
+  /** OpenID Connect ID token (JWT). */
+  idToken: string
+  /** OAuth 2.0 access token for Google APIs. */
+  accessToken: string
+}
+
 /** Return value of {@link GoogleOneTapSignIn.requestScopes}. */
 export interface OneTapAuthorizationResult {
   /**
@@ -97,6 +105,24 @@ export interface NitroGoogleSignin
   createAccount(): Promise<OneTapResponse>
   presentExplicitSignIn(): Promise<OneTapResponse>
   requestScopes(scopes: string[]): Promise<OneTapAuthorizationResult>
+  /**
+   * Returns the current user's ID and access tokens after sign-in.
+   *
+   * Android: combines the cached ID token from the last sign-in with a fresh access token
+   * from `AuthorizationClient`. iOS: refreshes tokens via `GIDSignIn` when needed.
+   *
+   * @throws {@link GoogleSignInError} with `SIGN_IN_REQUIRED` when no user is signed in.
+   */
+  getTokens(): Promise<GetTokensResponse>
+  /**
+   * Clears a cached OAuth access token on Android (no-op on iOS).
+   *
+   * Call when Google returns an error indicating the access token is invalid.
+   * On Android, removes the token from `AuthorizationClient`'s local cache.
+   * On iOS, marks the AppAuth session for refresh so the next `getTokens()` fetches
+   * a new access token from Google.
+   */
+  clearCachedAccessToken(accessTokenString: string): Promise<void>
   signOut(): Promise<void>
   revokeAccess(emailOrUniqueId: string): Promise<void>
 }
