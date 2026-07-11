@@ -44,6 +44,11 @@ export const GoogleOneTapSignIn = {
    * Android: Credential Manager with authorized accounts only.
    * iOS: current user or `restorePreviousSignIn()`.
    *
+   * When `configure({ offlineAccess: true })`, **`serverAuthCode` is `null` on
+   * this silent path on iOS** (and on Android until authorization completes).
+   * Use {@link createAccount} or {@link presentExplicitSignIn} for the initial
+   * offline-access grant that returns a `serverAuthCode`.
+   *
    * User cancel is returned as `type: 'cancelled'`, not thrown.
    */
   signIn(): Promise<OneTapResponse> {
@@ -63,7 +68,9 @@ export const GoogleOneTapSignIn = {
   /**
    * Explicit **Sign in with Google** UI.
    *
-   * Android: `GetSignInWithGoogleOption` account dialog.
+   * Android: `GetSignInWithGoogleOption` account dialog. When `hostedDomain` is
+   * configured, the JWT `hd` claim is validated after sign-in (Credential Manager
+   * flows apply the filter during the request).
    * iOS: same interactive flow as {@link createAccount}.
    */
   presentExplicitSignIn(): Promise<OneTapResponse> {
@@ -114,6 +121,13 @@ export const GoogleOneTapSignIn = {
 
   /**
    * Revoke app access / OAuth grant for the user.
+   *
+   * **Android:** resolves the account from `emailOrUniqueId` (email or
+   * `OneTapUser.id`).
+   *
+   * **iOS:** only revokes the **current signed-in session**; throws if
+   * `emailOrUniqueId` does not match the active user. Call {@link signIn} first
+   * when revoking a specific stored account.
    *
    * @param emailOrUniqueId User email or stable Google account id (`OneTapUser.id`).
    */

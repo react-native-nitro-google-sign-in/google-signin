@@ -40,12 +40,14 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import android.util.Base64
+import android.util.Log
 import com.google.android.gms.auth.api.identity.ClearTokenRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.RevokeAccessRequest
 import com.google.android.gms.common.api.Scope
 
 internal object GoogleSignInController {
+  private const val TAG = "GoogleSignInController"
   private var webClientId: String? = null
   private var offlineAccess: Boolean = false
   private var hostedDomain: String? = null
@@ -350,6 +352,7 @@ internal object GoogleSignInController {
 
     val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
     val claims = IdTokenClaims.parse(googleCredential.idToken)
+    validateHostedDomain(claims)
     val deprecatedId = googleCredential.id
     // Deprecated `id` is often the email; `uniqueId` is the stable Google account id (JWT `sub`).
     val userId =
@@ -402,6 +405,19 @@ internal object GoogleSignInController {
     return OneTapResponse.success(
       data.copy(serverAuthCode = authResult.serverAuthCode.toOptionalStringVariant()),
     )
+  }
+
+  private fun validateHostedDomain(claims: IdTokenClaims?) {
+    val requiredDomain = hostedDomain ?: return
+    val tokenDomain = claims?.hd
+    if (tokenDomain == null || !tokenDomain.equals(requiredDomain, ignoreCase = true)) {
+      throw GoogleSignInException(
+        code = "ONE_TAP_START_FAILED",
+        message =
+          "Signed-in account is not in the required Google Workspace domain ($requiredDomain). " +
+            "Validate the JWT hd claim on your backend.",
+      )
+    }
   }
 
   private fun resolveWebClientId(context: Context, configuredId: String): String {
@@ -563,7 +579,7 @@ internal object GoogleSignInController {
         .putString(hashedLastSignedIn, encryptedUniqueId)
         .apply()
     } catch (e: Exception) {
-      // Log or silently ignore to not crash sign-in on prefs failure
+      Log.w(TAG, "Failed to save email mapping to encrypted storage", e)
     }
   }
 
@@ -606,7 +622,9 @@ internal object GoogleSignInController {
       val encryptedIdToken = SecureStorageHelper.encrypt(idToken) ?: return
       val hashedIdTokenKey = SecureStorageHelper.hashKey("${uniqueId}_id_token")
       prefs.edit().putString(hashedIdTokenKey, encryptedIdToken).apply()
-    } catch (e: Exception) {}
+    } catch (e: Exception) {
+      Log.w(TAG, "Failed to save ID token to encrypted storage", e)
+    }
   }
 
   private fun getIdTokenFromStorage(context: Context, uniqueId: String): String? {
@@ -627,7 +645,9 @@ internal object GoogleSignInController {
       val encryptedScopes = SecureStorageHelper.encrypt(scopesString) ?: return
       val hashedScopesKey = SecureStorageHelper.hashKey("${uniqueId}_scopes")
       prefs.edit().putString(hashedScopesKey, encryptedScopes).apply()
-    } catch (e: Exception) {}
+    } catch (e: Exception) {
+      Log.w(TAG, "Failed to save scopes to encrypted storage", e)
+    }
   }
 
   private fun getScopesFromStorage(context: Context, uniqueId: String): Set<String> {
@@ -654,7 +674,9 @@ internal object GoogleSignInController {
         .remove(SecureStorageHelper.hashKey("last_signed_in_user_id"))
         .remove(SecureStorageHelper.hashKey("${lastUserId}_id_token"))
         .apply()
-    } catch (e: Exception) {}
+    } catch (e: Exception) {
+      Log.w(TAG, "Failed to clear signed-in session from encrypted storage", e)
+    }
   }
 
   private fun removeUserDataFromStorage(context: Context, emailOrUniqueId: String) {
@@ -678,7 +700,7 @@ internal object GoogleSignInController {
       editor.remove(SecureStorageHelper.hashKey("last_signed_in_user_id"))
       editor.apply()
     } catch (e: Exception) {
-      // Silently ignore
+      Log.w(TAG, "Failed to remove user data from encrypted storage", e)
     }
   }
 

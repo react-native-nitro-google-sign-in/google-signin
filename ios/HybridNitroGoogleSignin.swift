@@ -120,6 +120,24 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
 
   func revokeAccess(emailOrUniqueId: String) throws -> Promise<Void> {
     return Promise.async {
+      try await MainActor.run {
+        guard let currentUser = GIDSignIn.sharedInstance.currentUser else {
+          throw GoogleSignInNativeError.signInRequired(
+            "No signed-in Google user. Sign in before calling revokeAccess()."
+          )
+        }
+        let userId = currentUser.userID ?? ""
+        let email = currentUser.profile?.email ?? ""
+        let matches =
+          emailOrUniqueId == userId
+          || (!email.isEmpty && emailOrUniqueId == email)
+        guard matches else {
+          throw GoogleSignInNativeError.oneTapStartFailed(
+            "emailOrUniqueId does not match the current signed-in user on iOS. " +
+              "Only the active session can be revoked; call signIn() first or use signOut()."
+          )
+        }
+      }
       try await withCheckedThrowingContinuation {
         (continuation: CheckedContinuation<Void, Error>) in
         DispatchQueue.main.async {

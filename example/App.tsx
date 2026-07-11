@@ -62,9 +62,6 @@ function App(): React.JSX.Element {
     });
   }, []);
 
-  console.log('lastAccessToken', lastAccessToken);
-  console.log('tokensStatus', tokensStatus);
-
   const onSignInSuccess = (data: OneTapSuccessData) => {
     setUser(data);
     setTokensStatus(null);

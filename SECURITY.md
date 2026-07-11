@@ -41,3 +41,42 @@ We aim to acknowledge reports within **5 business days** and will work with you 
 We appreciate responsible disclosure. Credit will be given in the advisory or release notes when you agree.
 
 **Docs:** [Security policy on the documentation site](https://react-native-nitro-google-sign-in.github.io/docs/community/security)
+
+## Backend verification checklist (consumer apps)
+
+This library returns Google-issued `idToken` and `serverAuthCode` values to your JavaScript layer. **Your backend is the trust anchor** — never accept tokens from the client without verification.
+
+### ID token (`idToken`)
+
+On every sign-in, verify the JWT on your server:
+
+1. Fetch Google JWKS from `https://www.googleapis.com/oauth2/v3/certs` (cache keys; respect `Cache-Control`).
+2. Verify the **RS256** signature against the matching key (`kid` header).
+3. Validate **`aud`** equals your **Web OAuth client ID** (`*.apps.googleusercontent.com`).
+4. Validate **`iss`** is `accounts.google.com` or `https://accounts.google.com`.
+5. Reject expired tokens (`exp` in the past).
+6. If you use **`configure({ nonce })`**, verify the JWT **`nonce`** claim matches the server-issued value stored in the user session.
+7. If you use **`hostedDomain`**, validate the JWT **`hd`** claim equals your Workspace domain — **do not rely on client-side filtering alone** (Android `buttonFlow` validates `hd` post sign-in; other paths may filter at request time).
+8. If you authorize by email, optionally require **`email_verified: true`**.
+
+Reject forged or tampered tokens (e.g. modify the payload in [jwt.io](https://jwt.io) and confirm your backend rejects it).
+
+### Server auth code (`serverAuthCode`)
+
+- Requires `configure({ offlineAccess: true })`.
+- Exchange the code **only on your backend** using your OAuth client secret.
+- Treat codes as **single-use and short-lived**; never log full codes in analytics or crash reporters.
+- On iOS, silent `signIn()` does not return a `serverAuthCode` even when `offlineAccess` is enabled — use `createAccount()` or `presentExplicitSignIn()` for the initial offline grant.
+
+### Token storage on device
+
+- Do not store `idToken` in plain AsyncStorage; prefer secure storage or session cookies managed by your app.
+- Implement logout, token rotation, and revocation (`signOut`, `revokeAccess`) in your auth flow.
+
+### Platform notes
+
+| Topic | Android | iOS |
+|-------|---------|-----|
+| `hostedDomain` | Credential Manager flows filter at request time; `buttonFlow` / `presentExplicitSignIn` validates JWT `hd` after sign-in | Applied via `GIDConfiguration.hostedDomain` |
+| `revokeAccess(id)` | Resolves account by email or user id | Only revokes the **current** session; throws if `id` does not match |
+| `signIn()` + `offlineAccess` | May follow with authorization for `serverAuthCode` | Silent restore returns `serverAuthCode: null` |

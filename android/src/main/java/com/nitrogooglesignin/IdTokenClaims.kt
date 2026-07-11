@@ -6,6 +6,8 @@ import org.json.JSONObject
 internal data class IdTokenClaims(
   val sub: String?,
   val email: String?,
+  /** Google Workspace hosted domain (`hd` claim). Present only for Workspace accounts. */
+  val hd: String?,
 ) {
   companion object {
     fun parse(idToken: String): IdTokenClaims? =
@@ -20,6 +22,7 @@ internal data class IdTokenClaims(
         IdTokenClaims(
           sub = json.optString("sub").takeIf { it.isNotEmpty() },
           email = json.optString("email").takeIf { it.isNotEmpty() },
+          hd = json.optString("hd").takeIf { it.isNotEmpty() },
         )
       } catch (_: Exception) {
         null

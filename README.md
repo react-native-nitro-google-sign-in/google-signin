@@ -297,14 +297,14 @@ See [Usage — Access tokens](https://react-native-nitro-google-sign-in.github.i
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `configure(params)`       | Required before other calls. `webClientId` or `'autoDetect'`; optional `scopes`, `offlineAccess` (**required for `serverAuthCode`**), `hostedDomain`, `nonce`, `autoSelectOnSignIn`. |
 | `checkPlayServices()`     | Android: validates Play Services. iOS: no-op resolve.                                                                                            |
-| `signIn()`                | Silent / restore previous sign-in.                                                                                                               |
+| `signIn()`                | Silent / restore previous sign-in. With `offlineAccess: true`, iOS silent restore does not return `serverAuthCode` — use `createAccount()` for the initial offline grant. |
 | `createAccount()`         | Interactive account picker (sign-up).                                                                                                            |
-| `presentExplicitSignIn()` | Explicit Sign in with Google UI.                                                                                                                 |
+| `presentExplicitSignIn()` | Explicit Sign in with Google UI. On Android, when `hostedDomain` is set, JWT `hd` is validated after sign-in (Credential Manager flows filter at request time). |
 | `requestScopes(scopes)`   | Request **additional** OAuth access after sign-in; returns `{ serverAuthCode }`. Requires `offlineAccess: true` in `configure()` for a non-null code. |
 | `getTokens()`             | Returns `{ idToken, accessToken }` for the signed-in user. Throws `SIGN_IN_REQUIRED` if not signed in. |
 | `clearCachedAccessToken(token)` | Clears stale access token cache (Android) or marks session for refresh (iOS). Call before `getTokens()` after a 401. |
 | `signOut()`               | Clears local Google session (iOS SDK); disable auto sign-in on Android.                                                                          |
-| `revokeAccess(id)`        | Disconnect app (revokes app access / OAuth grant on both iOS and Android).                                                                       |
+| `revokeAccess(id)`        | Disconnect app (revokes OAuth grant). Android resolves account by email/id; iOS only revokes the current session (throws if `id` does not match). |
 
 
 Also exported: native [`GoogleSignInButton`](https://react-native-nitro-google-sign-in.github.io/docs/guide/google-sign-in-button), `useGoogleSignInFromButton`, response helpers (`isSuccessResponse`, `isNoSavedCredentialFoundResponse`, `isCancelledResponse`, `isErrorWithCode`), and `statusCodes`.

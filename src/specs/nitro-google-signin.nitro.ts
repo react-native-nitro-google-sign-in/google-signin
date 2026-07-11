@@ -64,7 +64,18 @@ export interface OneTapConfigureParams {
    * is always `null`.
    */
   offlineAccess?: boolean
-  /** Restrict sign-in to a Google Workspace domain (e.g. `example.com`). */
+  /** Restrict sign-in to a Google Workspace domain (e.g. `example.com`).
+   *
+   * Android Credential Manager flows (`signIn`, `createAccount`) pass this to
+   * `GetGoogleIdOption.setHostedDomainFilter`. The explicit button flow
+   * (`presentExplicitSignIn`, `GoogleSignInButton` with `signInBehavior="buttonFlow"`)
+   * validates the JWT `hd` claim after sign-in instead.
+   *
+   * iOS: passed to `GIDConfiguration.hostedDomain`.
+   *
+   * **Always validate the JWT `hd` claim on your backend** — do not rely on
+   * client-side filtering alone.
+   */
   hostedDomain?: string | null
   /** SHA-256 hex nonce for the ID token. Auto-generated when omitted. */
   nonce?: string | null
@@ -124,5 +135,16 @@ export interface NitroGoogleSignin
    */
   clearCachedAccessToken(accessTokenString: string): Promise<void>
   signOut(): Promise<void>
+  /**
+   * Revoke app access / OAuth grant for the user.
+   *
+   * **Android:** resolves the account from `emailOrUniqueId` (email or
+   * {@link OneTapUser.id}) and revokes via `AuthorizationClient`.
+   *
+   * **iOS:** only the **current signed-in session** can be revoked. Throws if
+   * `emailOrUniqueId` does not match the active user's id or email. The
+   * parameter is ignored for account lookup — call {@link signIn} first if you
+   * need to revoke a specific stored account.
+   */
   revokeAccess(emailOrUniqueId: string): Promise<void>
 }
