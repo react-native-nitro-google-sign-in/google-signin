@@ -42,6 +42,29 @@ We appreciate responsible disclosure. Credit will be given in the advisory or re
 
 **Docs:** [Security policy on the documentation site](https://react-native-nitro-google-sign-in.github.io/docs/community/security)
 
+## Security audits
+
+Independent audit reports are published in [`security-audit/`](./security-audit/README.md) (not shipped to npm).
+
+| Run | Version | Date | Report |
+|-----|---------|------|--------|
+| run-2 | 1.0.1 | 2026-07-11 | [REPORT.md](./security-audit/run-2/REPORT.md) |
+| run-1 | 0.7.2 | 2026-06-24 | [REPORT.md](./security-audit/run-1/REPORT.md) |
+
+**Latest summary (run-2):** 0 CRITICAL, 0 HIGH, 6 MEDIUM, 4 LOW. v1.0.1 fixed the Android auth race, Android signOut no-op, and iOS `offlineAccess` handling. Remaining findings are primarily the React Native JS trust model (unpinned/re-callable `configure()`, scope escalation) and Android/iOS parity gaps. See [security-audit/README.md](./security-audit/README.md) for machine-readable [`findings.json`](./security-audit/run-2/findings.json), detailed data flows, and the [remediation plan](./security-audit/REMEDIATION-PHASES.md).
+
+## JavaScript trust model
+
+React Native native modules treat **all JavaScript in your bundle as trusted**. Any npm dependency can call `GoogleOneTapSignIn.configure()`, `requestScopes()`, `getTokens()`, or `revokeAccess()`.
+
+**Mitigations for app authors:**
+
+- Call `configure()` **once** at startup with a **build-time** `webClientId` — never from remote config without integrity checks.
+- **Allowlist OAuth scopes** in your app code before calling `requestScopes()`.
+- Treat `signIn()` (iOS) and `getTokens()` (Android) as **silent token retrieval** after the first sign-in.
+- **Verify every `idToken` on your backend** — see checklist below.
+- Audit third-party dependencies in your React Native bundle.
+
 ## Backend verification checklist (consumer apps)
 
 This library returns Google-issued `idToken` and `serverAuthCode` values to your JavaScript layer. **Your backend is the trust anchor** — never accept tokens from the client without verification.

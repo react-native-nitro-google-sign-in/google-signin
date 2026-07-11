@@ -1,1 +1,185 @@
-[]
+{
+  "audit": {
+    "package": "react-native-nitro-google-signin",
+    "version": "0.7.2",
+    "date": "2026-06-24",
+    "target": "npm package + native dependencies",
+    "repository": "https://github.com/react-native-nitro-google-sign-in/google-signin",
+    "priorRuns": 0
+  },
+  "summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 4,
+    "low": 5,
+    "informational": 6,
+    "overallRisk": "low-to-medium",
+    "headline": "Thin Google SDK wrapper with solid hygiene (no logging, no install scripts, SLSA provenance). Main risks are OAuth config trust from JS and Android concurrent auth race."
+  },
+  "findings": [
+    {
+      "id": "RNGS-001",
+      "title": "Unpinned webClientId enables OAuth client redirection",
+      "severity": "medium",
+      "confidence": "high",
+      "category": "oauth-misconfiguration",
+      "exploitable": true,
+      "cwe": "CWE-287",
+      "components": ["android/GoogleSignInController.kt", "ios/HybridNitroGoogleSignin.swift", "src/GoogleOneTapSignIn.ts"],
+      "attackScenario": "Compromised in-app JS calls configure({ webClientId: attackerClient, offlineAccess: true }) before sign-in; user completes Google UI; idToken and serverAuthCode issued for attacker's OAuth client.",
+      "prerequisites": ["JavaScript execution in RN bundle", "Attacker-owned Google OAuth web client"],
+      "impact": "OAuth token phishing; serverAuthCode exchange on attacker backend; PII in idToken",
+      "recommendation": "Pin webClientId at build time; call configure once from trusted code; document JS trust model"
+    },
+    {
+      "id": "RNGS-002",
+      "title": "Unrestricted OAuth scope escalation via requestScopes/configure.scopes",
+      "severity": "medium",
+      "confidence": "high",
+      "category": "oauth-scope-escalation",
+      "exploitable": true,
+      "cwe": "CWE-269",
+      "components": ["android/GoogleSignInController.kt", "android/GoogleSignInAuthorizationHelper.kt", "ios/HybridNitroGoogleSignin.swift"],
+      "attackScenario": "Malicious JS requests sensitive Google API scopes; user approves consent; serverAuthCode returned to JS.",
+      "prerequisites": ["Active Google session", "Compromised JS", "User approves consent UI"],
+      "impact": "Elevated Google API access via exchanged serverAuthCode",
+      "recommendation": "Consumer allowlist scopes; optional native allowedScopes config"
+    },
+    {
+      "id": "RNGS-003",
+      "title": "Android concurrent authorization race in GoogleSignInAuthorizationHelper",
+      "severity": "medium",
+      "confidence": "high",
+      "category": "race-condition",
+      "exploitable": true,
+      "cwe": "CWE-362",
+      "components": ["android/GoogleSignInAuthorizationHelper.kt"],
+      "attackScenario": "Parallel authorize() calls overwrite single pendingContinuation; onActivityResult delivers serverAuthCode to wrong caller.",
+      "prerequisites": ["Concurrent authorization flows in same process"],
+      "impact": "Auth code misdelivery; hung Promises; potential authz logic bugs",
+      "recommendation": "Serialize authorize() or queue continuations; reject concurrent calls with IN_PROGRESS"
+    },
+    {
+      "id": "RNGS-004",
+      "title": "iOS signIn() returns cached session without user interaction",
+      "severity": "medium",
+      "confidence": "high",
+      "category": "session-management",
+      "exploitable": true,
+      "cwe": "CWE-287",
+      "components": ["ios/HybridNitroGoogleSignin.swift"],
+      "attackScenario": "On unlocked device with existing GIDSignIn session, any JS calling signIn() obtains idToken silently.",
+      "prerequisites": ["Unlocked device", "Prior Google sign-in in Keychain"],
+      "impact": "Silent bearer idToken retrieval; no fresh nonce on restore path",
+      "recommendation": "Document silent restore semantics; use interactive methods for re-auth"
+    },
+    {
+      "id": "RNGS-005",
+      "title": "Auto-generated nonce not returned for backend OIDC verification",
+      "severity": "low",
+      "confidence": "high",
+      "category": "oidc-nonce",
+      "exploitable": false,
+      "components": ["android/GoogleSignInController.kt", "ios/HybridNitroGoogleSignin.swift", "src/specs/nitro-google-signin.nitro.ts"],
+      "attackScenario": "Backend enforces nonce claim verification but app uses default auto-nonce; verification impossible without skipping checks.",
+      "prerequisites": ["Backend nonce enforcement", "Omitted configure.nonce"],
+      "impact": "Broken or skipped nonce validation; weakened replay protection",
+      "recommendation": "Return nonce to JS or require explicit configure({ nonce }) with documented verification flow"
+    },
+    {
+      "id": "RNGS-006",
+      "title": "Android signOut/revokeAccess are no-ops",
+      "severity": "low",
+      "confidence": "high",
+      "category": "session-management",
+      "exploitable": false,
+      "components": ["android/GoogleSignInController.kt"],
+      "attackScenario": "App believes Google session cleared after signOut(); Credential Manager auto-sign-in may persist.",
+      "prerequisites": ["App relies on signOut for security teardown"],
+      "impact": "False logout; unexpected silent re-auth",
+      "recommendation": "Document limitation; explore CredentialManager clear APIs"
+    },
+    {
+      "id": "RNGS-007",
+      "title": "JWT payload parsed without signature verification (claims fallback)",
+      "severity": "low",
+      "confidence": "medium",
+      "category": "cryptographic-validation",
+      "exploitable": false,
+      "components": ["android/IdTokenClaims.kt"],
+      "attackScenario": "Forged credential reaching parseCredential would trust unverified JWT claims for sub/email fallback.",
+      "prerequisites": ["Bypass of GoogleIdTokenCredential.createFrom validation"],
+      "impact": "Incorrect user identity mapping (theoretical)",
+      "recommendation": "Rely on SDK fields only; remove JWT parse fallback if redundant"
+    },
+    {
+      "id": "RNGS-008",
+      "title": "GoogleSignInError/isErrorWithCode not wired to native exceptions",
+      "severity": "low",
+      "confidence": "high",
+      "category": "error-handling",
+      "exploitable": false,
+      "components": ["src/types.ts"],
+      "attackScenario": "Apps using isErrorWithCode fail to match; may log raw SDK error messages.",
+      "prerequisites": ["Consumer uses isErrorWithCode"],
+      "impact": "Error handling bugs; possible SDK message leakage in logs",
+      "recommendation": "Map native exceptions to GoogleSignInError in JS wrapper"
+    },
+    {
+      "id": "RNGS-009",
+      "title": "iOS offlineAccess flag stored but never used",
+      "severity": "low",
+      "confidence": "high",
+      "category": "api-parity",
+      "exploitable": false,
+      "components": ["ios/HybridNitroGoogleSignin.swift"],
+      "attackScenario": "Developer expects offlineAccess to gate serverAuthCode on iOS; behavior differs from Android.",
+      "prerequisites": ["Cross-platform app using offlineAccess flag"],
+      "impact": "Developer confusion; incorrect auth assumptions",
+      "recommendation": "Document iOS behavior or implement flag semantics"
+    },
+    {
+      "id": "RNGS-010",
+      "title": "iOS custom URL scheme hijacking (platform limitation)",
+      "severity": "low",
+      "confidence": "medium",
+      "category": "oauth-redirect",
+      "exploitable": true,
+      "components": ["plugin/withNitroGoogleSignIn.js"],
+      "attackScenario": "Malicious app registers same REVERSED_CLIENT_ID scheme; intercepts OAuth redirect.",
+      "prerequisites": ["Colliding URL scheme registration", "User completes OAuth in victim app"],
+      "impact": "OAuth callback interception",
+      "recommendation": "Document platform risk; consider Universal Links where supported"
+    }
+  ],
+  "supplyChain": {
+    "installScripts": false,
+    "slsaProvenance": true,
+    "npmSignatures": true,
+    "runtimeDependencies": {
+      "@expo/config-plugins": ">=9.0.0"
+    },
+    "nativeDependencies": {
+      "android": {
+        "androidx.credentials:credentials": "1.5.0",
+        "androidx.credentials:credentials-play-services-auth": "1.5.0",
+        "com.google.android.libraries.identity.googleid:googleid": "1.2.0",
+        "com.google.android.gms:play-services-auth": "21.6.0"
+      },
+      "ios": {
+        "GoogleSignIn": "~> 9.0, < 9.2.0",
+        "AppCheckCore": "< 11.3.0 (Expo plugin)"
+      }
+    }
+  },
+  "positives": [
+    "No custom WebView OAuth implementation",
+    "No native credential logging",
+    "Empty Android library manifest",
+    "Nitro isPlainObject bridge hardening",
+    "No postinstall/preinstall scripts",
+    "SLSA npm provenance on 0.7.2",
+    "Expo plugin iosUrlScheme prefix validation",
+    "CMake -fstack-protector-all on Android"
+  ]
+}

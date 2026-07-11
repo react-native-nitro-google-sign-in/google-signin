@@ -1,194 +1,194 @@
-# Security Audit Report — react-native-nitro-google-signin
+# Security Audit Report — react-native-nitro-google-signin@0.7.2
 
-**Package:** `react-native-nitro-google-signin` v0.8.1  
-**Audit run:** `security-audit/run-1`  
-**Date:** 2026-06-29  
-**Methodology:** 6-phase security audit (recon → hunt → validate → report → structured output → verification)
+**Target:** [react-native-nitro-google-signin](https://www.npmjs.com/package/react-native-nitro-google-signin) v0.7.2 (npm) + native dependencies  
+**Date:** 2026-06-24  
+**Artifacts:** [`security-audit/run-1/`](./) in this repository  
+**Coverage note:** First audit of this package. Re-run recommended to cover additional code paths.
 
 ---
 
 ## Executive summary
 
-This library is a **client-side OAuth token acquisition bridge** with a small, well-scoped attack surface. After full reconnaissance, parallel hunting across cryptography, access control, business logic, and obvious-checklist categories, and adversarial validation, **no exploitable vulnerabilities with real impact were confirmed** in the library itself.
+`react-native-nitro-google-signin` is a **thin, well-structured wrapper** around official Google Sign-In SDKs on Android (Credential Manager) and iOS (`GIDSignIn`), bridged via Nitro Modules. The library adds **no exported Android components**, does **not log credentials natively**, and ships **without install-time scripts** — all positive for supply-chain and runtime hygiene.
 
-Security posture is **appropriate for its category**: tokens originate exclusively from Google SDKs, sensitive local state uses `EncryptedSharedPreferences`, no hardcoded secrets ship in library code, and the API explicitly documents that **backends must verify `idToken`**. Remaining risk sits in **consumer app integration** (backend JWT validation, Workspace domain enforcement, token storage) and a handful of **hardening gaps** documented below with phased remediation.
+The meaningful risks are **OAuth configuration trust** and **session semantics**, not memory corruption or injection:
 
-> **Coverage note:** This is the first audit run. Re-run after major native SDK upgrades or API changes to improve coverage.
+1. **Native layer accepts any `webClientId` and `scopes` from JavaScript** with no pinning or allowlist. If attacker-controlled JS runs in the host app (compromised dependency, debug hook, malicious RN bundle), OAuth can be redirected to an attacker-owned Google Cloud project while the user sees authentic Google UI.
+2. **Android `GoogleSignInAuthorizationHelper` uses a single global continuation slot** — concurrent `authorize()` calls can misdeliver `serverAuthCode` to the wrong caller.
+3. **iOS `signIn()` returns cached `GIDSignIn` session without re-prompting** — expected SSO behavior but enables silent `idToken` retrieval on an unlocked device.
+4. **Auto-generated nonce is not returned to JS** — backends that enforce OIDC nonce verification cannot validate tokens from the default nonce path unless they skip nonce checks.
 
----
+No **CRITICAL** findings (no RCE, no unauthenticated data exfiltration, no auth bypass without prior JS compromise or physical device access).
 
-## Baseline comparison
-
-| Aspect | This library | `@react-native-google-signin/google-signin` |
-|--------|--------------|---------------------------------------------|
-| Token source | Google SDK only | Google SDK only |
-| JWT verification | Delegated to backend (documented) | Same |
-| Nonce support | SHA-256(UUID), optional configure | None |
-| iOS silent sign-in | `signIn()` → `currentUser` / restore | `signInSilently()` |
-| Android API | Credential Manager | Classic GoogleSignIn |
-| Secrets in repo | None (CI dummies only) | Same pattern |
-
-The library does not introduce weaker cryptography or novel trust boundaries versus the mainstream comparable.
+| Severity | Count |
+|----------|-------|
+| CRITICAL | 0 |
+| HIGH | 0 |
+| MEDIUM | 4 |
+| LOW | 5 |
+| Informational | 6 |
 
 ---
 
 ## Findings
 
-| Severity | ID | Title | Status |
-|----------|-----|-------|--------|
-| — | — | *No confirmed vulnerabilities* | — |
+### RNGS-001 — Unpinned `webClientId` enables OAuth client redirection (MEDIUM)
 
-**Confirmed exploitable findings: 0**
+**Component:** Android `GoogleSignInController.kt`, iOS `HybridNitroGoogleSignin.swift`, JS `GoogleOneTapSignIn.ts`
 
----
+**Description:** `configure({ webClientId })` accepts any string (except `"autoDetect"` which reads from app resources). Native code passes this directly to Google SDKs as `serverClientId` / `serverClientID`.
 
-## Hardening notes (not vulnerabilities)
+**Attack scenario:** Attacker with JS execution in the RN bundle calls `configure({ webClientId: 'ATTACKER.apps.googleusercontent.com', offlineAccess: true })` before user sign-in. User completes legitimate Google UI; `idToken` and `serverAuthCode` are minted for the attacker's OAuth client. Attacker exchanges `serverAuthCode` on their backend. Victim app backend rejecting wrong `aud` limits impact on server-side auth, but user consent and offline tokens may still be captured.
 
-These are defense-in-depth or developer-footgun items. They do **not** defeat a security boundary when the consumer backend follows standard OAuth/OIDC practices.
+**Likelihood:** Requires compromised or malicious in-app JS (supply chain, debug build, third-party SDK). Standard RN apps treat JS as trusted — this is the **expected RN native-module model**, but it is a real boundary if the app embeds untrusted JS.
 
-### H-1: `hostedDomain` not applied on Android `buttonFlow`
-
-**Location:** `GoogleSignInController.kt` — `GetSignInWithGoogleOption` path (`presentExplicitSignIn`, `signInBehavior="buttonFlow"`)
-
-`setHostedDomainFilter` is only set on `GetGoogleIdOption` (credential-manager flows). The explicit button flow does not apply the Workspace domain filter.
-
-**Impact:** If an app relies solely on client-side `hostedDomain` (without backend `hd` claim validation) and uses `buttonFlow`, a consumer Gmail account could complete sign-in. **Blocked** when the backend validates the JWT `hd` claim — which is standard practice.
-
-### H-2: iOS `revokeAccess(emailOrUniqueId)` ignores the parameter
-
-**Location:** `ios/HybridNitroGoogleSignin.swift:115–129`
-
-Always calls `GIDSignIn.sharedInstance.disconnect` on the current session. Android uses the parameter to resolve account/scopes from encrypted prefs.
-
-**Impact:** Cross-platform API inconsistency; developers may believe they revoked a specific account on iOS when they revoked only the current session. Not an attacker bypass.
-
-### H-3: Concurrent `authorize()` race on Android
-
-**Location:** `GoogleSignInAuthorizationHelper.kt` — single global `pendingContinuation`
-
-Overlapping `requestScopes()` or sign-in + scope flows can hang or mis-deliver activity results.
-
-**Impact:** In-process DoS of an in-flight OAuth call. An attacker with JS execution already has simpler paths to obtain tokens.
-
-### H-4: iOS `signIn()` does not return `serverAuthCode` when `offlineAccess: true`
-
-**Location:** `HybridNitroGoogleSignin.swift:80–90`
-
-Silent restore returns `serverAuthCode: nil` even when offline access is configured. Interactive flows return the code.
-
-**Impact:** Developer confusion leading to incorrect backend integration — not a token theft vector.
-
-### H-5: EncryptedSharedPreferences write failures are silently swallowed
-
-**Location:** `GoogleSignInController.kt:379–381, 415, 446–447`
-
-`revokeAccess` scope bookkeeping may degrade without surfacing errors.
-
-**Impact:** `revokeAccess` may use fallback scopes; Google layer still enforces authorization.
+**Recommendation:** Document that `configure()` must be called once from trusted bootstrap code. Consider optional native pinning via `strings.xml` / build-time constant. Reject runtime `configure()` changes in release builds.
 
 ---
 
-## Positive patterns
+### RNGS-002 — Unrestricted OAuth scope escalation via JS (MEDIUM)
 
-1. **Explicit backend verification contract** — `OneTapSuccessData.idToken` JSDoc states tokens must be verified server-side (`src/specs/nitro-google-signin.nitro.ts:28`).
+**Component:** `requestScopes()`, `configure({ scopes })` → Android `GoogleSignInAuthorizationHelper`, iOS `requestAdditionalScopes`
 
-2. **Credential type enforcement on Android** — `parseCredential()` rejects non-Google credential types before processing (`GoogleSignInController.kt:261–273`).
+**Description:** Scope URL arrays from JS are forwarded to Google without an app-level allowlist.
 
-3. **Encrypted local storage** — Email ↔ user ID mappings use `EncryptedSharedPreferences` with AES256-GCM/SIV (`GoogleSignInController.kt:356–368`).
+**Attack scenario:** Malicious JS requests sensitive scopes (`drive.readonly`, `gmail.readonly`, etc.) via `requestScopes()` or `configure({ scopes, offlineAccess: true })`. Google shows consent UI; if user approves, `serverAuthCode` for elevated scopes goes to JS.
 
-4. **Offline access requires explicit opt-in** — `serverAuthCode` is null unless `offlineAccess: true`; Android forces `Prompt.CONSENT` for offline (`GoogleSignInAuthorizationHelper.kt:63–65`).
+**Mitigation in practice:** Google consent UI is shown; not silent escalation. Risk is social engineering + compromised JS.
 
-5. **Expo plugin validates URL scheme prefix** — `iosUrlScheme` must start with `com.googleusercontent.apps.` (`plugin/withNitroGoogleSignIn.js:36–40`).
-
-6. **No secrets in published source** — `.gitignore`, `.npmignore`, and CI placeholders use dummy OAuth client IDs.
-
-7. **SECURITY.md scope** — Clear in-scope / out-of-scope boundaries for vulnerability reports.
-
-8. **Strong nonce generation** — SHA-256 over UUID when caller does not supply a nonce (Android + iOS).
+**Recommendation:** Document scope allowlisting as consumer responsibility. Optional `allowedScopes` in native config for high-assurance apps.
 
 ---
 
-## Remediation phases
+### RNGS-003 — Android concurrent authorization race (MEDIUM)
 
-Phased plan for library maintainers and consumer app developers. Ordered by priority.
+**Component:** `GoogleSignInAuthorizationHelper.kt`
 
-### Phase 1 — Immediate (consumer apps, no library changes)
+**Description:** `pendingContinuation` is a single global variable. Overlapping `authorize()` calls overwrite it; `onActivityResult` delivers `serverAuthCode` to whichever continuation was registered last.
 
-**Goal:** Ensure integration does not rely on client-only security.
+**Attack scenario:** Two parallel `requestScopes()` or sign-in + scope flows race. Wrong JS Promise receives the auth code — potential authorization logic bug or accidental code handoff between app features. Malicious in-app JS could race intentional app flows.
 
-| # | Action | Owner | Effort |
-|---|--------|-------|--------|
-| 1.1 | Verify every `idToken` on backend: signature (Google JWKS), `aud` = your web client ID, `iss` = `accounts.google.com` or `https://accounts.google.com`, `exp` not expired | Consumer backend | 1–2 days |
-| 1.2 | If using `hostedDomain`, validate JWT `hd` claim server-side; do not trust client filter alone | Consumer backend | Hours |
-| 1.3 | If using `nonce`, verify `nonce` claim matches server-issued value | Consumer backend | Hours |
-| 1.4 | Exchange `serverAuthCode` only on backend with client secret; never log full codes | Consumer backend | Hours |
-| 1.5 | Store refresh tokens encrypted; rotate on compromise | Consumer backend | 1 day |
-
-### Phase 2 — Short-term (library documentation + examples)
-
-**Goal:** Reduce developer foot-guns without API breaks.
-
-| # | Action | Owner | Effort |
-|---|--------|-------|--------|
-| 2.1 | Document `hostedDomain` limitation on Android `buttonFlow` / `presentExplicitSignIn` | Docs + README | Hours |
-| 2.2 | Document iOS `revokeAccess` ignores `emailOrUniqueId`; recommend `signOut` + platform-specific flows | Docs + JSDoc | Hours |
-| 2.3 | Document iOS `signIn()` vs interactive flows for `serverAuthCode` when `offlineAccess: true` | Docs | Hours |
-| 2.4 | Add backend verification checklist to `SECURITY.md` or skills | Docs | Hours |
-| 2.5 | Example apps: remove truncated `serverAuthCode` display (use boolean “received” only) | Examples | Minutes |
-
-### Phase 3 — Medium-term (library hardening)
-
-**Goal:** Close defense-in-depth gaps and reliability issues.
-
-| # | Action | File(s) | Effort |
-|---|--------|---------|--------|
-| 3.1 | Apply `hostedDomain` to `GetSignInWithGoogleOption` if SDK supports it; else post-sign-in reject when `hd` mismatch | `GoogleSignInController.kt` | 1–2 days |
-| 3.2 | Serialize `GoogleSignInAuthorizationHelper.authorize()` with a mutex; reject or queue concurrent calls | `GoogleSignInAuthorizationHelper.kt` | Half day |
-| 3.3 | Log (non-PII) warnings when EncryptedSharedPreferences writes fail; surface degraded revoke in error metadata | `GoogleSignInController.kt` | Half day |
-| 3.4 | iOS: optionally trigger interactive re-auth for `serverAuthCode` when `offlineAccess` + silent `signIn()` | `HybridNitroGoogleSignin.swift` | 1–2 days |
-| 3.5 | Align iOS `revokeAccess` with Android semantics or deprecate parameter on iOS with compile-time warning | `HybridNitroGoogleSignin.swift` | 1 day |
-
-### Phase 4 — Ongoing (supply chain + process)
-
-**Goal:** Sustained security hygiene.
-
-| # | Action | Owner | Cadence |
-|---|--------|-------|---------|
-| 4.1 | Pin and monitor Android deps (`play-services-auth`, `credentials`, `googleid`) via Dependabot + OSV | Maintainers | Weekly |
-| 4.2 | Track `GoogleSignIn` pod CVEs; bump `< 9.2.0` constraint when patches release | Maintainers | On advisory |
-| 4.3 | Re-run security audit after major API or SDK version bumps | Maintainers | Per release |
-| 4.4 | Add native integration tests for concurrent `requestScopes` and `hostedDomain` flows | Maintainers | Per Phase 3 |
+**Recommendation:** Queue continuations or reject concurrent `authorize()` with `IN_PROGRESS` error (matching iOS activity guard pattern).
 
 ---
 
-## What was tested
+### RNGS-004 — iOS silent `signIn()` returns cached session without user interaction (MEDIUM)
 
-| Phase | Scope |
-|-------|-------|
-| Recon | Architecture, trust boundaries, full input inventory |
-| Hunt — Crypto/secrets | Tokens, nonce, JWT parse, EncryptedSharedPreferences, revoke semantics |
-| Hunt — Access control | Scopes, hostedDomain, autoSelect, configure overwrite, auth race |
-| Hunt — Obvious | Secrets grep, eval/exec, debug bypass, ProGuard, example leaks, native dep CVEs (OSV) |
-| Validate | Adversarial disproof of all candidate findings |
-| Verify | Independent trace review of hardening claims |
+**Component:** `HybridNitroGoogleSignin.swift:74-81, 128-146`
 
----
+**Description:** `signIn()` immediately returns `GIDSignIn.sharedInstance.currentUser` or `restorePreviousSignIn` with `idToken` and no fresh nonce challenge.
 
-## Recommendations
+**Attack scenario:** Unattended unlocked device with existing Google session — any code in the RN bundle calling `signIn()` obtains a bearer `idToken` without user interaction. `serverAuthCode` is always `nil` on this path.
 
-1. **Ship Phase 2 documentation** in the next minor release — highest ROI, zero breaking changes.
-2. **Prioritize Phase 3.2** (authorize mutex) — prevents hard-to-debug production hangs.
-3. **Consumer apps:** treat Phase 1 as mandatory regardless of which Google Sign-In library they use.
-4. **Re-run this audit** after upgrading Credential Manager, Google Sign-In iOS SDK, or adding new public API surface.
+**Note:** Aligns with Google SSO / One Tap “returning user” semantics. Severity depends on app threat model.
+
+**Recommendation:** Document that `signIn()` is silent restore; use `createAccount()` / `presentExplicitSignIn()` when interactive re-auth is required.
 
 ---
 
-## Artifacts
+### RNGS-005 — Auto-generated nonce not exposed for backend verification (LOW)
 
-| File | Description |
-|------|-------------|
-| `architecture.md` | Phase 1 recon synthesis |
-| `REPORT.md` | This report |
-| `FINDINGS-DETAIL.md` | Detailed flows (empty — no MEDIUM+ findings) |
-| `findings.json` | Machine-readable output (empty confirmed set) |
-| `REMEDIATION-PHASES.md` | Standalone remediation tracker |
+**Component:** `generateNonce()` on Android/iOS; `OneTapSuccessData` has no `nonce` field
+
+**Description:** When `configure()` omits `nonce`, native generates `SHA-256(UUID)` and passes it to Google SDKs. The raw UUID and hashed nonce are **not returned** to JavaScript. Backends verifying `nonce` claim in `idToken` cannot validate unless they skip nonce checks.
+
+**Recommendation:** Return the hashed nonce (or document that consumers must supply their own via `configure({ nonce })` and store the raw value for backend verification). Align docs with OIDC nonce verification flow.
+
+---
+
+### RNGS-006 — Android `signOut()` / `revokeAccess()` are no-ops (LOW)
+
+**Component:** `GoogleSignInController.kt:112-118`
+
+**Description:** `signOut()` is empty; `revokeAccess()` only calls `signOut()`. Credential Manager has no global sign-out in this integration.
+
+**Impact:** Apps assuming Google session is cleared may leave Credential Manager auto-sign-in enabled. Not cross-app exploitable.
+
+**Recommendation:** Document Android limitation; clear app session in JS; consider `CredentialManager.clearCredentialState()` if API supports app-level clearing.
+
+---
+
+### RNGS-007 — JWT payload parsed without signature verification (LOW)
+
+**Component:** `IdTokenClaims.kt`
+
+**Description:** Base64-decodes JWT payload for `sub`/`email` fallback after `GoogleIdTokenCredential.createFrom()`. No signature check on parsed claims.
+
+**Impact:** Not exploitable under normal flow — Google SDK validates credential before parsing. Defense-in-depth gap only.
+
+---
+
+### RNGS-008 — `GoogleSignInError` / `isErrorWithCode` not wired to native errors (LOW)
+
+**Component:** `src/types.ts`
+
+**Description:** `GoogleSignInError` class is exported but never constructed from native exceptions. Native throws via Nitro as generic `Error`. Apps using `isErrorWithCode()` may mishandle errors or log raw `error.message` from Google SDK.
+
+---
+
+### RNGS-009 — iOS `offlineAccess` flag ignored (LOW)
+
+**Component:** `HybridNitroGoogleSignin.swift:54` (stored, never read)
+
+**Description:** `offlineAccess` is set from JS but iOS behavior depends only on `serverClientID` in `GIDConfiguration`. API parity gap with Android may cause developer mistakes.
+
+---
+
+### RNGS-010 — iOS URL scheme hijacking (platform limitation) (LOW)
+
+**Component:** Expo plugin `withNitroGoogleSignIn.js`, iOS `CFBundleURLSchemes`
+
+**Description:** OAuth redirect uses custom URL scheme (`REVERSED_CLIENT_ID`). Another app registering the same scheme can intercept callbacks on jailbroken or misconfigured devices. Plugin validates `com.googleusercontent.apps.` prefix only.
+
+**Note:** Inherent iOS custom-scheme limitation; not unique to this library.
+
+---
+
+## Supply chain & dependencies
+
+| Check | Result |
+|-------|--------|
+| Install scripts (`postinstall`, etc.) | **None** |
+| Published build scripts | **Not shipped** (`post-build.js` absent from npm tarball) |
+| SLSA provenance | **Present** (GitHub Actions) |
+| Runtime npm dependencies | 1 (`@expo/config-plugins >=9.0.0`) |
+| Known CVEs in pinned Android artifacts | **None identified** in this audit for listed versions |
+| `GoogleSignIn` pod cap `< 9.2.0` | **Intentional** — avoids AppCheckCore 11.3.0 breakage (issue #24) |
+
+**Peer dependency:** `react-native-nitro-modules` — security posture depends on Nitro version consumer installs. Not audited in this run.
+
+---
+
+## What the library does well
+
+1. **Official SDK delegation** — no custom WebView OAuth
+2. **No native token logging**
+3. **Empty Android manifest** — no exported attack surface
+4. **Credential type enforcement** on Android before parsing
+5. **Nitro `isPlainObject` + typed bridge** — limits prototype pollution to native
+6. **Expo plugin** — scheme prefix validation, `createRunOncePlugin`, static Podfile patch
+7. **Automatic nonce generation** when omitted (Android/iOS)
+8. **CMake stack protector** on Android native build
+9. **Transparent npm provenance** for 0.7.2
+
+---
+
+## Recommendations for consumers
+
+1. Call `configure()` **once** at app startup with a **hardcoded or build-time `webClientId`** — never from remote config without integrity checks.
+2. **Verify `idToken` on backend**: signature, `aud`, `iss`, `exp`, and nonce if used.
+3. Treat `signIn()` as **silent restore** on iOS; use interactive methods when re-auth is required.
+4. **Allowlist scopes** in app code before calling `requestScopes()`.
+5. Wire iOS `GIDSignIn.sharedInstance.handle(url)` in `AppDelegate` (documented; not enforced by library).
+6. Pin `react-native-nitro-google-signin` and `react-native-nitro-modules` versions; monitor [SECURITY.md](https://github.com/react-native-nitro-google-sign-in/google-signin/blob/main/SECURITY.md).
+
+---
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `architecture.md` | Trust boundaries, dependencies, hunt scope |
+| `FINDINGS-DETAIL.md` | Data flows for MEDIUM+ findings |
+| `findings.json` | Machine-readable findings |
+| `REPORT.md` | This document |

@@ -1,58 +1,235 @@
-# Findings Detail — react-native-nitro-google-signin
+# Findings Detail — react-native-nitro-google-signin@0.7.2
 
-**Audit run:** `security-audit/run-1`  
-**Date:** 2026-06-29
-
-## Confirmed findings (MEDIUM and above)
-
-*None.*
-
-No finding met the bar for a confirmed, exploitable vulnerability with concrete attack scenario and meaningful impact after validation.
+Detailed data flows for **MEDIUM** and above findings.
 
 ---
 
-## Investigated and rejected
+## RNGS-001 — Unpinned `webClientId` (MEDIUM)
 
-The following candidate issues were traced, attacked, and rejected during Phase 3 validation.
+### Data flow
 
-### R-1: JWT parsing without signature verification (`IdTokenClaims.kt`)
+```
+App JS                          Native (Android/iOS)              Google SDK
+────────                        ────────────────────              ──────────
+configure({
+  webClientId: "EVIL...apps.googleusercontent.com",
+  offlineAccess: true
+})  ──────────────────────────►  webClientId = params (no validation)
+                                 offlineAccess = true
+                                                                 
+signIn()  ─────────────────────►  GetGoogleIdOption / GIDSignIn
+                                  .setServerClientId(EVIL_ID)  ──► User sees Google UI
+                                                                 ◄── idToken (aud=EVIL)
+                                                                 ◄── serverAuthCode (EVIL client)
+◄──────────────────────────────  OneTapSuccessData {
+                                   idToken, serverAuthCode, user
+                                 }
+```
 
-**Claimed risk:** Forged JWT payload could poison `sub` / `email` fallbacks.
+### Code references
 
-**Rejection:** `IdTokenClaims.parse()` runs only on `googleCredential.idToken` after `GoogleIdTokenCredential.createFrom(credential.data)`. The Credential Manager SDK validates the credential before the library reads fields. No path exists for attacker-supplied JWT strings to reach the parser.
+**Android** — accepts any client ID:
 
-### R-2: Malicious JS reconfigures `webClientId` to attacker's OAuth client
+```37:46:/tmp/rn-nitro-google-signin-audit/package/android/src/main/java/com/nitrogooglesignin/GoogleSignInController.kt
+  fun configure(params: OneTapConfigureParams) {
+    val context = requireContext()
+    webClientId = resolveWebClientId(context, params.webClientId)
+    offlineAccess = params.offlineAccess == true
+    // ...
+  }
+```
 
-**Claimed risk:** Token exfiltration to attacker backend.
+```247:261:/tmp/rn-nitro-google-signin-audit/package/android/src/main/java/com/nitrogooglesignin/GoogleSignInController.kt
+  private fun resolveWebClientId(context: Context, configuredId: String): String {
+    if (configuredId != "autoDetect") return configuredId
+    // ... only autoDetect reads from resources
+  }
+```
 
-**Rejection:** Any code in the RN JS process can call `configure()` with arbitrary values. This is inherent to the client-side trust model, not a library defect. Comparable libraries have the same property. Mitigation is app integrity (code signing, jailbreak detection) and backend `aud` validation.
+**iOS** — same pattern:
 
-### R-3: `requestScopes()` with arbitrary scope URLs
+```342:349:/tmp/rn-nitro-google-signin-audit/package/ios/HybridNitroGoogleSignin.swift
+  private static func resolveWebClientId(_ configuredId: String) throws -> String {
+    if configuredId != "autoDetect" {
+      return configuredId
+    }
+    // ...
+  }
+```
 
-**Claimed risk:** Privilege escalation without consent.
+**JS** — passthrough:
 
-**Rejection:** Scopes pass to Google's `AuthorizationClient` / `GIDSignIn`. Unregistered scopes are rejected; new scopes require user consent UI. No bypass of Google's OAuth server.
+```17:20:/tmp/rn-nitro-google-signin-audit/package/src/GoogleOneTapSignIn.ts
+export const GoogleOneTapSignIn = {
+  configure(params: OneTapConfigureParams): void {
+    hybrid.configure(params)
+  },
+```
 
-### R-4: Android `revokeAccess(victim@email.com)` cross-account revocation
+### Exploit prerequisites
 
-**Claimed risk:** Attacker revokes victim's OAuth grant.
+- Attacker can execute JavaScript in the React Native runtime **before** user sign-in
+- Attacker operates a Google Cloud OAuth **Web client** to receive tokens
 
-**Rejection:** `Identity.revokeAccess()` requires authorized account context for the app. Revoking an account that did not complete authorization on this device fails at the Google layer.
+### Impact
 
-### R-5: iOS silent `signIn()` session reuse
+- User completes real Google authentication UI
+- `idToken.aud` matches attacker's client — victim backend should reject if verifying `aud`
+- `serverAuthCode` with `offlineAccess: true` can be exchanged for refresh tokens on attacker's server
+- User profile PII exposed to attacker-controlled OAuth client
 
-**Claimed risk:** Obtain `idToken` without user interaction on shared device.
+### Why not HIGH
 
-**Rejection:** Intentional One Tap / restore behavior, identical in purpose to `signInSilently()` in `@react-native-google-signin/google-signin`. Threat model boundary is physical access to unlocked device with existing Google session.
-
-### R-6: Hardcoded secrets in `example-expo/ci/`
-
-**Claimed risk:** Production credential leak.
-
-**Rejection:** All values are explicit CI placeholders (`ci-dummy-*`, `000000000000-ci-dummy-web-client-id.apps.googleusercontent.com`). Non-functional for OAuth.
+React Native treats the JS bundle as trusted. This defeats OAuth client binding only when JS is already compromised — comparable to any RN native module accepting config from JS. Not an unauthenticated remote attack.
 
 ---
 
-## Hardening detail (below MEDIUM threshold)
+## RNGS-002 — Unrestricted scope escalation (MEDIUM)
 
-See `REPORT.md` § Hardening notes (H-1 through H-5) and `REMEDIATION-PHASES.md` for phased fixes.
+### Data flow
+
+```
+App JS (malicious)                Native                           Google
+──────────────────                ──────                           ──────
+requestScopes([
+  "https://www.googleapis.com/auth/drive.readonly"
+])  ───────────────────────────►  AuthorizationRequest
+                                    .setRequestedScopes([...])  ──► Consent UI
+                                                                  ◄── serverAuthCode
+◄──────────────────────────────  { serverAuthCode }
+```
+
+### Code references
+
+```121:131:/tmp/rn-nitro-google-signin-audit/package/android/src/main/java/com/nitrogooglesignin/GoogleSignInController.kt
+  suspend fun requestScopes(scopes: Array<String>): OneTapAuthorizationResult {
+    requireConfigured()
+    val authCode =
+      GoogleSignInAuthorizationHelper.authorize(
+        // ...
+        scopes = scopes.toList(),
+        offlineAccess = false,
+      )
+```
+
+```46:52:/tmp/rn-nitro-google-signin-audit/package/android/src/main/java/com/nitrogooglesignin/GoogleSignInAuthorizationHelper.kt
+      val requestBuilder = AuthorizationRequest.builder()
+      if (scopes.isNotEmpty()) {
+        requestBuilder.setRequestedScopes(scopes.map { Scope(it) })
+      }
+```
+
+**iOS** — `user.addScopes(scopes, presenting:)` at `HybridNitroGoogleSignin.swift:268` with no filtering.
+
+### Exploit prerequisites
+
+- Active Google session (`currentUser` on iOS; authorized account on Android)
+- Compromised JS calling `requestScopes` with sensitive scope URLs
+- User approves Google consent dialog
+
+### Impact
+
+- `serverAuthCode` grant for scopes beyond app intent
+- Attacker exchanges code on backend for access/refresh tokens to Google APIs
+
+---
+
+## RNGS-003 — Android concurrent authorization race (MEDIUM)
+
+### Data flow
+
+```
+Time ─────────────────────────────────────────────────────────────►
+
+Thread A: requestScopes([scopeA])
+          └─► pendingContinuation = A
+              authorize() starts UI
+
+Thread B: enrichWithServerAuthCode (offlineAccess)
+          └─► pendingContinuation = B  (OVERWRITES A)
+
+onActivityResult:
+          └─► continuation.resume(serverAuthCode)
+              delivers to B only; A hangs or never receives code
+```
+
+### Code references
+
+```22:23:/tmp/rn-nitro-google-signin-audit/package/android/src/main/java/com/nitrogooglesignin/GoogleSignInAuthorizationHelper.kt
+  private var pendingContinuation: CancellableContinuation<String?>? = null
+```
+
+```42:44:/tmp/rn-nitro-google-signin-audit/package/android/src/main/java/com/nitrogooglesignin/GoogleSignInAuthorizationHelper.kt
+    return suspendCancellableCoroutine { continuation ->
+      pendingContinuation = continuation
+```
+
+```116:127:/tmp/rn-nitro-google-signin-audit/package/android/src/main/java/com/nitrogooglesignin/GoogleSignInAuthorizationHelper.kt
+    val continuation = pendingContinuation ?: return
+    clearPending(continuation)
+    // ...
+    continuation.resume(authorizationResult.serverAuthCode)
+```
+
+### Exploit prerequisites
+
+- Two overlapping authorization flows in same process
+- No serialization guard
+
+### Impact
+
+- Wrong feature receives `serverAuthCode`
+- Potential authz bug if app assumes code matches initiating feature
+- Denial of completion for first caller (hung Promise)
+
+---
+
+## RNGS-004 — iOS silent signIn (MEDIUM)
+
+### Data flow
+
+```
+signIn() called
+    │
+    ├─► GIDSignIn.sharedInstance.currentUser != nil?
+    │       YES ──► success(idToken, serverAuthCode: nil)  [NO UI, NO NONCE]
+    │
+    └─► restorePreviousSignIn()
+            └─► success(idToken) or noSavedCredential
+```
+
+### Code references
+
+```74:81:/tmp/rn-nitro-google-signin-audit/package/ios/HybridNitroGoogleSignin.swift
+  func signIn() throws -> Promise<OneTapResponse> {
+    try ensureConfigured()
+    return Promise.async {
+      if let user = GIDSignIn.sharedInstance.currentUser {
+        return Self.success(from: user, serverAuthCode: nil)
+      }
+      return try await self.restorePreviousSignIn()
+    }
+  }
+```
+
+```197:200:/tmp/rn-nitro-google-signin-audit/package/ios/HybridNitroGoogleSignin.swift
+    let data = OneTapSuccessData(
+      user: oneTapUser,
+      idToken: user.idToken?.tokenString ?? "",
+      serverAuthCode: optionalStringVariant(serverAuthCode)
+```
+
+### Exploit prerequisites
+
+- Device unlocked
+- Prior Google sign-in session in Keychain (via GIDSignIn)
+- Any JS in bundle can call `signIn()`
+
+### Impact
+
+- Silent `idToken` retrieval without user interaction
+- No fresh nonce on restore path — replay considerations for backends that skip `exp` checks
+
+### Comparison
+
+`@react-native-google-signin/google-signin` has similar silent sign-in behavior — industry-standard SSO tradeoff.
