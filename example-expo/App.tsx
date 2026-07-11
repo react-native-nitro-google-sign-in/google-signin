@@ -58,11 +58,9 @@ export default function App() {
   useEffect(() => {
     GoogleOneTapSignIn.configure({
       webClientId: WEB_CLIENT_ID,
+      offlineAccess: false,
     })
   }, [])
-
-  console.log('tokensStatus', tokensStatus)
-  console.log('lastAccessToken', lastAccessToken)
 
   const onSignInSuccess = (data: OneTapSuccessData) => {
     setUser(data)

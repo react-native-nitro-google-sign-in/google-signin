@@ -21,7 +21,14 @@ Full types: https://react-native-nitro-google-sign-in.github.io/docs/guide/api-r
 | `getTokens()`                      | `{ idToken, accessToken }` after sign-in; throws `SIGN_IN_REQUIRED` if not signed in |
 | `clearCachedAccessToken(token)`    | Clears cached access token (Android) or marks session for refresh (iOS) |
 | `signOut()`                      | iOS GIDSignOut; Android disables auto sign-in semantics                                              |
-| `revokeAccess(id)`               | Revokes app access / OAuth grant (iOS and Android)                                                   |
+| `revokeAccess(id)`               | Android: revokes by email/id. iOS: current session only — throws if `id` does not match active user |
+
+### Platform security notes
+
+- **Backend:** Always verify `idToken` on your server (signature, `aud`, `iss`, `exp`). See repo `SECURITY.md`.
+- **`hostedDomain`:** Validate JWT `hd` on backend. Android `buttonFlow` / `presentExplicitSignIn` validates `hd` after sign-in; Credential Manager flows filter at request time. iOS uses `GIDConfiguration.hostedDomain`.
+- **`offlineAccess` + `signIn()`:** iOS silent restore returns `serverAuthCode: null` — use `createAccount()` for initial offline grant.
+- **`serverAuthCode`:** Never log full codes in UI, analytics, or crash reporters.
 
 ### Types
 

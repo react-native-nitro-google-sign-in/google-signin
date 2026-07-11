@@ -35,6 +35,8 @@ await GoogleOneTapSignIn.requestScopes([
 ])
 ```
 
+On **iOS**, use `createAccount()` or `presentExplicitSignIn()` (not silent `signIn()`) for the initial offline grant that returns a `serverAuthCode`.
+
 ## Access tokens (legacy migration)
 
 After sign-in, fetch OAuth tokens without re-running the account picker:

@@ -9,6 +9,8 @@ import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.common.api.Scope
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -30,6 +32,7 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
     )
   private var listenerRegistered = false
   private var pendingContinuation: CancellableContinuation<AuthorizationResultData>? = null
+  private val authorizeMutex = Mutex()
 
   fun ensureRegistered(context: ReactApplicationContext) {
     if (!listenerRegistered) {
@@ -52,68 +55,70 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
 
     ensureRegistered(context)
 
-    return suspendCancellableCoroutine { continuation ->
-      pendingContinuation = continuation
-      continuation.invokeOnCancellation { pendingContinuation = null }
+    return authorizeMutex.withLock {
+      suspendCancellableCoroutine { continuation ->
+        pendingContinuation = continuation
+        continuation.invokeOnCancellation { pendingContinuation = null }
 
-      val requestBuilder =
-        AuthorizationRequest.builder()
-          .setRequestedScopes(resolvedScopes.map { Scope(it) })
-      if (offlineAccess) {
-        requestBuilder.requestOfflineAccess(serverClientId)
-        requestBuilder.setPrompt(AuthorizationRequest.Prompt.CONSENT)
-      }
+        val requestBuilder =
+          AuthorizationRequest.builder()
+            .setRequestedScopes(resolvedScopes.map { Scope(it) })
+        if (offlineAccess) {
+          requestBuilder.requestOfflineAccess(serverClientId)
+          requestBuilder.setPrompt(AuthorizationRequest.Prompt.CONSENT)
+        }
 
-      Identity.getAuthorizationClient(activity)
-        .authorize(requestBuilder.build())
-        .addOnSuccessListener { authorizationResult ->
-          if (authorizationResult.hasResolution()) {
-            val pendingIntent =
-              authorizationResult.pendingIntent
-                ?: run {
-                  clearPending(continuation)
-                  continuation.resumeWithException(
-                    GoogleSignInException(
-                      code = "ONE_TAP_START_FAILED",
-                      message = "Authorization required but no pending intent was returned.",
-                    ),
-                  )
-                  return@addOnSuccessListener
-                }
-            try {
-              @Suppress("DEPRECATION")
-              activity.startIntentSenderForResult(
-                pendingIntent.intentSender,
-                AUTH_REQUEST_CODE,
-                null,
-                0,
-                0,
-                0,
-                null,
-              )
-            } catch (e: Exception) {
+        Identity.getAuthorizationClient(activity)
+          .authorize(requestBuilder.build())
+          .addOnSuccessListener { authorizationResult ->
+            if (authorizationResult.hasResolution()) {
+              val pendingIntent =
+                authorizationResult.pendingIntent
+                  ?: run {
+                    clearPending(continuation)
+                    continuation.resumeWithException(
+                      GoogleSignInException(
+                        code = "ONE_TAP_START_FAILED",
+                        message = "Authorization required but no pending intent was returned.",
+                      ),
+                    )
+                    return@addOnSuccessListener
+                  }
+              try {
+                @Suppress("DEPRECATION")
+                activity.startIntentSenderForResult(
+                  pendingIntent.intentSender,
+                  AUTH_REQUEST_CODE,
+                  null,
+                  0,
+                  0,
+                  0,
+                  null,
+                )
+              } catch (e: Exception) {
+                clearPending(continuation)
+                continuation.resumeWithException(
+                  GoogleSignInException(
+                    code = "ONE_TAP_START_FAILED",
+                    message = e.message ?: "Failed to start authorization UI.",
+                  ),
+                )
+              }
+            } else {
               clearPending(continuation)
-              continuation.resumeWithException(
-                GoogleSignInException(
-                  code = "ONE_TAP_START_FAILED",
-                  message = e.message ?: "Failed to start authorization UI.",
-                ),
-              )
+              continuation.resume(authorizationResult.toData())
             }
-          } else {
-            clearPending(continuation)
-            continuation.resume(authorizationResult.toData())
           }
-        }
-        .addOnFailureListener { error ->
-          clearPending(continuation)
-          continuation.resumeWithException(
-            GoogleSignInException(
-              code = "ONE_TAP_START_FAILED",
-              message = error.message ?: "Authorization failed.",
-            ),
-          )
-        }
+          .addOnFailureListener { error ->
+            clearPending(continuation)
+            continuation.resumeWithException(
+              GoogleSignInException(
+                code = "ONE_TAP_START_FAILED",
+                message = error.message ?: "Authorization failed.",
+              ),
+            )
+          }
+      }
     }
   }
 
