@@ -6,6 +6,8 @@ import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.ReactApplicationContext
 import com.google.android.gms.auth.api.identity.AuthorizationRequest
 import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Scope
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -111,12 +113,7 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
           }
           .addOnFailureListener { error ->
             clearPending(continuation)
-            continuation.resumeWithException(
-              GoogleSignInException(
-                code = "ONE_TAP_START_FAILED",
-                message = error.message ?: "Authorization failed.",
-              ),
-            )
+            continuation.resumeWithException(mapAuthorizationFailure(error))
           }
       }
     }
@@ -134,12 +131,25 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
     clearPending(continuation)
 
     if (resultCode != Activity.RESULT_OK || data == null) {
-      continuation.resumeWithException(
-        GoogleSignInException(
-          code = "SIGN_IN_CANCELLED",
-          message = "Flow cancelled or failed with resultCode: $resultCode"
+      // RESULT_CANCELED is user dismiss OR OAuth misconfiguration (same conflation as
+      // Credential Manager). Other non-OK codes are real failures, not user cancel.
+      if (resultCode == Activity.RESULT_CANCELED) {
+        continuation.resumeWithException(
+          GoogleSignInException(
+            code = "SIGN_IN_CANCELLED",
+            message =
+              "Authorization UI cancelled. If this happens on production builds after " +
+                "account selection, verify release and Play App Signing SHA-1 on the Android OAuth client.",
+          ),
         )
-      )
+      } else {
+        continuation.resumeWithException(
+          GoogleSignInException(
+            code = "ONE_TAP_START_FAILED",
+            message = "Authorization failed with resultCode: $resultCode",
+          ),
+        )
+      }
       return
     }
 
@@ -162,6 +172,30 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
   private fun clearPending(continuation: CancellableContinuation<AuthorizationResultData>? = null) {
     if (pendingContinuation === continuation || continuation == null) {
       pendingContinuation = null
+    }
+  }
+
+  private fun mapAuthorizationFailure(error: Exception): GoogleSignInException {
+    val apiException = error as? ApiException
+    val message = error.message ?: "Authorization failed."
+    return when (apiException?.statusCode) {
+      CommonStatusCodes.DEVELOPER_ERROR ->
+        GoogleSignInException(
+          code = "DEVELOPER_ERROR",
+          message =
+            "$message Check the Android OAuth client package name and SHA-1 fingerprints " +
+              "(debug, release upload key, and Play App Signing certificate).",
+        )
+      CommonStatusCodes.CANCELED ->
+        GoogleSignInException(
+          code = "SIGN_IN_CANCELLED",
+          message = message,
+        )
+      else ->
+        GoogleSignInException(
+          code = "ONE_TAP_START_FAILED",
+          message = message,
+        )
     }
   }
 

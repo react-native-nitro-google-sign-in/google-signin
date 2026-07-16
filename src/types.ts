@@ -36,6 +36,13 @@ export const statusCodes = {
   SIGN_IN_REQUIRED: 'SIGN_IN_REQUIRED',
   /** User cancelled an authorization or sign-in flow. */
   SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED',
+  /**
+   * Android OAuth misconfiguration (wrong/missing SHA-1, package name, or
+   * Android client ID used as `webClientId`). Thrown when Credential Manager /
+   * AuthorizationClient surfaces a developer error — not for silent `cancelled`
+   * responses (see troubleshooting for production `cancelled` after account pick).
+   */
+  DEVELOPER_ERROR: 'DEVELOPER_ERROR',
 } as const
 
 export type StatusCode = (typeof statusCodes)[keyof typeof statusCodes]

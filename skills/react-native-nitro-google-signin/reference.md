@@ -82,7 +82,7 @@ Use explicit `webClientId` on Android (no `google-services.json`).
 
 **Credential Manager + GMS:** Library ships `androidx.credentials`, `credentials-play-services-auth`, `googleid`, `play-services-auth` — do not add duplicates unless you use Credential Manager for other providers. Play services on device required; call `checkPlayServices()`. Use **Web** client ID in `configure()`, not Android client ID.
 
-**OAuth:** Android client with package name + SHA-1 (debug & release).
+**OAuth:** Android client with package name + SHA-1 (debug & release **and Play App Signing** for store builds). Missing Play signing SHA-1 often surfaces as `type: 'cancelled'` after account pick, not `DEVELOPER_ERROR`.
 
 **Omit `google-services.json` + Gradle plugin** when using explicit `webClientId` (SHA-1 still required).
 

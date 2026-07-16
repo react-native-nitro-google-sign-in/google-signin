@@ -8,6 +8,8 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.GetCredentialInterruptedException
+import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
 import androidx.credentials.exceptions.NoCredentialException
 import com.facebook.react.bridge.ReactApplicationContext
 import com.margelo.nitro.NitroModules
@@ -321,19 +323,67 @@ internal object GoogleSignInController {
         }
       enrichWithServerAuthCode(parseCredential(result.credential))
     } catch (e: GetCredentialCancellationException) {
+      // Credential Manager reports RESULT_CANCELED both for real user dismissals and for
+      // OAuth misconfiguration (missing/wrong SHA-1, package name, or Web vs Android client ID).
+      // Production-only "cancelled after picking an account" almost always means the Play App
+      // Signing / release SHA-1 is not registered on the Android OAuth client.
+      Log.w(
+        TAG,
+        "Credential Manager cancellation after getCredential. " +
+          "If the account picker appeared and this is a release/Play build, verify the Android " +
+          "OAuth client has the correct package name and SHA-1 (debug, release upload key, and " +
+          "Play Console App Signing certificate). Message: ${e.message}",
+      )
       OneTapResponse.cancelled()
     } catch (e: NoCredentialException) {
       OneTapResponse.noSavedCredential()
+    } catch (e: GetCredentialInterruptedException) {
+      throw GoogleSignInException(
+        code = "ONE_TAP_START_FAILED",
+        message = e.message ?: "Credential request was interrupted. Retry the sign-in.",
+      )
+    } catch (e: GetCredentialProviderConfigurationException) {
+      throw GoogleSignInException(
+        code = "ONE_TAP_START_FAILED",
+        message =
+          e.message
+            ?: "Credential provider is not configured. Ensure credentials-play-services-auth is linked.",
+      )
     } catch (e: GetCredentialException) {
       if (e.message?.contains("no credentials", ignoreCase = true) == true) {
         OneTapResponse.noSavedCredential()
       } else {
-        throw GoogleSignInException(
-          code = "ONE_TAP_START_FAILED",
-          message = e.message ?: "Credential request failed.",
-        )
+        throw mapGetCredentialFailure(e)
       }
     }
+  }
+
+  private fun mapGetCredentialFailure(e: GetCredentialException): GoogleSignInException {
+    val message = e.message?.takeIf { it.isNotBlank() } ?: "Credential request failed."
+    if (looksLikeDeveloperError(message)) {
+      return GoogleSignInException(
+        code = "DEVELOPER_ERROR",
+        message =
+          "$message Check the Android OAuth client package name and SHA-1 fingerprints " +
+            "(debug, release upload key, and Play App Signing certificate). " +
+            "Use the Web client ID in configure({ webClientId }), not the Android client ID.",
+      )
+    }
+    return GoogleSignInException(
+      code = "ONE_TAP_START_FAILED",
+      message = message,
+    )
+  }
+
+  private fun looksLikeDeveloperError(message: String): Boolean {
+    val normalized = message.lowercase()
+    return normalized.contains("developer") ||
+      normalized.contains("console is not set up") ||
+      // CommonStatusCodes.DEVELOPER_ERROR == 10
+      normalized.contains("10:") ||
+      normalized.contains("[10]") ||
+      normalized.contains("sha-1") ||
+      normalized.contains("sha1")
   }
 
   private fun parseCredential(credential: androidx.credentials.Credential): OneTapSuccessData {
