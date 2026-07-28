@@ -160,6 +160,13 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
     }
   }
 
+  func getCurrentUser() throws -> Variant_NullType_OneTapSuccessData {
+    if let user = GIDSignIn.sharedInstance.currentUser {
+      return .second(Self.successData(from: user, serverAuthCode: nil))
+    }
+    return .first(NullType.null)
+  }
+
   func getTokens() throws -> Promise<GetTokensResponse> {
     try ensureConfigured()
     return Promise.async {
@@ -242,6 +249,11 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
   // MARK: - Mapping
 
   private static func success(from user: GIDGoogleUser, serverAuthCode: String?) -> OneTapResponse {
+    let data = successData(from: user, serverAuthCode: serverAuthCode)
+    return OneTapResponse(type: .success, data: .second(data))
+  }
+
+  private static func successData(from user: GIDGoogleUser, serverAuthCode: String?) -> OneTapSuccessData {
     let profile = user.profile
     let oneTapUser = OneTapUser(
       id: user.userID ?? "",
@@ -251,12 +263,13 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
       familyName: optionalStringVariant(profile?.familyName),
       photo: optionalStringVariant(profile?.imageURL(withDimension: 320)?.absoluteString)
     )
-    let data = OneTapSuccessData(
+    let scopes = user.grantedScopes ?? []
+    return OneTapSuccessData(
       user: oneTapUser,
+      scopes: scopes,
       idToken: user.idToken?.tokenString ?? "",
       serverAuthCode: optionalStringVariant(serverAuthCode)
     )
-    return OneTapResponse(type: .success, data: .second(data))
   }
 
   private static func noSavedCredential() -> OneTapResponse {

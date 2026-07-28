@@ -47,6 +47,7 @@ import com.google.android.gms.auth.api.identity.ClearTokenRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.RevokeAccessRequest
 import com.google.android.gms.common.api.Scope
+import org.json.JSONObject
 
 internal object GoogleSignInController {
   private const val TAG = "GoogleSignInController"
@@ -228,6 +229,44 @@ internal object GoogleSignInController {
     return OneTapAuthorizationResult(
       accessToken = authResult.accessToken.toOptionalStringVariant(),
       serverAuthCode = authResult.serverAuthCode.toOptionalStringVariant(),
+    )
+  }
+
+  /**
+   * Returns the last signed-in user and granted scopes, or null when no session is stored.
+   * Does not require [configure] — useful on cold start before re-configuring.
+   */
+  fun getCurrentUser(): OneTapSuccessData? {
+    val context =
+      try {
+        requireContext()
+      } catch (_: Exception) {
+        return null
+      }
+    val lastUserId = getLastSignedInUserId(context) ?: return null
+    val idToken = getIdTokenFromStorage(context, lastUserId) ?: return null
+    val email = getEmailFromStorage(context, lastUserId)
+    val storedScopes = getScopesFromStorage(context, lastUserId)
+    // Never fall back to configuredScopes — those may include newly added scopes the
+    // user has not consented to yet (would incorrectly skip requestScopes).
+    // Empty storage (legacy sessions) → default OIDC scopes only.
+    val scopes = (storedScopes + DEFAULT_AUTHORIZATION_SCOPES).distinct().toTypedArray()
+    val profile = getProfileFromStorage(context, lastUserId)
+    val claims = IdTokenClaims.parse(idToken)
+
+    return OneTapSuccessData(
+      user =
+        OneTapUser(
+          id = lastUserId,
+          email = (email ?: claims?.email).toOptionalStringVariant(),
+          name = (profile?.name ?: claims?.name).toOptionalStringVariant(),
+          givenName = (profile?.givenName ?: claims?.givenName).toOptionalStringVariant(),
+          familyName = (profile?.familyName ?: claims?.familyName).toOptionalStringVariant(),
+          photo = (profile?.photo ?: claims?.picture).toOptionalStringVariant(),
+        ),
+      scopes = scopes,
+      idToken = idToken,
+      serverAuthCode = null.toOptionalStringVariant(),
     )
   }
 
@@ -433,15 +472,28 @@ internal object GoogleSignInController {
         photo = googleCredential.profilePictureUri?.toString().toOptionalStringVariant(),
       )
 
-    email?.let {
-      saveEmailToStorage(requireContext(), userId, it)
-      val initialScopes = (configuredScopes + DEFAULT_AUTHORIZATION_SCOPES).toSet()
-      saveScopesToStorage(requireContext(), userId, initialScopes)
+    val initialScopes = (configuredScopes + DEFAULT_AUTHORIZATION_SCOPES).toSet()
+    if (email != null) {
+      saveEmailToStorage(requireContext(), userId, email)
+    } else {
+      saveLastSignedInUserId(requireContext(), userId)
     }
+    saveScopesToStorage(requireContext(), userId, initialScopes)
+    saveProfileToStorage(
+      requireContext(),
+      userId,
+      StoredProfile(
+        name = googleCredential.displayName,
+        givenName = googleCredential.givenName,
+        familyName = googleCredential.familyName,
+        photo = googleCredential.profilePictureUri?.toString(),
+      ),
+    )
     saveIdTokenToStorage(requireContext(), userId, googleCredential.idToken)
 
     return OneTapSuccessData(
       user = profileUser,
+      scopes = initialScopes.toTypedArray(),
       idToken = googleCredential.idToken,
       serverAuthCode = null.toOptionalStringVariant(),
     )
@@ -644,6 +696,17 @@ internal object GoogleSignInController {
     }
   }
 
+  private fun saveLastSignedInUserId(context: Context, uniqueId: String) {
+    try {
+      val prefs = getPrefs(context)
+      val encryptedUniqueId = SecureStorageHelper.encrypt(uniqueId) ?: return
+      val hashedLastSignedIn = SecureStorageHelper.hashKey("last_signed_in_user_id")
+      prefs.edit().putString(hashedLastSignedIn, encryptedUniqueId).apply()
+    } catch (e: Exception) {
+      Log.w(TAG, "Failed to save last signed-in user id", e)
+    }
+  }
+
   private fun getEmailFromStorage(context: Context, uniqueId: String): String? {
     return try {
       val prefs = getPrefs(context)
@@ -697,6 +760,54 @@ internal object GoogleSignInController {
     } catch (e: Exception) {
       null
     }
+  }
+
+  private data class StoredProfile(
+    val name: String?,
+    val givenName: String?,
+    val familyName: String?,
+    val photo: String?,
+  )
+
+  private fun saveProfileToStorage(context: Context, uniqueId: String, profile: StoredProfile) {
+    try {
+      val prefs = getPrefs(context)
+      val payload =
+        JSONObject()
+          .put("name", profile.name ?: JSONObject.NULL)
+          .put("givenName", profile.givenName ?: JSONObject.NULL)
+          .put("familyName", profile.familyName ?: JSONObject.NULL)
+          .put("photo", profile.photo ?: JSONObject.NULL)
+          .toString()
+      val encrypted = SecureStorageHelper.encrypt(payload) ?: return
+      val hashedKey = SecureStorageHelper.hashKey("${uniqueId}_profile")
+      prefs.edit().putString(hashedKey, encrypted).apply()
+    } catch (e: Exception) {
+      Log.w(TAG, "Failed to save profile to encrypted storage", e)
+    }
+  }
+
+  private fun getProfileFromStorage(context: Context, uniqueId: String): StoredProfile? {
+    return try {
+      val prefs = getPrefs(context)
+      val hashedKey = SecureStorageHelper.hashKey("${uniqueId}_profile")
+      val encrypted = prefs.getString(hashedKey, null) ?: return null
+      val decrypted = SecureStorageHelper.decrypt(encrypted) ?: return null
+      val json = JSONObject(decrypted)
+      StoredProfile(
+        name = json.optStringOrNull("name"),
+        givenName = json.optStringOrNull("givenName"),
+        familyName = json.optStringOrNull("familyName"),
+        photo = json.optStringOrNull("photo"),
+      )
+    } catch (e: Exception) {
+      null
+    }
+  }
+
+  private fun JSONObject.optStringOrNull(key: String): String? {
+    if (!has(key) || isNull(key)) return null
+    return optString(key).takeIf { it.isNotEmpty() }
   }
 
   private fun saveScopesToStorage(context: Context, uniqueId: String, scopes: Set<String>) {
@@ -757,6 +868,7 @@ internal object GoogleSignInController {
         editor.remove(SecureStorageHelper.hashKey(it))
         editor.remove(SecureStorageHelper.hashKey("${it}_scopes"))
         editor.remove(SecureStorageHelper.hashKey("${it}_id_token"))
+        editor.remove(SecureStorageHelper.hashKey("${it}_profile"))
       }
       editor.remove(SecureStorageHelper.hashKey("last_signed_in_user_id"))
       editor.apply()

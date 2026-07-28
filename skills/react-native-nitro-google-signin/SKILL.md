@@ -38,6 +38,7 @@ Requires RN ≥ 0.76. **Not Expo Go** — use `expo-dev-client`.
 | iOS offline grant | Silent `signIn()` returns `serverAuthCode: null` — use `createAccount()` for initial code |
 | `revokeAccess` | Android: by email/id. iOS: current session only (throws if id mismatch) |
 | `getTokens` | After sign-in; throws `SIGN_IN_REQUIRED` if no session. iOS: call `clearCachedAccessToken` before retry after 401 |
+| `getCurrentUser` | Sync; returns user + `scopes` or `null`. Check scopes before `requestScopes` for existing users |
 | Flow order | `checkPlayServices` → `signIn` → `createAccount` → `presentExplicitSignIn` |
 | Android `autoDetect` | Needs `google-services.json` + `com.google.gms.google-services` plugin |
 | iOS | `GoogleService-Info.plist` + `REVERSED_CLIENT_ID` URL scheme |

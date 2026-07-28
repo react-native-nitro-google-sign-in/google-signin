@@ -33,6 +33,7 @@ namespace margelo::nitro::nitrogooglesignin { struct OneTapUser; }
 
 #include "OneTapUser.hpp"
 #include <string>
+#include <vector>
 #include <NitroModules/Null.hpp>
 #include <variant>
 #include <optional>
@@ -45,12 +46,13 @@ namespace margelo::nitro::nitrogooglesignin {
   struct OneTapSuccessData final {
   public:
     OneTapUser user     SWIFT_PRIVATE;
+    std::vector<std::string> scopes     SWIFT_PRIVATE;
     std::string idToken     SWIFT_PRIVATE;
     std::optional<std::variant<nitro::NullType, std::string>> serverAuthCode     SWIFT_PRIVATE;
 
   public:
     OneTapSuccessData() = default;
-    explicit OneTapSuccessData(OneTapUser user, std::string idToken, std::optional<std::variant<nitro::NullType, std::string>> serverAuthCode): user(user), idToken(idToken), serverAuthCode(serverAuthCode) {}
+    explicit OneTapSuccessData(OneTapUser user, std::vector<std::string> scopes, std::string idToken, std::optional<std::variant<nitro::NullType, std::string>> serverAuthCode): user(user), scopes(scopes), idToken(idToken), serverAuthCode(serverAuthCode) {}
 
   public:
     friend bool operator==(const OneTapSuccessData& lhs, const OneTapSuccessData& rhs) = default;
@@ -67,6 +69,7 @@ namespace margelo::nitro {
       jsi::Object obj = arg.asObject(runtime);
       return margelo::nitro::nitrogooglesignin::OneTapSuccessData(
         JSIConverter<margelo::nitro::nitrogooglesignin::OneTapUser>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "user"))),
+        JSIConverter<std::vector<std::string>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "scopes"))),
         JSIConverter<std::string>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "idToken"))),
         JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "serverAuthCode")))
       );
@@ -74,6 +77,7 @@ namespace margelo::nitro {
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::nitrogooglesignin::OneTapSuccessData& arg) {
       jsi::Object obj(runtime);
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "user"), JSIConverter<margelo::nitro::nitrogooglesignin::OneTapUser>::toJSI(runtime, arg.user));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "scopes"), JSIConverter<std::vector<std::string>>::toJSI(runtime, arg.scopes));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "idToken"), JSIConverter<std::string>::toJSI(runtime, arg.idToken));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "serverAuthCode"), JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::toJSI(runtime, arg.serverAuthCode));
       return obj;
@@ -87,6 +91,7 @@ namespace margelo::nitro {
         return false;
       }
       if (!JSIConverter<margelo::nitro::nitrogooglesignin::OneTapUser>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "user")))) return false;
+      if (!JSIConverter<std::vector<std::string>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "scopes")))) return false;
       if (!JSIConverter<std::string>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "idToken")))) return false;
       if (!JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "serverAuthCode")))) return false;
       return true;

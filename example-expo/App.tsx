@@ -23,6 +23,25 @@ const DRIVE_FULL_SCOPE = 'https://www.googleapis.com/auth/drive'
 
 const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_WEB_CLIENT_ID ?? ''
 
+/** Prefix for Metro / logcat filtering while verifying getCurrentUser + scopes. */
+const LOG_TAG = '[GoogleSignIn:getCurrentUser]'
+
+function logCurrentUser(label: string, data: OneTapSuccessData | null): void {
+  if (!data) {
+    console.log(LOG_TAG, label, '→ null')
+    return
+  }
+  console.log(LOG_TAG, label, {
+    id: data.user.id,
+    email: data.user.email,
+    name: data.user.name,
+    scopes: data.scopes,
+    scopesCount: data.scopes.length,
+    hasIdToken: Boolean(data.idToken),
+    serverAuthCode: data.serverAuthCode,
+  })
+}
+
 function formatGoogleSignInError(error: unknown, fallback: string): string {
   if (isErrorWithCode(error)) {
     return `${error.code}: ${error.message}`
@@ -54,18 +73,31 @@ export default function App() {
   )
   const [tokensStatus, setTokensStatus] = useState<string | null>(null)
   const [lastAccessToken, setLastAccessToken] = useState<string | null>(null)
+  const [currentUserStatus, setCurrentUserStatus] = useState<string | null>(
+    null
+  )
 
   useEffect(() => {
     GoogleOneTapSignIn.configure({
       webClientId: WEB_CLIENT_ID,
       offlineAccess: false,
     })
+    logCurrentUser(
+      'getCurrentUser() on mount (after configure)',
+      GoogleOneTapSignIn.getCurrentUser()
+    )
   }, [])
 
   const onSignInSuccess = (data: OneTapSuccessData) => {
+    logCurrentUser('onSignInSuccess (response.data)', data)
+    logCurrentUser(
+      'getCurrentUser() right after sign-in',
+      GoogleOneTapSignIn.getCurrentUser()
+    )
     setUser(data)
     setTokensStatus(null)
     setLastAccessToken(null)
+    setCurrentUserStatus(null)
     setStatus(`Signed in as ${data.user.email ?? data.user.id}`)
   }
 
@@ -103,8 +135,20 @@ export default function App() {
 
     setLoading(true)
     setExtraScopesStatus('Requesting Drive full access…')
+    logCurrentUser(
+      'getCurrentUser() before requestScopes',
+      GoogleOneTapSignIn.getCurrentUser()
+    )
     try {
       const result = await GoogleOneTapSignIn.requestScopes([DRIVE_FULL_SCOPE])
+      console.log(LOG_TAG, 'requestScopes result', {
+        hasAccessToken: Boolean(result.accessToken),
+        serverAuthCode: result.serverAuthCode,
+      })
+      logCurrentUser(
+        'getCurrentUser() after requestScopes (expect Drive scope)',
+        GoogleOneTapSignIn.getCurrentUser()
+      )
       if (result.accessToken) {
         const authHint = result.serverAuthCode
           ? `access token + server auth code (${result.serverAuthCode.slice(0, 12)}…)`
@@ -123,9 +167,22 @@ export default function App() {
       setExtraScopesStatus(
         formatGoogleSignInError(e, 'Failed to request scopes')
       )
+      console.log(LOG_TAG, 'requestAdditionalScopes error', e)
     } finally {
       setLoading(false)
     }
+  }
+
+  const getCurrentUser = () => {
+    const current = GoogleOneTapSignIn.getCurrentUser()
+    logCurrentUser('Get current user button', current)
+    if (!current) {
+      setCurrentUserStatus('getCurrentUser() → null (not signed in)')
+      return
+    }
+    setCurrentUserStatus(
+      `getCurrentUser() → ${current.user.email ?? current.user.id}; scopes: ${current.scopes.join(', ') || '(none)'}`
+    )
   }
 
   const getTokens = async () => {
@@ -178,10 +235,15 @@ export default function App() {
       setLoading(true)
       setStatus('Signing out…')
       await GoogleOneTapSignIn.signOut()
+      logCurrentUser(
+        'getCurrentUser() after signOut (expect null)',
+        GoogleOneTapSignIn.getCurrentUser()
+      )
       setUser(null)
       setExtraScopesStatus(null)
       setTokensStatus(null)
       setLastAccessToken(null)
+      setCurrentUserStatus(null)
       setStatus('Signed out')
     } catch (e) {
       setStatus(formatGoogleSignInError(e, 'Sign out failed'))
@@ -195,10 +257,15 @@ export default function App() {
       setLoading(true)
       setStatus('Revoking access…')
       await GoogleOneTapSignIn.revokeAccess(user?.user.id ?? '')
+      logCurrentUser(
+        'getCurrentUser() after revokeAccess (expect null)',
+        GoogleOneTapSignIn.getCurrentUser()
+      )
       setUser(null)
       setExtraScopesStatus(null)
       setTokensStatus(null)
       setLastAccessToken(null)
+      setCurrentUserStatus(null)
       setStatus('Access revoked')
     } catch (e) {
       setStatus(formatGoogleSignInError(e, 'Revoke access failed'))
@@ -236,6 +303,10 @@ export default function App() {
 
         {tokensStatus ? <Text style={styles.hint}>{tokensStatus}</Text> : null}
 
+        {currentUserStatus ? (
+          <Text style={styles.hint}>{currentUserStatus}</Text>
+        ) : null}
+
         {!isSignedIn ? (
           <View style={styles.signInButtonContainer} collapsable={false}>
             <GoogleSignInButton
@@ -270,6 +341,13 @@ export default function App() {
               style={[styles.action, loading && styles.actionDisabled]}
             >
               Get tokens
+            </Text>
+            <Text
+              accessibilityRole="button"
+              onPress={loading ? undefined : getCurrentUser}
+              style={[styles.action, loading && styles.actionDisabled]}
+            >
+              Get current user
             </Text>
             <Text
               accessibilityRole="button"

@@ -8,6 +8,10 @@ internal data class IdTokenClaims(
   val email: String?,
   /** Google Workspace hosted domain (`hd` claim). Present only for Workspace accounts. */
   val hd: String?,
+  val name: String?,
+  val givenName: String?,
+  val familyName: String?,
+  val picture: String?,
 ) {
   companion object {
     fun parse(idToken: String): IdTokenClaims? =
@@ -23,6 +27,10 @@ internal data class IdTokenClaims(
           sub = json.optString("sub").takeIf { it.isNotEmpty() },
           email = json.optString("email").takeIf { it.isNotEmpty() },
           hd = json.optString("hd").takeIf { it.isNotEmpty() },
+          name = json.optString("name").takeIf { it.isNotEmpty() },
+          givenName = json.optString("given_name").takeIf { it.isNotEmpty() },
+          familyName = json.optString("family_name").takeIf { it.isNotEmpty() },
+          picture = json.optString("picture").takeIf { it.isNotEmpty() },
         )
       } catch (_: Exception) {
         null

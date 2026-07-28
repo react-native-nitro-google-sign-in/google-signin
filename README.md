@@ -301,6 +301,7 @@ See [Usage — Access tokens](https://react-native-nitro-google-sign-in.github.i
 | `createAccount()`         | Interactive account picker (sign-up).                                                                                                            |
 | `presentExplicitSignIn()` | Explicit Sign in with Google UI. On Android, when `hostedDomain` is set, JWT `hd` is validated after sign-in (Credential Manager flows filter at request time). |
 | `requestScopes(scopes)`   | Request **additional** OAuth access after sign-in; returns `{ serverAuthCode }`. Requires `offlineAccess: true` in `configure()` for a non-null code. |
+| `getCurrentUser()`        | Sync: returns current user + granted `scopes`, or `null`. Check scopes before `requestScopes()` for existing users. |
 | `getTokens()`             | Returns `{ idToken, accessToken }` for the signed-in user. Throws `SIGN_IN_REQUIRED` if not signed in. |
 | `clearCachedAccessToken(token)` | Clears stale access token cache (Android) or marks session for refresh (iOS). Call before `getTokens()` after a 401. |
 | `signOut()`               | Clears local Google session (iOS SDK); disable auto sign-in on Android.                                                                          |

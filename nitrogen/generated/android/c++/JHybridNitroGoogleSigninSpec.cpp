@@ -40,13 +40,13 @@ namespace margelo::nitro::nitrogooglesignin { struct OneTapConfigureParams; }
 #include "JOneTapUser.hpp"
 #include <string>
 #include "JVariant_NullType_String.hpp"
+#include <vector>
 #include "OneTapAuthorizationResult.hpp"
 #include "JOneTapAuthorizationResult.hpp"
 #include "GetTokensResponse.hpp"
 #include "JGetTokensResponse.hpp"
 #include "OneTapConfigureParams.hpp"
 #include "JOneTapConfigureParams.hpp"
-#include <vector>
 #include "JVariant_NullType_Array_String_.hpp"
 
 namespace margelo::nitro::nitrogooglesignin {
@@ -173,6 +173,11 @@ namespace margelo::nitro::nitrogooglesignin {
       });
       return __promise;
     }();
+  }
+  std::variant<nitro::NullType, OneTapSuccessData> JHybridNitroGoogleSigninSpec::getCurrentUser() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JVariant_NullType_OneTapSuccessData>()>("getCurrentUser");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
   }
   std::shared_ptr<Promise<GetTokensResponse>> JHybridNitroGoogleSigninSpec::getTokens() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>()>("getTokens");

@@ -23,6 +23,9 @@ data class OneTapSuccessData(
   val user: OneTapUser,
   @DoNotStrip
   @Keep
+  val scopes: Array<String>,
+  @DoNotStrip
+  @Keep
   val idToken: String,
   @DoNotStrip
   @Keep
@@ -34,6 +37,7 @@ data class OneTapSuccessData(
     if (this === other) return true
     if (other !is OneTapSuccessData) return false
     return Objects.deepEquals(this.user, other.user)
+      && Objects.deepEquals(this.scopes, other.scopes)
       && Objects.deepEquals(this.idToken, other.idToken)
       && Objects.deepEquals(this.serverAuthCode, other.serverAuthCode)
   }
@@ -41,6 +45,7 @@ data class OneTapSuccessData(
   override fun hashCode(): Int {
     return arrayOf<Any?>(
       user,
+      scopes,
       idToken,
       serverAuthCode
     ).contentDeepHashCode()
@@ -54,8 +59,8 @@ data class OneTapSuccessData(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(user: OneTapUser, idToken: String, serverAuthCode: Variant_NullType_String?): OneTapSuccessData {
-      return OneTapSuccessData(user, idToken, serverAuthCode)
+    private fun fromCpp(user: OneTapUser, scopes: Array<String>, idToken: String, serverAuthCode: Variant_NullType_String?): OneTapSuccessData {
+      return OneTapSuccessData(user, scopes, idToken, serverAuthCode)
     }
   }
 }

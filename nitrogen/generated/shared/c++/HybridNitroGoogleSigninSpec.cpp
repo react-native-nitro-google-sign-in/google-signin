@@ -20,6 +20,7 @@ namespace margelo::nitro::nitrogooglesignin {
       prototype.registerHybridMethod("createAccount", &HybridNitroGoogleSigninSpec::createAccount);
       prototype.registerHybridMethod("presentExplicitSignIn", &HybridNitroGoogleSigninSpec::presentExplicitSignIn);
       prototype.registerHybridMethod("requestScopes", &HybridNitroGoogleSigninSpec::requestScopes);
+      prototype.registerHybridMethod("getCurrentUser", &HybridNitroGoogleSigninSpec::getCurrentUser);
       prototype.registerHybridMethod("getTokens", &HybridNitroGoogleSigninSpec::getTokens);
       prototype.registerHybridMethod("clearCachedAccessToken", &HybridNitroGoogleSigninSpec::clearCachedAccessToken);
       prototype.registerHybridMethod("signOut", &HybridNitroGoogleSigninSpec::signOut);
