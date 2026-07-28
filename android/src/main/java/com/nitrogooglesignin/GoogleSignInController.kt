@@ -247,12 +247,10 @@ internal object GoogleSignInController {
     val idToken = getIdTokenFromStorage(context, lastUserId) ?: return null
     val email = getEmailFromStorage(context, lastUserId)
     val storedScopes = getScopesFromStorage(context, lastUserId)
-    val scopes =
-      if (storedScopes.isEmpty()) {
-        (configuredScopes + DEFAULT_AUTHORIZATION_SCOPES).distinct().toTypedArray()
-      } else {
-        storedScopes.toTypedArray()
-      }
+    // Never fall back to configuredScopes — those may include newly added scopes the
+    // user has not consented to yet (would incorrectly skip requestScopes).
+    // Empty storage (legacy sessions) → default OIDC scopes only.
+    val scopes = (storedScopes + DEFAULT_AUTHORIZATION_SCOPES).distinct().toTypedArray()
     val profile = getProfileFromStorage(context, lastUserId)
     val claims = IdTokenClaims.parse(idToken)
 
