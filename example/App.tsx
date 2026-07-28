@@ -23,6 +23,25 @@ const WEB_CLIENT_ID = Config.WEB_CLIENT_ID;
 
 const DRIVE_FULL_SCOPE = 'https://www.googleapis.com/auth/drive';
 
+/** Prefix for Metro / logcat filtering while verifying getCurrentUser + scopes. */
+const LOG_TAG = '[GoogleSignIn:getCurrentUser]';
+
+function logCurrentUser(label: string, data: OneTapSuccessData | null): void {
+  if (!data) {
+    console.log(LOG_TAG, label, '→ null');
+    return;
+  }
+  console.log(LOG_TAG, label, {
+    id: data.user.id,
+    email: data.user.email,
+    name: data.user.name,
+    scopes: data.scopes,
+    scopesCount: data.scopes.length,
+    hasIdToken: Boolean(data.idToken),
+    serverAuthCode: data.serverAuthCode,
+  });
+}
+
 function formatGoogleSignInError(error: unknown, fallback: string): string {
   if (isErrorWithCode(error)) {
     return `${error.code}: ${error.message}`;
@@ -63,9 +82,18 @@ function App(): React.JSX.Element {
       webClientId: WEB_CLIENT_ID,
       offlineAccess: true,
     });
+    logCurrentUser(
+      'getCurrentUser() on mount (after configure)',
+      GoogleOneTapSignIn.getCurrentUser(),
+    );
   }, []);
 
   const onSignInSuccess = (data: OneTapSuccessData) => {
+    logCurrentUser('onSignInSuccess (response.data)', data);
+    logCurrentUser(
+      'getCurrentUser() right after sign-in',
+      GoogleOneTapSignIn.getCurrentUser(),
+    );
     setUser(data);
     setTokensStatus(null);
     setLastAccessToken(null);
@@ -107,8 +135,20 @@ function App(): React.JSX.Element {
 
     setLoading(true);
     setExtraScopesStatus('Requesting Drive full access…');
+    logCurrentUser(
+      'getCurrentUser() before requestScopes',
+      GoogleOneTapSignIn.getCurrentUser(),
+    );
     try {
       const result = await GoogleOneTapSignIn.requestScopes([DRIVE_FULL_SCOPE]);
+      console.log(LOG_TAG, 'requestScopes result', {
+        hasAccessToken: Boolean(result.accessToken),
+        serverAuthCode: result.serverAuthCode,
+      });
+      logCurrentUser(
+        'getCurrentUser() after requestScopes (expect Drive scope)',
+        GoogleOneTapSignIn.getCurrentUser(),
+      );
 
       if (result.accessToken) {
         const authHint = result.serverAuthCode
@@ -128,7 +168,7 @@ function App(): React.JSX.Element {
       setExtraScopesStatus(
         formatGoogleSignInError(e, 'Failed to request scopes'),
       );
-      console.log('requestAdditionalScopes error', e, (e as Error).name);
+      console.log(LOG_TAG, 'requestAdditionalScopes error', e, (e as Error).name);
     } finally {
       setLoading(false);
     }
@@ -136,6 +176,7 @@ function App(): React.JSX.Element {
 
   const getCurrentUser = () => {
     const current = GoogleOneTapSignIn.getCurrentUser();
+    logCurrentUser('Get current user button', current);
     if (!current) {
       setCurrentUserStatus('getCurrentUser() → null (not signed in)');
       return;
@@ -195,6 +236,10 @@ function App(): React.JSX.Element {
       setLoading(true);
       setStatus('Signing out…');
       await GoogleOneTapSignIn.signOut();
+      logCurrentUser(
+        'getCurrentUser() after signOut (expect null)',
+        GoogleOneTapSignIn.getCurrentUser(),
+      );
       setUser(null);
       setExtraScopesStatus(null);
       setTokensStatus(null);
@@ -213,6 +258,10 @@ function App(): React.JSX.Element {
       setLoading(true);
       setStatus('Revoking access…');
       await GoogleOneTapSignIn.revokeAccess(user?.user.id ?? '');
+      logCurrentUser(
+        'getCurrentUser() after revokeAccess (expect null)',
+        GoogleOneTapSignIn.getCurrentUser(),
+      );
       setUser(null);
       setExtraScopesStatus(null);
       setTokensStatus(null);
