@@ -42,11 +42,12 @@ namespace margelo::nitro::nitrogooglesignin {
    */
   struct OneTapAuthorizationResult final {
   public:
+    std::optional<std::variant<nitro::NullType, std::string>> accessToken     SWIFT_PRIVATE;
     std::optional<std::variant<nitro::NullType, std::string>> serverAuthCode     SWIFT_PRIVATE;
 
   public:
     OneTapAuthorizationResult() = default;
-    explicit OneTapAuthorizationResult(std::optional<std::variant<nitro::NullType, std::string>> serverAuthCode): serverAuthCode(serverAuthCode) {}
+    explicit OneTapAuthorizationResult(std::optional<std::variant<nitro::NullType, std::string>> accessToken, std::optional<std::variant<nitro::NullType, std::string>> serverAuthCode): accessToken(accessToken), serverAuthCode(serverAuthCode) {}
 
   public:
     friend bool operator==(const OneTapAuthorizationResult& lhs, const OneTapAuthorizationResult& rhs) = default;
@@ -62,11 +63,13 @@ namespace margelo::nitro {
     static inline margelo::nitro::nitrogooglesignin::OneTapAuthorizationResult fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       jsi::Object obj = arg.asObject(runtime);
       return margelo::nitro::nitrogooglesignin::OneTapAuthorizationResult(
+        JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "accessToken"))),
         JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "serverAuthCode")))
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::nitrogooglesignin::OneTapAuthorizationResult& arg) {
       jsi::Object obj(runtime);
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "accessToken"), JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::toJSI(runtime, arg.accessToken));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "serverAuthCode"), JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::toJSI(runtime, arg.serverAuthCode));
       return obj;
     }
@@ -78,6 +81,7 @@ namespace margelo::nitro {
       if (!nitro::isPlainObject(runtime, obj)) {
         return false;
       }
+      if (!JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "accessToken")))) return false;
       if (!JSIConverter<std::optional<std::variant<nitro::NullType, std::string>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "serverAuthCode")))) return false;
       return true;
     }

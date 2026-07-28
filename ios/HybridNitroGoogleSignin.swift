@@ -502,13 +502,18 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
     if let error = error as NSError? {
       if error.code == GIDSignInError.canceled.rawValue {
         continuation.resume(
-          returning: OneTapAuthorizationResult(serverAuthCode: optionalStringVariant(nil))
+          returning: OneTapAuthorizationResult(
+            accessToken: optionalStringVariant(nil),
+            serverAuthCode: optionalStringVariant(nil)
+          )
         )
         return
       }
       if error.code == GIDSignInError.scopesAlreadyGranted.rawValue {
+        let user = result?.user ?? GIDSignIn.sharedInstance.currentUser
         continuation.resume(
           returning: OneTapAuthorizationResult(
+            accessToken: optionalStringVariant(user?.accessToken.tokenString),
             serverAuthCode: optionalStringVariant(result?.serverAuthCode)
           )
         )
@@ -521,6 +526,7 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
     }
     continuation.resume(
       returning: OneTapAuthorizationResult(
+        accessToken: optionalStringVariant(result?.user.accessToken.tokenString),
         serverAuthCode: optionalStringVariant(result?.serverAuthCode)
       )
     )

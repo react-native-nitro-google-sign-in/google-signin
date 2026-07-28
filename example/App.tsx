@@ -106,13 +106,18 @@ function App(): React.JSX.Element {
     try {
       const result = await GoogleOneTapSignIn.requestScopes([DRIVE_FULL_SCOPE]);
 
-      if (result.serverAuthCode) {
+      if (result.accessToken) {
+        const authHint = result.serverAuthCode
+          ? `access token + server auth code (${result.serverAuthCode.slice(0, 12)}…)`
+          : 'access token (no server auth code — enable offlineAccess for that)';
+        setExtraScopesStatus(`Scope granted with ${authHint}.`);
+      } else if (result.serverAuthCode) {
         setExtraScopesStatus(
           `Scope granted. Server auth code received (${result.serverAuthCode.slice(0, 12)}…).`,
         );
       } else {
         setExtraScopesStatus(
-          'Scope granted (or already granted). No new server auth code.',
+          'Authorization finished without an access token or server auth code.',
         );
       }
     } catch (e) {

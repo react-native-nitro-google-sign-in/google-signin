@@ -20,6 +20,9 @@ import com.margelo.nitro.core.NullType
 data class OneTapAuthorizationResult(
   @DoNotStrip
   @Keep
+  val accessToken: Variant_NullType_String?,
+  @DoNotStrip
+  @Keep
   val serverAuthCode: Variant_NullType_String?
 ) {
   /* primary constructor */
@@ -27,11 +30,13 @@ data class OneTapAuthorizationResult(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is OneTapAuthorizationResult) return false
-    return Objects.deepEquals(this.serverAuthCode, other.serverAuthCode)
+    return Objects.deepEquals(this.accessToken, other.accessToken)
+      && Objects.deepEquals(this.serverAuthCode, other.serverAuthCode)
   }
 
   override fun hashCode(): Int {
     return arrayOf<Any?>(
+      accessToken,
       serverAuthCode
     ).contentDeepHashCode()
   }
@@ -44,8 +49,8 @@ data class OneTapAuthorizationResult(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(serverAuthCode: Variant_NullType_String?): OneTapAuthorizationResult {
-      return OneTapAuthorizationResult(serverAuthCode)
+    private fun fromCpp(accessToken: Variant_NullType_String?, serverAuthCode: Variant_NullType_String?): OneTapAuthorizationResult {
+      return OneTapAuthorizationResult(accessToken, serverAuthCode)
     }
   }
 }

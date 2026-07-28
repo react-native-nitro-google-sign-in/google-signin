@@ -80,8 +80,12 @@ export const GoogleOneTapSignIn = {
   /**
    * Request additional OAuth scopes after sign-in. User may see a consent screen.
    *
-   * Requires an active signed-in session. **`configure({ offlineAccess: true })` is required**
-   * for a non-null `serverAuthCode` in the result.
+   * Requires an active signed-in session. Returns an `accessToken` for calling Google APIs
+   * from the device. **`configure({ offlineAccess: true })` is required** for a non-null
+   * `serverAuthCode` in the result (backend offline access).
+   *
+   * Works with both the imperative API and hooks such as `useGoogleSignInFromButton`
+   * (sign in first via the hook / `signIn` / `createAccount`, then call `requestScopes`).
    *
    * @param scopes Full OAuth scope URLs (not short names).
    */

@@ -33,7 +33,7 @@ Requires RN ≥ 0.76. **Not Expo Go** — use `expo-dev-client`.
 | ----- | ---- |
 | API | `GoogleOneTapSignIn` from `react-native-nitro-google-signin` |
 | Configure first | `GoogleOneTapSignIn.configure({ webClientId })` before sign-in |
-| `serverAuthCode` | Requires `offlineAccess: true` in `configure()` — otherwise always `null` |
+| `serverAuthCode` | Requires `offlineAccess: true` in `configure()` — otherwise always `null`. `requestScopes()` still returns `accessToken` for on-device APIs without offline access |
 | Backend | Verify every `idToken` on server (sig, `aud`, `iss`, `exp`); validate JWT `hd` if using `hostedDomain` |
 | iOS offline grant | Silent `signIn()` returns `serverAuthCode: null` — use `createAccount()` for initial code |
 | `revokeAccess` | Android: by email/id. iOS: current session only (throws if id mismatch) |

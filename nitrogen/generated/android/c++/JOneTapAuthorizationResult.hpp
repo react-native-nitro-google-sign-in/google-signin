@@ -36,9 +36,12 @@ namespace margelo::nitro::nitrogooglesignin {
     [[nodiscard]]
     OneTapAuthorizationResult toCpp() const {
       static const auto clazz = javaClassStatic();
+      static const auto fieldAccessToken = clazz->getField<JVariant_NullType_String>("accessToken");
+      jni::local_ref<JVariant_NullType_String> accessToken = this->getFieldValue(fieldAccessToken);
       static const auto fieldServerAuthCode = clazz->getField<JVariant_NullType_String>("serverAuthCode");
       jni::local_ref<JVariant_NullType_String> serverAuthCode = this->getFieldValue(fieldServerAuthCode);
       return OneTapAuthorizationResult(
+        accessToken != nullptr ? std::make_optional(accessToken->toCpp()) : std::nullopt,
         serverAuthCode != nullptr ? std::make_optional(serverAuthCode->toCpp()) : std::nullopt
       );
     }
@@ -49,11 +52,12 @@ namespace margelo::nitro::nitrogooglesignin {
      */
     [[maybe_unused]]
     static jni::local_ref<JOneTapAuthorizationResult::javaobject> fromCpp(const OneTapAuthorizationResult& value) {
-      using JSignature = JOneTapAuthorizationResult(jni::alias_ref<JVariant_NullType_String>);
+      using JSignature = JOneTapAuthorizationResult(jni::alias_ref<JVariant_NullType_String>, jni::alias_ref<JVariant_NullType_String>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
         clazz,
+        value.accessToken.has_value() ? JVariant_NullType_String::fromCpp(value.accessToken.value()) : nullptr,
         value.serverAuthCode.has_value() ? JVariant_NullType_String::fromCpp(value.serverAuthCode.value()) : nullptr
       );
     }

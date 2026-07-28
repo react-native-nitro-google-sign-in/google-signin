@@ -202,24 +202,31 @@ internal object GoogleSignInController {
 
   suspend fun requestScopes(scopes: Array<String>): OneTapAuthorizationResult {
     requireConfigured()
+    val context = requireContext()
+    val lastUserId =
+      getLastSignedInUserId(context)
+        ?: throw GoogleSignInException(
+          code = "SIGN_IN_REQUIRED",
+          message = "No signed-in Google user. Sign in before requesting additional scopes.",
+        )
+    val accountEmail = getEmailFromStorage(context, lastUserId)
+
     val authResult =
       GoogleSignInAuthorizationHelper.authorize(
         activity = requireActivity(),
-        context = requireContext(),
+        context = context,
         serverClientId = webClientId!!,
         scopes = scopes.toList(),
         offlineAccess = offlineAccess,
+        accountEmail = accountEmail,
       )
 
-    val context = requireContext()
-    val lastUserId = getLastSignedInUserId(context)
-    if (lastUserId != null) {
-      val existingScopes = getScopesFromStorage(context, lastUserId)
-      val updatedScopes = existingScopes + scopes.toList()
-      saveScopesToStorage(context, lastUserId, updatedScopes)
-    }
+    val existingScopes = getScopesFromStorage(context, lastUserId)
+    val updatedScopes = existingScopes + scopes.toList()
+    saveScopesToStorage(context, lastUserId, updatedScopes)
 
     return OneTapAuthorizationResult(
+      accessToken = authResult.accessToken.toOptionalStringVariant(),
       serverAuthCode = authResult.serverAuthCode.toOptionalStringVariant(),
     )
   }
@@ -248,6 +255,7 @@ internal object GoogleSignInController {
         storedScopes.toList()
       }
 
+    val accountEmail = getEmailFromStorage(context, lastUserId)
     val authResult =
       GoogleSignInAuthorizationHelper.authorize(
         activity = requireActivity(),
@@ -255,6 +263,7 @@ internal object GoogleSignInController {
         serverClientId = webClientId!!,
         scopes = scopes,
         offlineAccess = false,
+        accountEmail = accountEmail,
       )
 
     val accessToken =
@@ -443,6 +452,7 @@ internal object GoogleSignInController {
       return OneTapResponse.success(data)
     }
 
+    val accountEmail = variantToString(data.user.email)
     val authResult =
       GoogleSignInAuthorizationHelper.authorize(
         activity = requireActivity(),
@@ -450,6 +460,7 @@ internal object GoogleSignInController {
         serverClientId = webClientId!!,
         scopes = configuredScopes,
         offlineAccess = offlineAccess,
+        accountEmail = accountEmail,
       )
 
     return OneTapResponse.success(

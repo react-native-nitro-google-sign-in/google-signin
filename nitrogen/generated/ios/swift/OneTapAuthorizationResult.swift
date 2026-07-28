@@ -18,8 +18,21 @@ public extension OneTapAuthorizationResult {
   /**
    * Create a new instance of `OneTapAuthorizationResult`.
    */
-  init(serverAuthCode: Variant_NullType_String?) {
+  init(accessToken: Variant_NullType_String?, serverAuthCode: Variant_NullType_String?) {
     self.init({ () -> bridge.std__optional_std__variant_nitro__NullType__std__string__ in
+      if let __unwrappedValue = accessToken {
+        return bridge.create_std__optional_std__variant_nitro__NullType__std__string__({ () -> bridge.std__variant_nitro__NullType__std__string_ in
+          switch __unwrappedValue {
+            case .first(let __value):
+              return bridge.create_std__variant_nitro__NullType__std__string_(margelo.nitro.NullType.null)
+            case .second(let __value):
+              return bridge.create_std__variant_nitro__NullType__std__string_(std.string(__value))
+          }
+        }().variant)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_std__variant_nitro__NullType__std__string__ in
       if let __unwrappedValue = serverAuthCode {
         return bridge.create_std__optional_std__variant_nitro__NullType__std__string__({ () -> bridge.std__variant_nitro__NullType__std__string_ in
           switch __unwrappedValue {
@@ -35,6 +48,30 @@ public extension OneTapAuthorizationResult {
     }())
   }
 
+  @inline(__always)
+  var accessToken: Variant_NullType_String? {
+    return { () -> Variant_NullType_String? in
+      if bridge.has_value_std__optional_std__variant_nitro__NullType__std__string__(self.__accessToken) {
+        let __unwrapped = bridge.get_std__optional_std__variant_nitro__NullType__std__string__(self.__accessToken)
+        return { () -> Variant_NullType_String in
+          let __variant = bridge.std__variant_nitro__NullType__std__string_(__unwrapped)
+          switch __variant.index() {
+            case 0:
+              let __actual = __variant.get_0()
+              return .first(NullType.null)
+            case 1:
+              let __actual = __variant.get_1()
+              return .second(String(__actual))
+            default:
+              fatalError("Variant can never have index \(__variant.index())!")
+          }
+        }()
+      } else {
+        return nil
+      }
+    }()
+  }
+  
   @inline(__always)
   var serverAuthCode: Variant_NullType_String? {
     return { () -> Variant_NullType_String? in
