@@ -452,6 +452,15 @@ namespace margelo::nitro::nitrogooglesignin::bridge::swift {
     return Result<std::shared_ptr<Promise<OneTapAuthorizationResult>>>::withError(error);
   }
   
+  // pragma MARK: Result<std::variant<nitro::NullType, OneTapSuccessData>>
+  using Result_std__variant_nitro__NullType__OneTapSuccessData__ = Result<std::variant<nitro::NullType, OneTapSuccessData>>;
+  inline Result_std__variant_nitro__NullType__OneTapSuccessData__ create_Result_std__variant_nitro__NullType__OneTapSuccessData__(const std::variant<nitro::NullType, OneTapSuccessData>& value) noexcept {
+    return Result<std::variant<nitro::NullType, OneTapSuccessData>>::withValue(value);
+  }
+  inline Result_std__variant_nitro__NullType__OneTapSuccessData__ create_Result_std__variant_nitro__NullType__OneTapSuccessData__(const std::exception_ptr& error) noexcept {
+    return Result<std::variant<nitro::NullType, OneTapSuccessData>>::withError(error);
+  }
+  
   // pragma MARK: Result<std::shared_ptr<Promise<GetTokensResponse>>>
   using Result_std__shared_ptr_Promise_GetTokensResponse___ = Result<std::shared_ptr<Promise<GetTokensResponse>>>;
   inline Result_std__shared_ptr_Promise_GetTokensResponse___ create_Result_std__shared_ptr_Promise_GetTokensResponse___(const std::shared_ptr<Promise<GetTokensResponse>>& value) noexcept {

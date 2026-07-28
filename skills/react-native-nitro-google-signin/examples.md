@@ -22,18 +22,26 @@ await GoogleOneTapSignIn.signOut()
 
 ## Extra scopes
 
-`requestScopes()` returns an **`accessToken`** for on-device Google API calls. Set `offlineAccess: true` in `configure()` only when you also need a non-null `serverAuthCode` for your backend:
+`requestScopes()` returns an **`accessToken`** for on-device Google API calls. Set `offlineAccess: true` in `configure()` only when you also need a non-null `serverAuthCode` for your backend.
+
+Check granted scopes first with **`getCurrentUser()`** so existing users are not prompted again:
+
+```ts
+const CALENDAR = 'https://www.googleapis.com/auth/calendar.readonly'
+const current = GoogleOneTapSignIn.getCurrentUser()
+if (!current?.scopes.includes(CALENDAR)) {
+  const { accessToken, serverAuthCode } = await GoogleOneTapSignIn.requestScopes([
+    CALENDAR,
+  ])
+  // use accessToken for Google APIs from the device
+}
+```
 
 ```ts
 GoogleOneTapSignIn.configure({
   webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
   // offlineAccess: true, // optional — only for serverAuthCode
 })
-
-const { accessToken, serverAuthCode } = await GoogleOneTapSignIn.requestScopes([
-  'https://www.googleapis.com/auth/calendar.readonly',
-])
-// use accessToken for Google APIs from the device
 ```
 
 On **iOS**, use `createAccount()` or `presentExplicitSignIn()` (not silent `signIn()`) for the initial offline grant that returns a `serverAuthCode`.

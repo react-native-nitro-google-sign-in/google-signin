@@ -19,6 +19,7 @@ public protocol HybridNitroGoogleSigninSpec_protocol: HybridObject {
   func createAccount() throws -> Promise<OneTapResponse>
   func presentExplicitSignIn() throws -> Promise<OneTapResponse>
   func requestScopes(scopes: [String]) throws -> Promise<OneTapAuthorizationResult>
+  func getCurrentUser() throws -> Variant_NullType_OneTapSuccessData
   func getTokens() throws -> Promise<GetTokensResponse>
   func clearCachedAccessToken(accessTokenString: String) throws -> Promise<Void>
   func signOut() throws -> Promise<Void>

@@ -54,6 +54,9 @@ export default function App() {
   )
   const [tokensStatus, setTokensStatus] = useState<string | null>(null)
   const [lastAccessToken, setLastAccessToken] = useState<string | null>(null)
+  const [currentUserStatus, setCurrentUserStatus] = useState<string | null>(
+    null
+  )
 
   useEffect(() => {
     GoogleOneTapSignIn.configure({
@@ -66,6 +69,7 @@ export default function App() {
     setUser(data)
     setTokensStatus(null)
     setLastAccessToken(null)
+    setCurrentUserStatus(null)
     setStatus(`Signed in as ${data.user.email ?? data.user.id}`)
   }
 
@@ -128,6 +132,17 @@ export default function App() {
     }
   }
 
+  const getCurrentUser = () => {
+    const current = GoogleOneTapSignIn.getCurrentUser()
+    if (!current) {
+      setCurrentUserStatus('getCurrentUser() → null (not signed in)')
+      return
+    }
+    setCurrentUserStatus(
+      `getCurrentUser() → ${current.user.email ?? current.user.id}; scopes: ${current.scopes.join(', ') || '(none)'}`
+    )
+  }
+
   const getTokens = async () => {
     if (!user) {
       setTokensStatus('Sign in first, then call getTokens().')
@@ -182,6 +197,7 @@ export default function App() {
       setExtraScopesStatus(null)
       setTokensStatus(null)
       setLastAccessToken(null)
+      setCurrentUserStatus(null)
       setStatus('Signed out')
     } catch (e) {
       setStatus(formatGoogleSignInError(e, 'Sign out failed'))
@@ -199,6 +215,7 @@ export default function App() {
       setExtraScopesStatus(null)
       setTokensStatus(null)
       setLastAccessToken(null)
+      setCurrentUserStatus(null)
       setStatus('Access revoked')
     } catch (e) {
       setStatus(formatGoogleSignInError(e, 'Revoke access failed'))
@@ -236,6 +253,10 @@ export default function App() {
 
         {tokensStatus ? <Text style={styles.hint}>{tokensStatus}</Text> : null}
 
+        {currentUserStatus ? (
+          <Text style={styles.hint}>{currentUserStatus}</Text>
+        ) : null}
+
         {!isSignedIn ? (
           <View style={styles.signInButtonContainer} collapsable={false}>
             <GoogleSignInButton
@@ -270,6 +291,13 @@ export default function App() {
               style={[styles.action, loading && styles.actionDisabled]}
             >
               Get tokens
+            </Text>
+            <Text
+              accessibilityRole="button"
+              onPress={loading ? undefined : getCurrentUser}
+              style={[styles.action, loading && styles.actionDisabled]}
+            >
+              Get current user
             </Text>
             <Text
               accessibilityRole="button"

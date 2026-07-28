@@ -18,6 +18,7 @@
 #include <optional>
 #include <string>
 #include <variant>
+#include <vector>
 
 namespace margelo::nitro::nitrogooglesignin {
 
@@ -40,12 +41,24 @@ namespace margelo::nitro::nitrogooglesignin {
       static const auto clazz = javaClassStatic();
       static const auto fieldUser = clazz->getField<JOneTapUser>("user");
       jni::local_ref<JOneTapUser> user = this->getFieldValue(fieldUser);
+      static const auto fieldScopes = clazz->getField<jni::JArrayClass<jni::JString>>("scopes");
+      jni::local_ref<jni::JArrayClass<jni::JString>> scopes = this->getFieldValue(fieldScopes);
       static const auto fieldIdToken = clazz->getField<jni::JString>("idToken");
       jni::local_ref<jni::JString> idToken = this->getFieldValue(fieldIdToken);
       static const auto fieldServerAuthCode = clazz->getField<JVariant_NullType_String>("serverAuthCode");
       jni::local_ref<JVariant_NullType_String> serverAuthCode = this->getFieldValue(fieldServerAuthCode);
       return OneTapSuccessData(
         user->toCpp(),
+        [&](auto&& __input) {
+          size_t __size = __input->size();
+          std::vector<std::string> __vector;
+          __vector.reserve(__size);
+          for (size_t __i = 0; __i < __size; __i++) {
+            auto __element = __input->getElement(__i);
+            __vector.push_back(__element->toStdString());
+          }
+          return __vector;
+        }(scopes),
         idToken->toStdString(),
         serverAuthCode != nullptr ? std::make_optional(serverAuthCode->toCpp()) : std::nullopt
       );
@@ -57,12 +70,22 @@ namespace margelo::nitro::nitrogooglesignin {
      */
     [[maybe_unused]]
     static jni::local_ref<JOneTapSuccessData::javaobject> fromCpp(const OneTapSuccessData& value) {
-      using JSignature = JOneTapSuccessData(jni::alias_ref<JOneTapUser>, jni::alias_ref<jni::JString>, jni::alias_ref<JVariant_NullType_String>);
+      using JSignature = JOneTapSuccessData(jni::alias_ref<JOneTapUser>, jni::alias_ref<jni::JArrayClass<jni::JString>>, jni::alias_ref<jni::JString>, jni::alias_ref<JVariant_NullType_String>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
         clazz,
         JOneTapUser::fromCpp(value.user),
+        [&](auto&& __input) {
+          size_t __size = __input.size();
+          jni::local_ref<jni::JArrayClass<jni::JString>> __array = jni::JArrayClass<jni::JString>::newArray(__size);
+          for (size_t __i = 0; __i < __size; __i++) {
+            const auto& __element = __input[__i];
+            auto __elementJni = jni::make_jstring(__element);
+            __array->setElement(__i, *__elementJni);
+          }
+          return __array;
+        }(value.scopes),
         jni::make_jstring(value.idToken),
         value.serverAuthCode.has_value() ? JVariant_NullType_String::fromCpp(value.serverAuthCode.value()) : nullptr
       );

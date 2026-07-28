@@ -11,6 +11,7 @@ import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.NullType
 import com.margelo.nitro.core.HybridObject
 
 /**
@@ -52,6 +53,10 @@ abstract class HybridNitroGoogleSigninSpec: HybridObject() {
   @DoNotStrip
   @Keep
   abstract fun requestScopes(scopes: Array<String>): Promise<OneTapAuthorizationResult>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun getCurrentUser(): Variant_NullType_OneTapSuccessData
   
   @DoNotStrip
   @Keep

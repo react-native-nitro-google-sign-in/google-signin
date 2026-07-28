@@ -5,6 +5,7 @@ import type {
   OneTapAuthorizationResult,
   OneTapConfigureParams,
   OneTapResponse,
+  OneTapSuccessData,
 } from './specs/nitro-google-signin.nitro'
 
 const hybrid =
@@ -91,6 +92,22 @@ export const GoogleOneTapSignIn = {
    */
   requestScopes(scopes: string[]): Promise<OneTapAuthorizationResult> {
     return hybrid.requestScopes(scopes)
+  },
+
+  /**
+   * Returns the currently signed-in user and granted scopes, or `null` if none.
+   *
+   * Synchronous. Use after sign-in (or on app launch) to inspect `scopes` before calling
+   * {@link requestScopes} — e.g. only prompt existing users who have not consented to a
+   * newly added Drive scope.
+   *
+   * **Android:** last Credential Manager session from encrypted storage.
+   * **iOS:** `GIDSignIn.sharedInstance.currentUser` / `grantedScopes`.
+   *
+   * `serverAuthCode` is always `null` (one-time codes are not persisted).
+   */
+  getCurrentUser(): OneTapSuccessData | null {
+    return hybrid.getCurrentUser()
   },
 
   /**

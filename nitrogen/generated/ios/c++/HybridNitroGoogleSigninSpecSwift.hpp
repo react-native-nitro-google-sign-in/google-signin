@@ -137,6 +137,14 @@ namespace margelo::nitro::nitrogooglesignin {
       auto __value = std::move(__result.value());
       return __value;
     }
+    inline std::variant<nitro::NullType, OneTapSuccessData> getCurrentUser() override {
+      auto __result = _swiftPart.getCurrentUser();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
     inline std::shared_ptr<Promise<GetTokensResponse>> getTokens() override {
       auto __result = _swiftPart.getTokens();
       if (__result.hasError()) [[unlikely]] {

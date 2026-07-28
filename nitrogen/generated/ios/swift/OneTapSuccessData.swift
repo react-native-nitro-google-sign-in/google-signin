@@ -18,8 +18,14 @@ public extension OneTapSuccessData {
   /**
    * Create a new instance of `OneTapSuccessData`.
    */
-  init(user: OneTapUser, idToken: String, serverAuthCode: Variant_NullType_String?) {
-    self.init(user, std.string(idToken), { () -> bridge.std__optional_std__variant_nitro__NullType__std__string__ in
+  init(user: OneTapUser, scopes: [String], idToken: String, serverAuthCode: Variant_NullType_String?) {
+    self.init(user, { () -> bridge.std__vector_std__string_ in
+      var __vector = bridge.create_std__vector_std__string_(scopes.count)
+      for __item in scopes {
+        __vector.push_back(std.string(__item))
+      }
+      return __vector
+    }(), std.string(idToken), { () -> bridge.std__optional_std__variant_nitro__NullType__std__string__ in
       if let __unwrappedValue = serverAuthCode {
         return bridge.create_std__optional_std__variant_nitro__NullType__std__string__({ () -> bridge.std__variant_nitro__NullType__std__string_ in
           switch __unwrappedValue {
@@ -38,6 +44,11 @@ public extension OneTapSuccessData {
   @inline(__always)
   var user: OneTapUser {
     return self.__user
+  }
+  
+  @inline(__always)
+  var scopes: [String] {
+    return self.__scopes.map({ __item in String(__item) })
   }
   
   @inline(__always)

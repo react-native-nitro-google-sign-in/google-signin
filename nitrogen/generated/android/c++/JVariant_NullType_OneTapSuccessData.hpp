@@ -20,6 +20,7 @@
 #include <string>
 #include <optional>
 #include "JVariant_NullType_String.hpp"
+#include <vector>
 
 namespace margelo::nitro::nitrogooglesignin {
 

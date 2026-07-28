@@ -18,6 +18,7 @@ Full types: https://react-native-nitro-google-sign-in.github.io/docs/guide/api-r
 | `createAccount()`                | All accounts / interactive                                                                           |
 | `presentExplicitSignIn()`        | Explicit Sign in with Google UI (Android dialog)                                                     |
 | `requestScopes(scopes)`          | `{ accessToken, serverAuthCode }` after sign-in; **`offlineAccess: true` required only for non-null `serverAuthCode`** — use `accessToken` for on-device Google APIs |
+| `getCurrentUser()`                 | Sync: current user + `scopes`, or `null`. Use before `requestScopes` to skip duplicate consent |
 | `getTokens()`                      | `{ idToken, accessToken }` after sign-in; throws `SIGN_IN_REQUIRED` if not signed in |
 | `clearCachedAccessToken(token)`    | Clears cached access token (Android) or marks session for refresh (iOS) |
 | `signOut()`                      | iOS GIDSignOut; Android disables auto sign-in semantics                                              |

@@ -238,6 +238,25 @@ open class HybridNitroGoogleSigninSpec_cxx {
   }
   
   @inline(__always)
+  public final func getCurrentUser() -> bridge.Result_std__variant_nitro__NullType__OneTapSuccessData__ {
+    do {
+      let __result = try self.__implementation.getCurrentUser()
+      let __resultCpp = { () -> bridge.std__variant_nitro__NullType__OneTapSuccessData_ in
+        switch __result {
+          case .first(let __value):
+            return bridge.create_std__variant_nitro__NullType__OneTapSuccessData_(margelo.nitro.NullType.null)
+          case .second(let __value):
+            return bridge.create_std__variant_nitro__NullType__OneTapSuccessData_(__value)
+        }
+      }().variant
+      return bridge.create_Result_std__variant_nitro__NullType__OneTapSuccessData__(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__variant_nitro__NullType__OneTapSuccessData__(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
   public final func getTokens() -> bridge.Result_std__shared_ptr_Promise_GetTokensResponse___ {
     do {
       let __result = try self.__implementation.getTokens()

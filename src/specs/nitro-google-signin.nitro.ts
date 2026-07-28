@@ -22,9 +22,19 @@ export interface OneTapUser {
   photo: string | null
 }
 
-/** Payload when a sign-in method returns `type: 'success'`. */
+/** Payload when a sign-in method returns `type: 'success'`, or from {@link NitroGoogleSignin.getCurrentUser}. */
 export interface OneTapSuccessData {
   user: OneTapUser
+  /**
+   * OAuth scopes currently granted for this user.
+   *
+   * Use this to decide whether {@link NitroGoogleSignin.requestScopes} is needed
+   * (e.g. after adding a new Drive scope for existing users).
+   *
+   * **Android:** persisted from `configure({ scopes })` plus scopes granted via
+   * `requestScopes()`. **iOS:** from `GIDGoogleUser.grantedScopes`.
+   */
+  scopes: string[]
   /** OpenID Connect ID token (JWT). Verify on your backend with Google's keys. */
   idToken: string
   /**
@@ -33,6 +43,9 @@ export interface OneTapSuccessData {
    * **Requires `configure({ offlineAccess: true })`.** When `offlineAccess` is `false`
    * (the default), this is always `null` — including after `requestScopes()`.
    * Exchange the code on your backend for refresh tokens.
+   *
+   * On {@link NitroGoogleSignin.getCurrentUser}, this is always `null` (auth codes are
+   * one-time and not persisted).
    */
   serverAuthCode: string | null
 }
@@ -128,6 +141,18 @@ export interface NitroGoogleSignin
   createAccount(): Promise<OneTapResponse>
   presentExplicitSignIn(): Promise<OneTapResponse>
   requestScopes(scopes: string[]): Promise<OneTapAuthorizationResult>
+  /**
+   * Returns the currently signed-in user and granted scopes, or `null` if none.
+   *
+   * Synchronous (no Promise). Use to check whether incremental consent via
+   * {@link requestScopes} is still needed for existing users.
+   *
+   * **Android:** reads the last Credential Manager session from encrypted storage.
+   * **iOS:** reads `GIDSignIn.sharedInstance.currentUser` (including `grantedScopes`).
+   *
+   * `serverAuthCode` is always `null` here — auth codes are one-time and not persisted.
+   */
+  getCurrentUser(): OneTapSuccessData | null
   /**
    * Returns the current user's ID and access tokens after sign-in.
    *

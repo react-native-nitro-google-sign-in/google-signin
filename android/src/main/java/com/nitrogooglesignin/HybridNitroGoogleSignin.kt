@@ -2,12 +2,14 @@ package com.nitrogooglesignin
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import com.margelo.nitro.core.NullType
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.nitrogooglesignin.HybridNitroGoogleSigninSpec
 import com.margelo.nitro.nitrogooglesignin.GetTokensResponse
 import com.margelo.nitro.nitrogooglesignin.OneTapAuthorizationResult
 import com.margelo.nitro.nitrogooglesignin.OneTapConfigureParams
 import com.margelo.nitro.nitrogooglesignin.OneTapResponse
+import com.margelo.nitro.nitrogooglesignin.Variant_NullType_OneTapSuccessData
 import com.nitrogooglesignin.GoogleSignInController
 
 /**
@@ -37,6 +39,15 @@ class HybridNitroGoogleSignin : HybridNitroGoogleSigninSpec() {
 
   override fun requestScopes(scopes: Array<String>): Promise<OneTapAuthorizationResult> =
     Promise.async { GoogleSignInController.requestScopes(scopes) }
+
+  override fun getCurrentUser(): Variant_NullType_OneTapSuccessData {
+    val user = GoogleSignInController.getCurrentUser()
+    return if (user == null) {
+      Variant_NullType_OneTapSuccessData.create(NullType.NULL)
+    } else {
+      Variant_NullType_OneTapSuccessData.create(user)
+    }
+  }
 
   override fun getTokens(): Promise<GetTokensResponse> =
     Promise.async { GoogleSignInController.getTokens() }
