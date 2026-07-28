@@ -258,6 +258,9 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
   private suspend fun <T> Task<T>.awaitTask(): T =
     suspendCancellableCoroutine { continuation ->
       addOnCompleteListener { task ->
+        // Avoid IllegalStateException if the parent coroutine was cancelled
+        // before the GMS Task completed.
+        if (!continuation.isActive) return@addOnCompleteListener
         if (task.isSuccessful) {
           continuation.resume(task.result)
         } else {

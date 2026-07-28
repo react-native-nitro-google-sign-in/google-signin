@@ -102,8 +102,12 @@ export interface OneTapAuthorizationResult {
    * OAuth 2.0 access token for the requested scopes.
    *
    * Use this to call Google APIs from the device (Drive, Calendar, etc.).
-   * Present even when `offlineAccess` is `false`. May be `null` if the user
-   * cancelled consent or authorization failed to return a token.
+   * Present even when `offlineAccess` is `false`.
+   *
+   * On **iOS**, user cancel resolves with `accessToken: null` (and
+   * `serverAuthCode: null`). On **Android**, cancel throws
+   * `SIGN_IN_CANCELLED` instead of returning a null-token result; an empty
+   * authorization success also throws.
    */
   accessToken: string | null
   /**
