@@ -99,6 +99,14 @@ export interface GetTokensResponse {
 /** Return value of {@link GoogleOneTapSignIn.requestScopes}. */
 export interface OneTapAuthorizationResult {
   /**
+   * OAuth 2.0 access token for the requested scopes.
+   *
+   * Use this to call Google APIs from the device (Drive, Calendar, etc.).
+   * Present even when `offlineAccess` is `false`. May be `null` if the user
+   * cancelled consent or authorization failed to return a token.
+   */
+  accessToken: string | null
+  /**
    * OAuth 2.0 server auth code for the requested scopes.
    *
    * **Requires `configure({ offlineAccess: true })` before calling `requestScopes()`.**

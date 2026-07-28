@@ -1,5 +1,6 @@
 package com.nitrogooglesignin
 
+import android.accounts.Account
 import android.app.Activity
 import android.content.Intent
 import com.facebook.react.bridge.ActivityEventListener
@@ -9,6 +10,7 @@ import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Scope
+import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
@@ -33,7 +35,8 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
       "profile",
     )
   private var listenerRegistered = false
-  private var pendingContinuation: CancellableContinuation<AuthorizationResultData>? = null
+  private var pendingContinuation: CancellableContinuation<com.google.android.gms.auth.api.identity.AuthorizationResult>? =
+    null
   private val authorizeMutex = Mutex()
 
   fun ensureRegistered(context: ReactApplicationContext) {
@@ -49,6 +52,7 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
     serverClientId: String,
     scopes: List<String>,
     offlineAccess: Boolean,
+    accountEmail: String? = null,
   ): AuthorizationResultData {
     val resolvedScopes =
       scopes.filter { it.isNotBlank() }.ifEmpty {
@@ -58,66 +62,108 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
     ensureRegistered(context)
 
     return authorizeMutex.withLock {
-      suspendCancellableCoroutine { continuation ->
-        pendingContinuation = continuation
-        continuation.invokeOnCancellation { pendingContinuation = null }
+      val requestBuilder =
+        AuthorizationRequest.builder()
+          .setRequestedScopes(resolvedScopes.map { Scope(it) })
 
-        val requestBuilder =
-          AuthorizationRequest.builder()
-            .setRequestedScopes(resolvedScopes.map { Scope(it) })
-        if (offlineAccess) {
-          requestBuilder.requestOfflineAccess(serverClientId)
-          requestBuilder.setPrompt(AuthorizationRequest.Prompt.CONSENT)
+      // Bind to the signed-in account when known. Without this, AuthorizationClient
+      // may return an empty success (no resolution, no tokens) instead of showing consent.
+      accountEmail
+        ?.takeIf { it.contains("@") }
+        ?.let { email ->
+          requestBuilder.setAccount(Account(email, "com.google"))
         }
 
-        Identity.getAuthorizationClient(activity)
-          .authorize(requestBuilder.build())
-          .addOnSuccessListener { authorizationResult ->
-            if (authorizationResult.hasResolution()) {
-              val pendingIntent =
-                authorizationResult.pendingIntent
-                  ?: run {
-                    clearPending(continuation)
-                    continuation.resumeWithException(
-                      GoogleSignInException(
-                        code = "ONE_TAP_START_FAILED",
-                        message = "Authorization required but no pending intent was returned.",
-                      ),
-                    )
-                    return@addOnSuccessListener
-                  }
-              try {
-                @Suppress("DEPRECATION")
-                activity.startIntentSenderForResult(
-                  pendingIntent.intentSender,
-                  AUTH_REQUEST_CODE,
-                  null,
-                  0,
-                  0,
-                  0,
-                  null,
-                )
-              } catch (e: Exception) {
-                clearPending(continuation)
-                continuation.resumeWithException(
-                  GoogleSignInException(
-                    code = "ONE_TAP_START_FAILED",
-                    message = e.message ?: "Failed to start authorization UI.",
-                  ),
-                )
-              }
-            } else {
-              clearPending(continuation)
-              continuation.resume(authorizationResult.toData())
-            }
-          }
-          .addOnFailureListener { error ->
-            clearPending(continuation)
-            continuation.resumeWithException(mapAuthorizationFailure(error))
-          }
+      if (offlineAccess) {
+        // Request a server auth code. Do NOT force Prompt.CONSENT on every call —
+        // forcing consent after Credential Manager frequently hangs (PendingIntent
+        // never completes). Google still shows consent when offline access has not
+        // been granted yet. Use requestOfflineAccess(serverClientId) alone.
+        requestBuilder.requestOfflineAccess(serverClientId)
       }
+
+      val authClient = Identity.getAuthorizationClient(activity)
+      val initial =
+        try {
+          authClient.authorize(requestBuilder.build()).awaitTask()
+        } catch (error: Exception) {
+          throw mapAuthorizationFailure(error)
+        }
+
+      val resolved =
+        if (initial.hasResolution()) {
+          val pendingIntent =
+            initial.pendingIntent
+              ?: throw GoogleSignInException(
+                code = "ONE_TAP_START_FAILED",
+                message = "Authorization required but no pending intent was returned.",
+              )
+          awaitAuthorizationResolution(activity, pendingIntent.intentSender)
+        } else {
+          initial
+        }
+
+      val data = resolved.toData()
+      if (data.accessToken.isNullOrBlank() && data.serverAuthCode.isNullOrBlank()) {
+        throw GoogleSignInException(
+          code = "ONE_TAP_START_FAILED",
+          message =
+            "Authorization completed without an access token or server auth code. " +
+              "Ensure the user is signed in, the requested scopes are added on the OAuth " +
+              "consent screen, and try again.",
+        )
+      }
+      data
     }
   }
+
+  private suspend fun awaitAuthorizationResolution(
+    activity: Activity,
+    intentSender: android.content.IntentSender,
+  ): com.google.android.gms.auth.api.identity.AuthorizationResult =
+    suspendCancellableCoroutine { continuation ->
+      if (pendingContinuation != null) {
+        continuation.resumeWithException(
+          GoogleSignInException(
+            code = "IN_PROGRESS",
+            message = "Another authorization request is already in progress.",
+          ),
+        )
+        return@suspendCancellableCoroutine
+      }
+
+      pendingContinuation = continuation
+      continuation.invokeOnCancellation {
+        if (pendingContinuation === continuation) {
+          pendingContinuation = null
+        }
+      }
+
+      // startIntentSenderForResult must run on the main thread.
+      activity.runOnUiThread {
+        if (pendingContinuation !== continuation) return@runOnUiThread
+        try {
+          @Suppress("DEPRECATION")
+          activity.startIntentSenderForResult(
+            intentSender,
+            AUTH_REQUEST_CODE,
+            null,
+            0,
+            0,
+            0,
+            null,
+          )
+        } catch (e: Exception) {
+          clearPending(continuation)
+          continuation.resumeWithException(
+            GoogleSignInException(
+              code = "ONE_TAP_START_FAILED",
+              message = e.message ?: "Failed to start authorization UI.",
+            ),
+          )
+        }
+      }
+    }
 
   override fun onActivityResult(
     activity: Activity,
@@ -156,7 +202,7 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
     try {
       val authorizationResult =
         Identity.getAuthorizationClient(activity).getAuthorizationResultFromIntent(data)
-      continuation.resume(authorizationResult.toData())
+      continuation.resume(authorizationResult)
     } catch (e: Exception) {
       continuation.resumeWithException(
         GoogleSignInException(
@@ -169,7 +215,10 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
 
   override fun onNewIntent(intent: Intent) {}
 
-  private fun clearPending(continuation: CancellableContinuation<AuthorizationResultData>? = null) {
+  private fun clearPending(
+    continuation: CancellableContinuation<com.google.android.gms.auth.api.identity.AuthorizationResult>? =
+      null,
+  ) {
     if (pendingContinuation === continuation || continuation == null) {
       pendingContinuation = null
     }
@@ -205,4 +254,17 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
       accessToken = accessToken,
       serverAuthCode = serverAuthCode,
     )
+
+  private suspend fun <T> Task<T>.awaitTask(): T =
+    suspendCancellableCoroutine { continuation ->
+      addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+          continuation.resume(task.result)
+        } else {
+          continuation.resumeWithException(
+            task.exception ?: RuntimeException("Authorization task failed."),
+          )
+        }
+      }
+    }
 }

@@ -17,7 +17,7 @@ Full types: https://react-native-nitro-google-sign-in.github.io/docs/guide/api-r
 | `signIn()`                       | Android: authorized CredMan accounts; iOS: current user or restore                                   |
 | `createAccount()`                | All accounts / interactive                                                                           |
 | `presentExplicitSignIn()`        | Explicit Sign in with Google UI (Android dialog)                                                     |
-| `requestScopes(scopes)`          | `{ serverAuthCode }` after sign-in; **`offlineAccess: true` in `configure()` required** for a non-null code |
+| `requestScopes(scopes)`          | `{ accessToken, serverAuthCode }` after sign-in; **`offlineAccess: true` required only for non-null `serverAuthCode`** — use `accessToken` for on-device Google APIs |
 | `getTokens()`                      | `{ idToken, accessToken }` after sign-in; throws `SIGN_IN_REQUIRED` if not signed in |
 | `clearCachedAccessToken(token)`    | Clears cached access token (Android) or marks session for refresh (iOS) |
 | `signOut()`                      | iOS GIDSignOut; Android disables auto sign-in semantics                                              |
