@@ -83,7 +83,7 @@ if (isSuccessResponse(response)) {
 | `type: 'cancelled'` after picking account (Android release/Play) | Missing **Play App Signing** / release SHA-1 on Android OAuth client — [troubleshooting](https://react-native-nitro-google-sign-in.github.io/docs/guide/troubleshooting#cancelled-after-account-pick) |
 | `default_web_client_id was not found` | Add `google-services.json` + Gradle plugin |
 | iOS redirect fails | Fix `REVERSED_CLIENT_ID` URL scheme |
-| `pod install` / Expo prebuild — AppCheckCore modular headers | Expo: `prebuild --clean` (plugin patches Podfile). Bare: add AppCheckCore/GoogleUtilities/RecaptchaInterop pods to `ios/Podfile` — [troubleshooting](https://react-native-nitro-google-sign-in.github.io/docs/guide/troubleshooting#ios-pod-install-fails--appcheckcore--recaptchainterop-expo-56) |
+| `pod install` / Expo prebuild — AppCheckCore / RecaptchaInterop (or conflict with Firebase App Check) | Expo: upgrade package + `prebuild --clean` (plugin adds modular headers, **no** AppCheckCore `< 11.3` pin). Bare: add AppCheckCore/GoogleUtilities/RecaptchaInterop with `:modular_headers => true` — [troubleshooting](https://react-native-nitro-google-sign-in.github.io/docs/guide/troubleshooting#ios-pod-install-fails--appcheckcore--recaptchainterop-expo-56) |
 | Nitro not found | Rebuild dev client / `bundle exec pod install --project-directory="ios"` |
 | Sign-in OK in debug, fails in release | Consumer ProGuard rules ship with library; avoid `-keep androidx.**`; test `assembleRelease`. Also check release/Play SHA-1 (see cancelled-after-account-pick above) |
 
