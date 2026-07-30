@@ -45,7 +45,7 @@ Helpers: `isSuccessResponse`, `isNoSavedCredentialFoundResponse`, `isCancelledRe
 
 ### Button
 
-`GoogleSignInButton`, `useGoogleSignInFromButton`, `GOOGLE_SIGN_IN_BUTTON_HEIGHT` (48), `signInBehavior`: `credentialManager` | `buttonFlow` | `none`
+`GoogleSignInButton`, `useGoogleSignInFromButton`, `GOOGLE_SIGN_IN_BUTTON_HEIGHT` (48), `GOOGLE_SIGN_IN_BUTTON_WIDTH` (`standard` 230 / `wide` 312 / `icon` 48), `signInBehavior`: `credentialManager` | `buttonFlow` | `none`
 
 ## Google Cloud & config files (bare + Expo)
 

@@ -10,7 +10,10 @@ import {
   type GoogleSignInButtonSignInBehavior,
 } from './hooks/useGoogleSignInFromButton'
 import type { OneTapSuccessData } from './specs/nitro-google-signin.nitro'
-import type { GoogleSignInButtonViewProps } from './specs/GoogleSignInButton.nitro'
+import type {
+  GoogleSignInButtonNativeSize,
+  GoogleSignInButtonViewProps,
+} from './specs/GoogleSignInButton.nitro'
 
 export type {
   GoogleSignInButtonColorScheme,
@@ -26,6 +29,23 @@ export { GoogleSignInButtonHost, type GoogleSignInButtonRef } from './GoogleSign
 
 /** Recommended height for the SDK button (48pt/dp per Google branding). */
 export const GOOGLE_SIGN_IN_BUTTON_HEIGHT = 48
+
+/** Intrinsic widths (dp) matching Google branding / former GMS `SignInButton` sizes. */
+export const GOOGLE_SIGN_IN_BUTTON_WIDTH = {
+  standard: 230,
+  wide: 312,
+  icon: GOOGLE_SIGN_IN_BUTTON_HEIGHT,
+} as const
+
+/** Default layout size for Fabric (Paper uses a Yoga measure function on Android). */
+export function getGoogleSignInButtonIntrinsicStyle(
+  size: GoogleSignInButtonNativeSize = 'standard',
+): { width: number; height: number } {
+  return {
+    width: GOOGLE_SIGN_IN_BUTTON_WIDTH[size],
+    height: GOOGLE_SIGN_IN_BUTTON_HEIGHT,
+  }
+}
 
 export type GoogleSignInButtonProps = Pick<
   GoogleSignInButtonViewProps,
@@ -54,7 +74,11 @@ export type GoogleSignInButtonProps = Pick<
 >
 
 /**
- * Official SDK sign-in button (`GIDSignInButton` / `SignInButton`) as a Nitro HybridView.
+ * Official branded sign-in button as a Nitro HybridView.
+ *
+ * - **iOS:** `GIDSignInButton`
+ * - **Android:** in-process button using Play services branding assets (not the
+ *   Dynamite-backed `SignInButton`, which can paint blank on some devices)
  *
  * Default tap uses Credential Manager bottom sheet (`signIn` → `createAccount`), not
  * `presentExplicitSignIn` (Android account dialog). Use `signInBehavior="buttonFlow"` for that.
@@ -67,6 +91,8 @@ export function GoogleSignInButton({
   loading: loadingProp,
   disabled: disabledProp,
   contentAlignment = 'center',
+  size = 'standard',
+  style,
   hybridRef,
   ...rest
 }: GoogleSignInButtonProps): React.JSX.Element {
@@ -109,9 +135,16 @@ export function GoogleSignInButton({
     [hybridRef],
   )
 
+  const intrinsicStyle = useMemo(
+    () => getGoogleSignInButtonIntrinsicStyle(size),
+    [size],
+  )
+
   return (
     <GoogleSignInButtonHost
       {...rest}
+      size={size}
+      style={[intrinsicStyle, style]}
       contentAlignment={contentAlignment}
       disabled={disabled || loading}
       onPress={nativeOnPress}
