@@ -12,8 +12,10 @@ import com.margelo.nitro.nitrogooglesignin.views.HybridGoogleSignInButtonStateUp
 import com.margelo.nitro.views.RecyclableView
 
 /**
- * Nitro "GoogleSignInButton" view manager with Yoga intrinsic sizing for GMS [SignInButton].
+ * Nitro "GoogleSignInButton" view manager with Paper Yoga intrinsic sizing.
  * (The generated [com.margelo.nitro.nitrogooglesignin.views.HybridGoogleSignInButtonManager] is final.)
+ *
+ * Fabric does not use [GoogleSignInButtonShadowNode]; the JS wrapper supplies default dimensions.
  */
 class GoogleSignInButtonViewManager : SimpleViewManager<View>() {
   init {

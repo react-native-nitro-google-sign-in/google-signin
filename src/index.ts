@@ -1,6 +1,8 @@
 export { GoogleOneTapSignIn } from './GoogleOneTapSignIn'
 export {
   GOOGLE_SIGN_IN_BUTTON_HEIGHT,
+  GOOGLE_SIGN_IN_BUTTON_WIDTH,
+  getGoogleSignInButtonIntrinsicStyle,
   GoogleSignInButton,
   GoogleSignInButtonHost,
   type GoogleSignInButtonColorScheme,
