@@ -50,6 +50,7 @@ using namespace margelo::nitro::nitrogooglesignin::views;
 
 - (instancetype) init {
   if (self = [super init]) {
+    _props = HybridGoogleSignInButtonShadowNode::defaultSharedProps();
     std::shared_ptr<HybridGoogleSignInButtonSpec> hybridView = NitroGoogleSignin::NitroGoogleSigninAutolinking::createGoogleSignInButton();
     _hybridView = std::dynamic_pointer_cast<HybridGoogleSignInButtonSpecSwift>(hybridView);
     [self updateView];
