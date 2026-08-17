@@ -1,4 +1,4 @@
-package com.margelo.nitro.nitrogooglesignin
+package com.nitrogooglesignin
 
 import android.content.Context
 import android.graphics.PorterDuff
@@ -15,6 +15,10 @@ import androidx.core.graphics.drawable.DrawableCompat
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.uimanager.ThemedReactContext
 import com.google.android.gms.base.R as GmsBaseR
+import com.margelo.nitro.nitrogooglesignin.GoogleSignInButtonColorScheme
+import com.margelo.nitro.nitrogooglesignin.GoogleSignInButtonContentAlignment
+import com.margelo.nitro.nitrogooglesignin.GoogleSignInButtonNativeSize
+import com.margelo.nitro.nitrogooglesignin.HybridGoogleSignInButtonSpec
 
 private const val BUTTON_HEIGHT_DP = 48
 

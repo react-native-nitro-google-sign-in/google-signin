@@ -15,7 +15,7 @@ namespace margelo::nitro::nitrogooglesignin {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "GoogleSignInButtonColorScheme" and the the Kotlin enum "GoogleSignInButtonColorScheme".
+   * The C++ JNI bridge between the C++ enum "GoogleSignInButtonColorScheme" and the Kotlin enum "GoogleSignInButtonColorScheme".
    */
   struct JGoogleSignInButtonColorScheme final: public jni::JavaClass<JGoogleSignInButtonColorScheme> {
   public:

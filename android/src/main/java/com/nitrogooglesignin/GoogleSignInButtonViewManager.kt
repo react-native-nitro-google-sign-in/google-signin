@@ -7,7 +7,6 @@ import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.StateWrapper
 import com.facebook.react.uimanager.ThemedReactContext
 import com.margelo.nitro.R.id.associated_hybrid_view_tag
-import com.margelo.nitro.nitrogooglesignin.HybridGoogleSignInButton
 import com.margelo.nitro.nitrogooglesignin.views.HybridGoogleSignInButtonStateUpdater
 import com.margelo.nitro.views.RecyclableView
 

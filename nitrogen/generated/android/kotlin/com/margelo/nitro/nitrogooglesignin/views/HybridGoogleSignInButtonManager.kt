@@ -14,7 +14,7 @@ import com.facebook.react.uimanager.StateWrapper
 import com.facebook.react.uimanager.ThemedReactContext
 import com.margelo.nitro.R.id.associated_hybrid_view_tag
 import com.margelo.nitro.views.RecyclableView
-import com.margelo.nitro.nitrogooglesignin.*
+import com.nitrogooglesignin.*
 
 /**
  * Represents the React Native `ViewManager` for the "GoogleSignInButton" Nitro HybridView.

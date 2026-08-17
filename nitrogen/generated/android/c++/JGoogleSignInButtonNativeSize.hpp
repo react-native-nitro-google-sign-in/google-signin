@@ -15,7 +15,7 @@ namespace margelo::nitro::nitrogooglesignin {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "GoogleSignInButtonNativeSize" and the the Kotlin enum "GoogleSignInButtonNativeSize".
+   * The C++ JNI bridge between the C++ enum "GoogleSignInButtonNativeSize" and the Kotlin enum "GoogleSignInButtonNativeSize".
    */
   struct JGoogleSignInButtonNativeSize final: public jni::JavaClass<JGoogleSignInButtonNativeSize> {
   public:

@@ -15,7 +15,7 @@ namespace margelo::nitro::nitrogooglesignin {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "GoogleSignInButtonContentAlignment" and the the Kotlin enum "GoogleSignInButtonContentAlignment".
+   * The C++ JNI bridge between the C++ enum "GoogleSignInButtonContentAlignment" and the Kotlin enum "GoogleSignInButtonContentAlignment".
    */
   struct JGoogleSignInButtonContentAlignment final: public jni::JavaClass<JGoogleSignInButtonContentAlignment> {
   public:

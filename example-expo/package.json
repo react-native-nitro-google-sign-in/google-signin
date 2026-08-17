@@ -18,7 +18,7 @@
     "react": "19.2.3",
     "react-native": "0.85.3",
     "react-native-nitro-google-signin": "file:..",
-    "react-native-nitro-modules": "0.35.9"
+    "react-native-nitro-modules": "0.36.5"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",

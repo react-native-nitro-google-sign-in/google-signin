@@ -17,7 +17,7 @@ namespace margelo::nitro::nitrogooglesignin {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "GetTokensResponse" and the the Kotlin data class "GetTokensResponse".
+   * The C++ JNI bridge between the C++ struct "GetTokensResponse" and the Kotlin data class "GetTokensResponse".
    */
   struct JGetTokensResponse final: public jni::JavaClass<JGetTokensResponse> {
   public:

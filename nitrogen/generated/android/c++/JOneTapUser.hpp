@@ -22,7 +22,7 @@ namespace margelo::nitro::nitrogooglesignin {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "OneTapUser" and the the Kotlin data class "OneTapUser".
+   * The C++ JNI bridge between the C++ struct "OneTapUser" and the Kotlin data class "OneTapUser".
    */
   struct JOneTapUser final: public jni::JavaClass<JOneTapUser> {
   public:

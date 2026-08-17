@@ -56,7 +56,7 @@ body:
     id: nitro_modules_version
     attributes:
       label: react-native-nitro-modules version
-      placeholder: e.g. 0.35.9
+      placeholder: e.g. 0.36.5
     validations:
       required: true
 

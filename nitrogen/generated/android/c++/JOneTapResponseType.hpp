@@ -15,7 +15,7 @@ namespace margelo::nitro::nitrogooglesignin {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "OneTapResponseType" and the the Kotlin enum "OneTapResponseType".
+   * The C++ JNI bridge between the C++ enum "OneTapResponseType" and the Kotlin enum "OneTapResponseType".
    */
   struct JOneTapResponseType final: public jni::JavaClass<JOneTapResponseType> {
   public:
