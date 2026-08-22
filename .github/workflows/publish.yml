@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write # Required for NPM package provenance signing
+  id-token: write # Required for npm Trusted Publishing (OIDC)
 
 jobs:
   publish:
@@ -20,7 +20,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: lts/*
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
 
       - name: Setup Bun.js
         uses: oven-sh/setup-bun@v2
@@ -45,8 +47,4 @@ jobs:
         run: bun run build
 
       - name: Publish to NPM
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          npm config set //registry.npmjs.org/:_authToken "${NODE_AUTH_TOKEN}"
-          npm publish --provenance --access public
+        run: npm publish --access public
