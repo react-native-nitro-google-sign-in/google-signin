@@ -3,7 +3,8 @@
 ## Package
 
 - **npm:** `react-native-nitro-google-signin`
-- **peer:** `react-native-nitro-modules` (required), `expo` (optional)
+- **peer:** `react-native-nitro-modules` ≥ 0.36 (required), `expo` (optional)
+- **compatibility:** `compatibility.json` + [Compatibility guide](https://react-native-nitro-google-sign-in.github.io/docs/getting-started/compatibility)
 - **platforms:** Android, iOS — no web, no Expo Go
 
 ## API

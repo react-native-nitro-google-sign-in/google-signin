@@ -15,57 +15,79 @@ namespace margelo::nitro::nitrogooglesignin::views {
 using namespace facebook;
 using ConcreteStateData = react::ConcreteState<HybridGoogleSignInButtonState>;
 
-void JHybridGoogleSignInButtonStateUpdater::updateViewProps(jni::alias_ref<jni::JClass> /* class */,
-                                           jni::alias_ref<JHybridGoogleSignInButtonSpec::JavaPart> javaView,
-                                           jni::alias_ref<JStateWrapper::javaobject> stateWrapperInterface) {
-  std::shared_ptr<JHybridGoogleSignInButtonSpec> hybridView = javaView->getJHybridGoogleSignInButtonSpec();
-
-  // Get concrete StateWrapperImpl from passed StateWrapper interface object
-  jobject rawStateWrapper = stateWrapperInterface.get();
-  if (!stateWrapperInterface->isInstanceOf(react::StateWrapperImpl::javaClassStatic())) [[unlikely]] {
-      throw std::runtime_error("StateWrapper is not a StateWrapperImpl");
+std::shared_ptr<const HybridGoogleSignInButtonProps> JHybridGoogleSignInButtonStateUpdater::getPropsFromStateWrapper(
+    jni::alias_ref<JStateWrapper::javaobject> stateWrapper) {
+  if (stateWrapper.get() == nullptr) {
+    return nullptr;
   }
-  auto stateWrapper = jni::alias_ref<react::StateWrapperImpl::javaobject>{
-            static_cast<react::StateWrapperImpl::javaobject>(rawStateWrapper)};
-  std::shared_ptr<const react::State> state = stateWrapper->cthis()->getState();
+  // Get concrete StateWrapperImpl from passed StateWrapper interface object
+  jobject rawStateWrapper = stateWrapper.get();
+  if (!stateWrapper->isInstanceOf(react::StateWrapperImpl::javaClassStatic())) [[unlikely]] {
+    throw std::runtime_error("StateWrapper is not a StateWrapperImpl");
+  }
+  auto stateWrapperImpl = jni::alias_ref<react::StateWrapperImpl::javaobject>{
+    static_cast<react::StateWrapperImpl::javaobject>(rawStateWrapper)
+  };
+  std::shared_ptr<const react::State> state = stateWrapperImpl->cthis()->getState();
+  if (state == nullptr) {
+    return nullptr;
+  }
   auto concreteState = std::static_pointer_cast<const ConcreteStateData>(state);
   const HybridGoogleSignInButtonState& data = concreteState->getData();
-  const std::shared_ptr<HybridGoogleSignInButtonProps>& props = data.getProps();
+  const std::shared_ptr<const HybridGoogleSignInButtonProps>& props = data.getProps();
   if (props == nullptr) [[unlikely]] {
-    // Props aren't set yet!
     throw std::runtime_error("HybridGoogleSignInButtonState's data doesn't contain any props!");
   }
+  return props;
+}
 
-  // Update all props if they are dirty
-  if (props->colorScheme.isDirty) {
-    hybridView->setColorScheme(props->colorScheme.value);
-    props->colorScheme.isDirty = false;
+void JHybridGoogleSignInButtonStateUpdater::updateViewProps(jni::alias_ref<jni::JClass> /* class */,
+                                           jni::alias_ref<JHybridGoogleSignInButtonSpec::JavaPart> javaView,
+                                           jni::alias_ref<JStateWrapper::javaobject> newState,
+                                           jni::alias_ref<JStateWrapper::javaobject> oldState) {
+  std::shared_ptr<JHybridGoogleSignInButtonSpec> hybridView = javaView->getJHybridGoogleSignInButtonSpec();
+  std::shared_ptr<const HybridGoogleSignInButtonProps> newProps = getPropsFromStateWrapper(newState);
+  std::shared_ptr<const HybridGoogleSignInButtonProps> oldProps = getPropsFromStateWrapper(oldState);
+  if (newProps == nullptr) [[unlikely]] {
+    throw std::runtime_error("Current StateWrapper doesn't contain any props!");
   }
-  if (props->size.isDirty) {
-    hybridView->setSize(props->size.value);
-    props->size.isDirty = false;
+
+  // Update only props that differ from the previous State snapshot.
+  if (oldProps == nullptr
+        ? newProps->colorScheme.isProvided()
+        : !newProps->colorScheme.hasSameValue(oldProps->colorScheme)) {
+    hybridView->setColorScheme(newProps->colorScheme.get());
   }
-  if (props->disabled.isDirty) {
-    hybridView->setDisabled(props->disabled.value);
-    props->disabled.isDirty = false;
+  if (oldProps == nullptr
+        ? newProps->size.isProvided()
+        : !newProps->size.hasSameValue(oldProps->size)) {
+    hybridView->setSize(newProps->size.get());
   }
-  if (props->contentAlignment.isDirty) {
-    hybridView->setContentAlignment(props->contentAlignment.value);
-    props->contentAlignment.isDirty = false;
+  if (oldProps == nullptr
+        ? newProps->disabled.isProvided()
+        : !newProps->disabled.hasSameValue(oldProps->disabled)) {
+    hybridView->setDisabled(newProps->disabled.get());
   }
-  if (props->onPress.isDirty) {
-    hybridView->setOnPress(props->onPress.value);
-    props->onPress.isDirty = false;
+  if (oldProps == nullptr
+        ? newProps->contentAlignment.isProvided()
+        : !newProps->contentAlignment.hasSameValue(oldProps->contentAlignment)) {
+    hybridView->setContentAlignment(newProps->contentAlignment.get());
+  }
+  if (oldProps == nullptr
+        ? newProps->onPress.isProvided()
+        : !newProps->onPress.hasSameValue(oldProps->onPress)) {
+    hybridView->setOnPress(newProps->onPress.get());
   }
 
   // Update hybridRef if it changed
-  if (props->hybridRef.isDirty) {
+  if (oldProps == nullptr
+        ? newProps->hybridRef.isProvided()
+        : !newProps->hybridRef.hasSameValue(oldProps->hybridRef)) {
     // hybridRef changed - call it with new this
-    const auto& maybeFunc = props->hybridRef.value;
+    const auto& maybeFunc = newProps->hybridRef.get();
     if (maybeFunc.has_value()) {
       maybeFunc.value()(hybridView);
     }
-    props->hybridRef.isDirty = false;
   }
 }
 

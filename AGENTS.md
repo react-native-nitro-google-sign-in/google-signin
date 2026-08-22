@@ -16,7 +16,7 @@ Skill path: `skills/react-native-nitro-google-signin/` (`SKILL.md`, `reference.m
 ## Package
 
 - **npm:** `react-native-nitro-google-signin`
-- **Peer:** `react-native-nitro-modules` (required)
+- **Peer:** `react-native-nitro-modules` ≥ 0.36 (required); see `compatibility.json`
 - **API:** `GoogleOneTapSignIn`
 - **RN:** ≥ 0.76 · **Platforms:** Android, iOS · **Expo:** dev client only
 

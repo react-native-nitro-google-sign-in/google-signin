@@ -14,19 +14,20 @@
         "@types/jest": "^29.5.12",
         "@types/react": "19.2.0",
         "conventional-changelog-conventionalcommits": "^9.1.0",
-        "nitrogen": "0.36.5",
+        "nitrogen": "0.37.0",
         "react": "19.2.3",
         "react-native": "0.87.0",
         "react-native-builder-bob": "^0.40.18",
-        "react-native-nitro-modules": "0.36.5",
+        "react-native-nitro-modules": "0.37.0",
         "semantic-release": "^25.0.3",
+        "semver": "^7.7.3",
         "typescript": "^6.0.3",
       },
       "peerDependencies": {
         "expo": ">=49.0.0",
         "react": "*",
-        "react-native": "*",
-        "react-native-nitro-modules": "*",
+        "react-native": ">=0.76",
+        "react-native-nitro-modules": ">=0.36.0",
       },
       "optionalPeers": [
         "expo",
@@ -40,7 +41,7 @@
         "react": "19.2.3",
         "react-native": "0.87.0",
         "react-native-config": "^1.6.1",
-        "react-native-nitro-modules": "0.36.5",
+        "react-native-nitro-modules": "0.37.0",
         "react-native-safe-area-context": "^5.8.1",
       },
       "devDependencies": {
@@ -69,7 +70,7 @@
         "react": "19.2.3",
         "react-native": "0.85.3",
         "react-native-nitro-google-signin": "file:..",
-        "react-native-nitro-modules": "0.36.5",
+        "react-native-nitro-modules": "0.37.0",
       },
       "devDependencies": {
         "@types/react": "~19.2.2",
@@ -1568,7 +1569,7 @@
 
     "nerf-dart": ["nerf-dart@1.0.0", "", {}, "sha512-EZSPZB70jiVsivaBLYDCyntd5eH8NTSMOn3rB+HxwdmKThGELLdYv8qVIMWvZEFy9w8ZZpW9h9OB32l1rGtj7g=="],
 
-    "nitrogen": ["nitrogen@0.36.5", "", { "dependencies": { "chalk": "^5.3.0", "react-native-nitro-modules": "^0.36.5", "ts-morph": "^28.0.0", "yargs": "^18.0.0", "zod": "^4.4.3" }, "bin": { "nitrogen": "lib/index.js" } }, "sha512-PvlHrBVaoKEaD6CCUCG7om8MTvLeh4ZSDxHoRx2YiEWUVXPXrRN9NwMn1gjie9Bd91jHA3dYMF7no9Eme4txMA=="],
+    "nitrogen": ["nitrogen@0.37.0", "", { "dependencies": { "chalk": "^5.3.0", "react-native-nitro-modules": "^0.37.0", "ts-morph": "^28.0.0", "yargs": "^18.0.0", "zod": "^4.4.3" }, "bin": { "nitrogen": "lib/index.js" } }, "sha512-lrWmvctRyazMLU6y4ThUl6q129wMCOvmQfdtqCeZShgmmh3Nbplm9dSJLN2OZSBnDWA5k+T2P8aiNyjr1yiJAg=="],
 
     "nocache": ["nocache@3.0.4", "", {}, "sha512-WDD0bdg9mbq6F4mRxEYcPWwfA1vxd0mrvKOyxI7Xj/atfRHVeutzuWByG//jfm4uPzp0y4Kj051EORCBSQMycw=="],
 
@@ -1760,7 +1761,7 @@
 
     "react-native-nitro-google-signin-example-expo": ["react-native-nitro-google-signin-example-expo@workspace:example-expo"],
 
-    "react-native-nitro-modules": ["react-native-nitro-modules@0.36.5", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-SJby84+hovD70JmQ1fq+56tw3oapJeChehUqXA4Gqjm+ktJhMAcj8LGwoAjStSOUwRaK7czbzBPB0Widj+EDoQ=="],
+    "react-native-nitro-modules": ["react-native-nitro-modules@0.37.0", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-ULS2CBZcdwGw5d4Y35EV/tbCOsNsQOnQ9LC9CehMhDNm5c90lwF/LxRamzKuFpjI547G7teTQgD0peqYSGnP9g=="],
 
     "react-native-safe-area-context": ["react-native-safe-area-context@5.9.0", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-jRqIeU7+ezRlSPv1uIeqvjgh7qamxXknqs+vXOgnY2NJqBFpK9u5HfFUWUw7WtBbK8SeoMfVt2fE/KT5c9On0Q=="],
 

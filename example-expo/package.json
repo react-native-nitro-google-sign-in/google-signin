@@ -4,11 +4,11 @@
   "private": true,
   "main": "index.ts",
   "scripts": {
-    "start": "expo start --dev-client",
+    "start": "expo start --dev-client --port 8082",
     "prebuild": "expo prebuild",
     "prebuild:clean": "expo prebuild --clean",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
+    "android": "expo run:android --port 8082",
+    "ios": "expo run:ios --port 8082",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
@@ -18,7 +18,7 @@
     "react": "19.2.3",
     "react-native": "0.85.3",
     "react-native-nitro-google-signin": "file:..",
-    "react-native-nitro-modules": "0.36.5"
+    "react-native-nitro-modules": "0.37.0"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",

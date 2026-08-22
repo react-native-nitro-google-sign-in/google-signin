@@ -81,9 +81,11 @@ bundle exec pod install --project-directory=ios
 ## Run
 
 ```bash
-bun run start          # Metro
+bun run start          # Metro on port 8081
 bun run ios            # or android — separate terminal
 ```
+
+When running both example apps together, keep this app on **port 8081** (`example-expo` uses **8082**).
 
 ## What the app demonstrates
 

@@ -26,6 +26,8 @@ const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_WEB_CLIENT_ID ?? ''
 /** Prefix for Metro / logcat filtering while verifying getCurrentUser + scopes. */
 const LOG_TAG = '[GoogleSignIn:getCurrentUser]'
 
+console.log('WEB_CLIENT_ID', WEB_CLIENT_ID)
+
 function logCurrentUser(label: string, data: OneTapSuccessData | null): void {
   if (!data) {
     console.log(LOG_TAG, label, '→ null')

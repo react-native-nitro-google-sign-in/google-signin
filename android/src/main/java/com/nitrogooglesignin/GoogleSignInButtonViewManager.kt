@@ -17,6 +17,11 @@ import com.margelo.nitro.views.RecyclableView
  * Fabric does not use [GoogleSignInButtonShadowNode]; the JS wrapper supplies default dimensions.
  */
 class GoogleSignInButtonViewManager : SimpleViewManager<View>() {
+  private class HybridViewHolder(
+    val hybridView: HybridGoogleSignInButton,
+    var lastState: StateWrapper? = null,
+  )
+
   init {
     if (RecyclableView::class.java.isAssignableFrom(HybridGoogleSignInButton::class.java)) {
       super.setupViewRecycling()
@@ -35,7 +40,7 @@ class GoogleSignInButtonViewManager : SimpleViewManager<View>() {
   override fun createViewInstance(reactContext: ThemedReactContext): View {
     val hybridView = HybridGoogleSignInButton(reactContext)
     val view = hybridView.view
-    view.setTag(associated_hybrid_view_tag, hybridView)
+    view.setTag(associated_hybrid_view_tag, HybridViewHolder(hybridView))
     return view
   }
 
@@ -44,25 +49,33 @@ class GoogleSignInButtonViewManager : SimpleViewManager<View>() {
     props: ReactStylesDiffMap,
     stateWrapper: StateWrapper,
   ): Any? {
-    val hybridView =
-      getHybridView(view)
+    val holder =
+      getHybridViewHolder(view)
         ?: throw Error("Couldn't find view $view in local views table!")
+    val hybridView = holder.hybridView
+    val oldState = holder.lastState
+    val newState = stateWrapper
 
     hybridView.beforeUpdate()
-    HybridGoogleSignInButtonStateUpdater.updateViewProps(hybridView, stateWrapper)
+    HybridGoogleSignInButtonStateUpdater.updateViewProps(hybridView, newState, oldState)
     hybridView.afterUpdate()
+    holder.lastState = newState
 
-    return super.updateState(view, props, stateWrapper)
+    return super.updateState(view, props, newState)
   }
 
   override fun onDropViewInstance(view: View) {
-    getHybridView(view)?.onDropView()
+    val holder = getHybridViewHolder(view)
+    holder?.lastState = null
+    holder?.hybridView?.onDropView()
     super.onDropViewInstance(view)
   }
 
   override fun prepareToRecycleView(reactContext: ThemedReactContext, view: View): View? {
     super.prepareToRecycleView(reactContext, view)
-    val hybridView = getHybridView(view) ?: return null
+    val holder = getHybridViewHolder(view) ?: return null
+    val hybridView = holder.hybridView
+    holder.lastState = null
 
     @Suppress("USELESS_IS_CHECK")
     if (hybridView is RecyclableView) {
@@ -72,6 +85,6 @@ class GoogleSignInButtonViewManager : SimpleViewManager<View>() {
     return null
   }
 
-  private fun getHybridView(view: View): HybridGoogleSignInButton? =
-    view.getTag(associated_hybrid_view_tag) as? HybridGoogleSignInButton
+  private fun getHybridViewHolder(view: View): HybridViewHolder? =
+    view.getTag(associated_hybrid_view_tag) as? HybridViewHolder
 }
