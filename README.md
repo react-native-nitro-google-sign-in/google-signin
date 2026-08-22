@@ -27,8 +27,10 @@ High-performance [Universal (One Tap) Google Sign-In](https://react-native-nitro
 
 ## Requirements
 
-- React Native ≥ 0.76
-- [`react-native-nitro-modules`](https://nitro.margelo.com) (required peer dependency)
+- React Native **≥ 0.76**
+- [`react-native-nitro-modules`](https://nitro.margelo.com) **≥ 0.36** (**0.37.x** recommended with 2.0.x)
+
+See the [compatibility guide](https://react-native-nitro-google-sign-in.github.io/docs/getting-started/compatibility) for the full version matrix.
 
 ## Installation
 

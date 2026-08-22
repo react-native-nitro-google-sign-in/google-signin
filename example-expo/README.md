@@ -43,9 +43,11 @@ bun run prebuild:clean
 ## Run
 
 ```bash
-bun run start          # Metro
+bun run start          # Metro on port 8082
 bun run ios            # or android — separate terminal
 ```
+
+When running both example apps together, keep this app on **port 8082** (bare `example/` uses **8081**).
 
 The app uses `GoogleOneTapSignIn.configure({ webClientId: 'autoDetect' })`.
 

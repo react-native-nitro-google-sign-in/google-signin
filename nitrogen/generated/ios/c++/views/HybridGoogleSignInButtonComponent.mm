@@ -37,6 +37,7 @@ using namespace margelo::nitro::nitrogooglesignin::views;
 
 @implementation HybridGoogleSignInButtonComponent {
   std::shared_ptr<HybridGoogleSignInButtonSpecSwift> _hybridView;
+  BOOL _didDropView;
 }
 
 + (void) load {
@@ -70,55 +71,79 @@ using namespace margelo::nitro::nitrogooglesignin::views;
   [self setContentView:view];
 }
 
+- (void) notifyOnDropView {
+  // A recycled component can later be invalidated. Notify only once per mount.
+  if (_didDropView) {
+    return;
+  }
+  NitroGoogleSignin::HybridGoogleSignInButtonSpec_cxx& swiftPart = _hybridView->getSwiftPart();
+  swiftPart.onDropView();
+  _didDropView = YES;
+}
+
 - (void) updateProps:(const std::shared_ptr<const react::Props>&)props
             oldProps:(const std::shared_ptr<const react::Props>&)oldProps {
+  // A props update marks a newly mounted or still-active component.
+  _didDropView = NO;
+
   // 1. Downcast props
-  const auto& newViewPropsConst = *std::static_pointer_cast<HybridGoogleSignInButtonProps const>(props);
-  auto& newViewProps = const_cast<HybridGoogleSignInButtonProps&>(newViewPropsConst);
+  const auto& newViewProps = *std::static_pointer_cast<const HybridGoogleSignInButtonProps>(props);
+  const auto* oldViewProps = static_cast<const HybridGoogleSignInButtonProps*>(oldProps.get());
   NitroGoogleSignin::HybridGoogleSignInButtonSpec_cxx& swiftPart = _hybridView->getSwiftPart();
 
-  // 2. Update each prop individually
-  swiftPart.beforeUpdate();
+  // 2. Update only props that differ from the previous Props snapshot.
+  const bool hasTransactionPropChanges = oldViewProps == nullptr
+      ? newViewProps.hasAnyProvidedProps()
+      : !newViewProps.hasSameProps(*oldViewProps);
+  if (hasTransactionPropChanges) {
+    swiftPart.beforeUpdate();
 
-  // colorScheme: enum
-  if (newViewProps.colorScheme.isDirty) {
-    swiftPart.setColorScheme(static_cast<int>(newViewProps.colorScheme.value));
-    newViewProps.colorScheme.isDirty = false;
-  }
-  // size: enum
-  if (newViewProps.size.isDirty) {
-    swiftPart.setSize(static_cast<int>(newViewProps.size.value));
-    newViewProps.size.isDirty = false;
-  }
-  // disabled: boolean
-  if (newViewProps.disabled.isDirty) {
-    swiftPart.setDisabled(newViewProps.disabled.value);
-    newViewProps.disabled.isDirty = false;
-  }
-  // contentAlignment: optional
-  if (newViewProps.contentAlignment.isDirty) {
-    swiftPart.setContentAlignment(newViewProps.contentAlignment.value);
-    newViewProps.contentAlignment.isDirty = false;
-  }
-  // onPress: function
-  if (newViewProps.onPress.isDirty) {
-    swiftPart.setOnPress(newViewProps.onPress.value);
-    newViewProps.onPress.isDirty = false;
-  }
-
-  swiftPart.afterUpdate();
-
-  // 3. Update hybridRef if it changed
-  if (newViewProps.hybridRef.isDirty) {
-    // hybridRef changed - call it with new this
-    const auto& maybeFunc = newViewProps.hybridRef.value;
-    if (maybeFunc.has_value()) {
-      maybeFunc.value()(_hybridView);
+    // colorScheme: enum
+    if (oldViewProps == nullptr
+          ? newViewProps.colorScheme.isProvided()
+          : !newViewProps.colorScheme.hasSameValue(oldViewProps->colorScheme)) {
+      swiftPart.setColorScheme(static_cast<int>(newViewProps.colorScheme.get()));
     }
-    newViewProps.hybridRef.isDirty = false;
+    // size: enum
+    if (oldViewProps == nullptr
+          ? newViewProps.size.isProvided()
+          : !newViewProps.size.hasSameValue(oldViewProps->size)) {
+      swiftPart.setSize(static_cast<int>(newViewProps.size.get()));
+    }
+    // disabled: boolean
+    if (oldViewProps == nullptr
+          ? newViewProps.disabled.isProvided()
+          : !newViewProps.disabled.hasSameValue(oldViewProps->disabled)) {
+      swiftPart.setDisabled(newViewProps.disabled.get());
+    }
+    // contentAlignment: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.contentAlignment.isProvided()
+          : !newViewProps.contentAlignment.hasSameValue(oldViewProps->contentAlignment)) {
+      swiftPart.setContentAlignment(newViewProps.contentAlignment.get());
+    }
+    // onPress: function
+    if (oldViewProps == nullptr
+          ? newViewProps.onPress.isProvided()
+          : !newViewProps.onPress.hasSameValue(oldViewProps->onPress)) {
+      swiftPart.setOnPress(newViewProps.onPress.get());
+    }
+
+    // Update hybridRef if it changed
+    if (oldViewProps == nullptr
+          ? newViewProps.hybridRef.isProvided()
+          : !newViewProps.hybridRef.hasSameValue(oldViewProps->hybridRef)) {
+      // hybridRef changed - call it with new this
+      const auto& maybeFunc = newViewProps.hybridRef.get();
+      if (maybeFunc.has_value()) {
+        maybeFunc.value()(_hybridView);
+      }
+    }
+
+    swiftPart.afterUpdate();
   }
 
-  // 4. Continue in base class
+  // 3. Continue in base class
   [super updateProps:props oldProps:oldProps];
 }
 
@@ -127,6 +152,7 @@ using namespace margelo::nitro::nitrogooglesignin::views;
 }
 
 - (void)prepareForRecycle {
+  [self notifyOnDropView];
   [super prepareForRecycle];
   NitroGoogleSignin::HybridGoogleSignInButtonSpec_cxx& swiftPart = _hybridView->getSwiftPart();
   swiftPart.maybePrepareForRecycle();
@@ -134,8 +160,7 @@ using namespace margelo::nitro::nitrogooglesignin::views;
 
 #ifdef ENABLE_RCT_COMPONENT_VIEW_INVALIDATE
 - (void)invalidate {
-  NitroGoogleSignin::HybridGoogleSignInButtonSpec_cxx& swiftPart = _hybridView->getSwiftPart();
-  swiftPart.onDropView();
+  [self notifyOnDropView];
   [super invalidate];
 }
 #endif

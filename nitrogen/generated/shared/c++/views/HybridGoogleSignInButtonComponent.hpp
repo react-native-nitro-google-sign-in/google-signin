@@ -7,14 +7,15 @@
 
 #pragma once
 
-#include <optional>
-#include <NitroModules/NitroDefines.hpp>
-#include <NitroModules/NitroHash.hpp>
-#include <NitroModules/CachedProp.hpp>
-#include <react/renderer/core/ConcreteComponentDescriptor.h>
-#include <react/renderer/core/PropsParserContext.h>
+#include <NitroModules/ReactProp.hpp>
+#include <NitroModules/ViewComponentDescriptor.hpp>
+#include <NitroModules/ViewPropsHolderState.hpp>
 #include <react/renderer/components/view/ConcreteViewShadowNode.h>
 #include <react/renderer/components/view/ViewProps.h>
+#include <react/renderer/core/PropsParserContext.h>
+#include <react/renderer/core/RawProps.h>
+
+#include <string>
 
 #include "GoogleSignInButtonColorScheme.hpp"
 #include "GoogleSignInButtonNativeSize.hpp"
@@ -44,12 +45,32 @@ namespace margelo::nitro::nitrogooglesignin::views {
                                   const react::RawProps& rawProps);
 
   public:
-    CachedProp<GoogleSignInButtonColorScheme> colorScheme;
-    CachedProp<GoogleSignInButtonNativeSize> size;
-    CachedProp<bool> disabled;
-    CachedProp<std::optional<GoogleSignInButtonContentAlignment>> contentAlignment;
-    CachedProp<std::function<void()>> onPress;
-    CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridGoogleSignInButtonSpec>& /* ref */)>>> hybridRef;
+    nitro::ReactProp<GoogleSignInButtonColorScheme> colorScheme;
+    nitro::ReactProp<GoogleSignInButtonNativeSize> size;
+    nitro::ReactProp<bool> disabled;
+    nitro::ReactProp<std::optional<GoogleSignInButtonContentAlignment>> contentAlignment;
+    nitro::ReactProp<std::function<void()>> onPress;
+    nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridGoogleSignInButtonSpec>& /* ref */)>>> hybridRef;
+
+    [[nodiscard]]
+    bool hasSameProps(const HybridGoogleSignInButtonProps& other) const noexcept {
+      return colorScheme.hasSameValue(other.colorScheme) &&
+             size.hasSameValue(other.size) &&
+             disabled.hasSameValue(other.disabled) &&
+             contentAlignment.hasSameValue(other.contentAlignment) &&
+             onPress.hasSameValue(other.onPress) &&
+             hybridRef.hasSameValue(other.hybridRef);
+    }
+
+    [[nodiscard]]
+    bool hasAnyProvidedProps() const noexcept {
+      return colorScheme.isProvided() ||
+             size.isProvided() ||
+             disabled.isProvided() ||
+             contentAlignment.isProvided() ||
+             onPress.isProvided() ||
+             hybridRef.isProvided();
+    }
 
   private:
     static bool filterObjectKeys(const std::string& propName);
@@ -58,32 +79,7 @@ namespace margelo::nitro::nitrogooglesignin::views {
   /**
    * State for the "GoogleSignInButton" View.
    */
-  class HybridGoogleSignInButtonState final {
-  public:
-    HybridGoogleSignInButtonState() = default;
-    explicit HybridGoogleSignInButtonState(const std::shared_ptr<HybridGoogleSignInButtonProps>& props):
-      _props(props) {}
-
-  public:
-    [[nodiscard]]
-    const std::shared_ptr<HybridGoogleSignInButtonProps>& getProps() const {
-      return _props;
-    }
-
-  public:
-#ifdef ANDROID
-  HybridGoogleSignInButtonState(const HybridGoogleSignInButtonState& /* previousState */, folly::dynamic /* data */) {}
-  folly::dynamic getDynamic() const {
-    throw std::runtime_error("HybridGoogleSignInButtonState does not support folly!");
-  }
-  react::MapBuffer getMapBuffer() const {
-    throw std::runtime_error("HybridGoogleSignInButtonState does not support MapBuffer!");
-  };
-#endif
-
-  private:
-    std::shared_ptr<HybridGoogleSignInButtonProps> _props;
-  };
+  using HybridGoogleSignInButtonState = nitro::ViewPropsHolderState<HybridGoogleSignInButtonProps>;
 
   /**
    * The Shadow Node for the "GoogleSignInButton" View.
@@ -96,21 +92,7 @@ namespace margelo::nitro::nitrogooglesignin::views {
   /**
    * The Component Descriptor for the "GoogleSignInButton" View.
    */
-  class HybridGoogleSignInButtonComponentDescriptor final: public react::ConcreteComponentDescriptor<HybridGoogleSignInButtonShadowNode> {
-  public:
-    explicit HybridGoogleSignInButtonComponentDescriptor(const react::ComponentDescriptorParameters& parameters);
-
-  public:
-    /**
-     * A faster path for cloning props - reuses the caching logic from `HybridGoogleSignInButtonProps`.
-     */
-    std::shared_ptr<const react::Props> cloneProps(const react::PropsParserContext& context,
-                                                   const std::shared_ptr<const react::Props>& props,
-                                                   react::RawProps rawProps) const override;
-#ifdef ANDROID
-    void adopt(react::ShadowNode& shadowNode) const override;
-#endif
-  };
+  using HybridGoogleSignInButtonComponentDescriptor = nitro::ViewComponentDescriptor<HybridGoogleSignInButtonShadowNode>;
 
   /* The actual view for "GoogleSignInButton" needs to be implemented in platform-specific code. */
 

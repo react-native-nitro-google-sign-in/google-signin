@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
+    "android": "react-native run-android --port 8081",
+    "ios": "react-native run-ios --port 8081",
     "lint": "eslint .",
-    "start": "react-native start --reset-cache",
+    "start": "react-native start --reset-cache --port 8081",
     "test": "jest",
     "pod": "bundle install && bundle exec pod install --project-directory=ios"
   },
@@ -16,7 +16,7 @@
     "@react-native/new-app-screen": "0.87.0",
     "react-native-safe-area-context": "^5.8.1",
     "react-native-config": "^1.6.1",
-    "react-native-nitro-modules": "0.36.5"
+    "react-native-nitro-modules": "0.37.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

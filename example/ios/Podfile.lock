@@ -73,7 +73,7 @@ PODS:
   - hermes-engine (250829098.0.16):
     - hermes-engine/Pre-built (= 250829098.0.16)
   - hermes-engine/Pre-built (250829098.0.16)
-  - NitroGoogleSignin (1.4.0):
+  - NitroGoogleSignin (2.1.0):
     - GoogleSignIn (~> 9.0)
     - hermes-engine
     - NitroModules
@@ -98,7 +98,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - NitroModules (0.36.5):
+  - NitroModules (0.37.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2112,8 +2112,8 @@ SPEC CHECKSUMS:
   GTMAppAuth: 217a876b249c3c585a54fd6f73e6b58c4f5c4238
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hermes-engine: 6313896f275a850d8df07781be94f55796291f49
-  NitroGoogleSignin: c0479e661fdcde5e43c5c60a5fa75fb44601827a
-  NitroModules: 49b1952f34e45c227e4a20d0b6510502fe6737d3
+  NitroGoogleSignin: 85aa896fa3f5218398e068a6516cf840b83f5eef
+  NitroModules: b878677ec4c260bd821ed4a66703979538705f2e
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RCT-Folly: 82921e585c0400eda46fac1068297aa9dfb035e4
   RCTDeprecation: 6d66040b74f4be203495adda55b49c1a25190291
