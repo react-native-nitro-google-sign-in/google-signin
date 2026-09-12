@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
       name: npm
       url: https://www.npmjs.com/package/react-native-nitro-google-signin
     permissions:
-      contents: read
+      contents: write
       id-token: write
     steps:
       - name: Checkout repository
@@ -62,3 +62,20 @@ jobs:
         run: |
           npm --version
           npx -y npm@11.19.1 stage publish --access public
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="${{ github.ref_name }}"
+          if [ "${{ github.ref_type }}" != "tag" ]; then
+            TAG_NAME="v$(node -p "require('./package.json').version")"
+          fi
+
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Release $TAG_NAME already exists."
+          else
+            echo "Creating GitHub release $TAG_NAME with generated release notes..."
+            gh release create "$TAG_NAME" --generate-notes
+          fi
+
