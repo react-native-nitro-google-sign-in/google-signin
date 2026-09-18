@@ -176,38 +176,36 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
     val continuation = pendingContinuation ?: return
     clearPending(continuation)
 
-    if (resultCode != Activity.RESULT_OK || data == null) {
-      // RESULT_CANCELED is user dismiss OR OAuth misconfiguration (same conflation as
-      // Credential Manager). Other non-OK codes are real failures, not user cancel.
-      if (resultCode == Activity.RESULT_CANCELED) {
-        continuation.resumeWithException(
-          GoogleSignInException(
-            code = "SIGN_IN_CANCELLED",
-            message =
-              "Authorization UI cancelled. If this happens on production builds after " +
-                "account selection, verify release and Play App Signing SHA-1 on the Android OAuth client.",
-          ),
-        )
-      } else {
-        continuation.resumeWithException(
-          GoogleSignInException(
-            code = "ONE_TAP_START_FAILED",
-            message = "Authorization failed with resultCode: $resultCode",
-          ),
-        )
+    if (data != null) {
+      try {
+        val authorizationResult =
+          Identity.getAuthorizationClient(activity).getAuthorizationResultFromIntent(data)
+        continuation.resume(authorizationResult)
+        return
+      } catch (e: Exception) {
+        val mappedException = mapAuthorizationFailure(e)
+        // If Google Play Services returned DEVELOPER_ERROR in data, or if this was not a clean cancel:
+        if (mappedException.code == "DEVELOPER_ERROR" || resultCode != Activity.RESULT_CANCELED) {
+          continuation.resumeWithException(mappedException)
+          return
+        }
       }
-      return
     }
 
-    try {
-      val authorizationResult =
-        Identity.getAuthorizationClient(activity).getAuthorizationResultFromIntent(data)
-      continuation.resume(authorizationResult)
-    } catch (e: Exception) {
+    if (resultCode == Activity.RESULT_CANCELED) {
+      continuation.resumeWithException(
+        GoogleSignInException(
+          code = "SIGN_IN_CANCELLED",
+          message =
+            "Authorization UI cancelled. If this happens on production builds after " +
+              "account selection, verify release and Play App Signing SHA-1 on the Android OAuth client.",
+        ),
+      )
+    } else {
       continuation.resumeWithException(
         GoogleSignInException(
           code = "ONE_TAP_START_FAILED",
-          message = e.message ?: "Failed to parse authorization result.",
+          message = "Authorization failed with resultCode: $resultCode",
         ),
       )
     }
@@ -227,15 +225,19 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
   private fun mapAuthorizationFailure(error: Exception): GoogleSignInException {
     val apiException = error as? ApiException
     val message = error.message ?: "Authorization failed."
-    return when (apiException?.statusCode) {
-      CommonStatusCodes.DEVELOPER_ERROR ->
+    val isDeveloperError =
+      apiException?.statusCode == CommonStatusCodes.DEVELOPER_ERROR ||
+        looksLikeDeveloperError(message)
+
+    return when {
+      isDeveloperError ->
         GoogleSignInException(
           code = "DEVELOPER_ERROR",
           message =
             "$message Check the Android OAuth client package name and SHA-1 fingerprints " +
               "(debug, release upload key, and Play App Signing certificate).",
         )
-      CommonStatusCodes.CANCELED ->
+      apiException?.statusCode == CommonStatusCodes.CANCELED ->
         GoogleSignInException(
           code = "SIGN_IN_CANCELLED",
           message = message,

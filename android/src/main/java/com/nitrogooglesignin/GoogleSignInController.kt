@@ -371,6 +371,10 @@ internal object GoogleSignInController {
         }
       enrichWithServerAuthCode(parseCredential(result.credential))
     } catch (e: GetCredentialCancellationException) {
+      val failureMessage = e.errorMessage?.toString() ?: e.message ?: ""
+      if (looksLikeDeveloperError(failureMessage)) {
+        throw mapGetCredentialFailure(e)
+      }
       // Credential Manager reports RESULT_CANCELED both for real user dismissals and for
       // OAuth misconfiguration (missing/wrong SHA-1, package name, or Web vs Android client ID).
       // Production-only "cancelled after picking an account" almost always means the Play App
@@ -391,6 +395,10 @@ internal object GoogleSignInController {
         message = e.message ?: "Credential request was interrupted. Retry the sign-in.",
       )
     } catch (e: GetCredentialProviderConfigurationException) {
+      val failureMessage = e.errorMessage?.toString() ?: e.message ?: ""
+      if (looksLikeDeveloperError(failureMessage)) {
+        throw mapGetCredentialFailure(e)
+      }
       throw GoogleSignInException(
         code = "ONE_TAP_START_FAILED",
         message =
@@ -398,7 +406,8 @@ internal object GoogleSignInController {
             ?: "Credential provider is not configured. Ensure credentials-play-services-auth is linked.",
       )
     } catch (e: GetCredentialException) {
-      if (e.message?.contains("no credentials", ignoreCase = true) == true) {
+      val failureMessage = e.errorMessage?.toString() ?: e.message ?: ""
+      if (e.message?.contains("no credentials", ignoreCase = true) == true && !looksLikeDeveloperError(failureMessage)) {
         OneTapResponse.noSavedCredential()
       } else {
         throw mapGetCredentialFailure(e)
@@ -407,7 +416,10 @@ internal object GoogleSignInController {
   }
 
   private fun mapGetCredentialFailure(e: GetCredentialException): GoogleSignInException {
-    val message = e.message?.takeIf { it.isNotBlank() } ?: "Credential request failed."
+    val message =
+      e.errorMessage?.toString()?.takeIf { it.isNotBlank() }
+        ?: e.message?.takeIf { it.isNotBlank() }
+        ?: "Credential request failed."
     if (looksLikeDeveloperError(message)) {
       return GoogleSignInException(
         code = "DEVELOPER_ERROR",
@@ -421,17 +433,6 @@ internal object GoogleSignInController {
       code = "ONE_TAP_START_FAILED",
       message = message,
     )
-  }
-
-  private fun looksLikeDeveloperError(message: String): Boolean {
-    val normalized = message.lowercase()
-    return normalized.contains("developer") ||
-      normalized.contains("console is not set up") ||
-      // CommonStatusCodes.DEVELOPER_ERROR == 10
-      normalized.contains("10:") ||
-      normalized.contains("[10]") ||
-      normalized.contains("sha-1") ||
-      normalized.contains("sha1")
   }
 
   private fun parseCredential(credential: androidx.credentials.Credential): OneTapSuccessData {
