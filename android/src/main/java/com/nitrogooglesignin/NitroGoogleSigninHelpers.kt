@@ -31,3 +31,32 @@ internal fun OneTapResponse.Companion.noSavedCredential(): OneTapResponse =
 
 internal fun OneTapResponse.Companion.cancelled(): OneTapResponse =
   OneTapResponse(type = OneTapResponseType.CANCELLED, data = null)
+
+internal fun looksLikeDeveloperError(message: String): Boolean {
+  val normalized = message.lowercase()
+  return normalized.contains("developer") ||
+    normalized.contains("console is not set up") ||
+    // CommonStatusCodes.DEVELOPER_ERROR == 10
+    normalized.contains("10:") ||
+    normalized.contains("[10]") ||
+    normalized.contains(": 10") ||
+    normalized.contains("code 10") ||
+    normalized.contains("code: 10") ||
+    normalized.contains("status code: 10") ||
+    normalized.contains("status code 10") ||
+    normalized.contains("statuscode=10") ||
+    normalized.contains("status_code=10") ||
+    // Credential Manager / GoogleId codes for OAuth/SHA-1 misconfiguration
+    normalized.contains("28404") ||
+    normalized.contains("28400") ||
+    normalized.contains("28401") ||
+    normalized.contains("28402") ||
+    normalized.contains("28403") ||
+    normalized.contains("failed to retrieve an id token") ||
+    // Legacy GoogleSignInStatusCodes.SIGN_IN_FAILED == 12500 (often OAuth/SHA-1 mismatch)
+    normalized.contains("12500") ||
+    normalized.contains("sha-1") ||
+    normalized.contains("sha1") ||
+    normalized.contains("unregistered_on_api_console") ||
+    normalized.contains("caller not whitelisted")
+}
