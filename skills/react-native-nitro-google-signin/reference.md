@@ -80,6 +80,8 @@ plugins: [
 
 Use explicit `webClientId` on Android (no `google-services.json`).
 
+**UIKit Scene Lifecycle (iOS 27 / Xcode 27):** For Expo SDK 57, configure `expo-build-properties` with `{ ios: { enableSceneSupport: true } }` to fix `UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption` crash on launch (enabled by default in SDK 58+). Wire `GIDSignIn.sharedInstance.handle(url)` in `SceneDelegate.swift` (`scene(_:openURLContexts:)`).
+
 ## Android {#android}
 
 **Credential Manager + GMS:** Library ships `androidx.credentials`, `credentials-play-services-auth`, `googleid`, `play-services-auth` — do not add duplicates unless you use Credential Manager for other providers. Play services on device required; call `checkPlayServices()`. Use **Web** client ID in `configure()`, not Android client ID.
@@ -108,8 +110,8 @@ Expo: config plugin applies Gradle on `prebuild` when `googleServicesFile` is se
 
 - Add `GoogleService-Info.plist` to target
 - URL scheme: `REVERSED_CLIENT_ID` from plist
-- `autoDetect` needs `WEB_CLIENT_ID` in plist
-- Bare RN: recommended `GIDSignIn.sharedInstance.handle(url)` in `AppDelegate` `application(_:open:options:)`; required if multiple `openURL` handlers
+- Apps adopting UIKit scene lifecycle (Expo `enableSceneSupport` or bare `UISceneDelegate`): required `GIDSignIn.sharedInstance.handle(url)` in `SceneDelegate` `scene(_:openURLContexts:)` and `scene(_:willConnectTo:options:)`
+- Bare RN without scenes: recommended `GIDSignIn.sharedInstance.handle(url)` in `AppDelegate` `application(_:open:options:)`; required if multiple `openURL` handlers
 
 ## Google Cloud
 

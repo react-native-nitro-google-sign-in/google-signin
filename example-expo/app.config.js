@@ -7,8 +7,21 @@ module.exports = {
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
   scheme: 'nitrogooglesigninexpo',
-  newArchEnabled: true,
-  plugins: ['expo-dev-client', 'react-native-nitro-google-signin'],
+  experiments: {
+    reactCompiler: true,
+  },
+  plugins: [
+    'expo-dev-client',
+    'react-native-nitro-google-signin',
+    [
+      'expo-build-properties',
+      {
+        ios: {
+          enableSceneSupport: true,
+        },
+      },
+    ],
+  ],
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'com.nitrogooglesigninexample',

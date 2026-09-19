@@ -614,7 +614,18 @@ class HybridNitroGoogleSignin: HybridNitroGoogleSigninSpec {
   private static func topViewController() -> UIViewController? {
     let scenes = UIApplication.shared.connectedScenes
       .compactMap { $0 as? UIWindowScene }
-    let window = scenes.flatMap(\.windows).first { $0.isKeyWindow }
+    let activeScene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
+    let window: UIWindow?
+    if #available(iOS 15.0, *) {
+      window = activeScene?.keyWindow
+        ?? activeScene?.windows.first { $0.isKeyWindow }
+        ?? scenes.flatMap(\.windows).first { $0.isKeyWindow }
+        ?? activeScene?.windows.first
+    } else {
+      window = activeScene?.windows.first { $0.isKeyWindow }
+        ?? scenes.flatMap(\.windows).first { $0.isKeyWindow }
+        ?? activeScene?.windows.first
+    }
     guard var top = window?.rootViewController else { return nil }
     while let presented = top.presentedViewController {
       top = presented

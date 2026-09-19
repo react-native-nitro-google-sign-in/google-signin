@@ -12,16 +12,26 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "expo": "^56.0.12",
-    "expo-dev-client": "~56.0.20",
-    "expo-status-bar": "~56.0.4",
+    "expo": "~57.0.24",
+    "expo-build-properties": "~57.0.20",
+    "expo-dev-client": "~57.0.19",
+    "expo-status-bar": "~57.0.1",
     "react": "19.2.3",
-    "react-native": "0.85.3",
+    "react-native": "0.86.3",
     "react-native-nitro-google-signin": "file:..",
     "react-native-nitro-modules": "0.37.1"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
     "typescript": "~6.0.3"
+  },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "react-native-nitro-google-signin"
+        ]
+      }
+    }
   }
 }

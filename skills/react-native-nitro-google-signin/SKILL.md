@@ -82,7 +82,8 @@ if (isSuccessResponse(response)) {
 | `DEVELOPER_ERROR` (Android) | Wrong SHA-1 or package on OAuth client |
 | `type: 'cancelled'` after picking account (Android release/Play) | Missing **Play App Signing** / release SHA-1 on Android OAuth client — [troubleshooting](https://react-native-nitro-google-sign-in.github.io/docs/guide/troubleshooting#cancelled-after-account-pick) |
 | `default_web_client_id was not found` | Add `google-services.json` + Gradle plugin |
-| iOS redirect fails | Fix `REVERSED_CLIENT_ID` URL scheme |
+| iOS redirect fails | Fix `REVERSED_CLIENT_ID` URL scheme. On scene lifecycle apps, ensure `GIDSignIn.sharedInstance.handle(url)` is in `SceneDelegate.swift` |
+| `UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption` crash on launch (iOS 27) | Expo SDK 57: add `expo-build-properties` with `ios: { enableSceneSupport: true }` (default in SDK 58+). Bare RN: add `UIApplicationSceneManifest` + `SceneDelegate.swift` — [troubleshooting](https://react-native-nitro-google-sign-in.github.io/docs/guide/troubleshooting#crash-on-launch-uiapplicationevaluateruntimeissuefornoscenelifecycleadoption-ios-27--xcode-27) |
 | `pod install` / Expo prebuild — AppCheckCore / RecaptchaInterop (or conflict with Firebase App Check) | Expo: upgrade package + `prebuild --clean` (plugin adds modular headers, **no** AppCheckCore `< 11.3` pin). Bare: add AppCheckCore/GoogleUtilities/RecaptchaInterop with `:modular_headers => true` — [troubleshooting](https://react-native-nitro-google-sign-in.github.io/docs/guide/troubleshooting#ios-pod-install-fails--appcheckcore--recaptchainterop-expo-56) |
 | Nitro not found | Rebuild dev client / `bundle exec pod install --project-directory="ios"` |
 | Android button laid out but blank | Upgrade package (in-process branding button) + rebuild native app |

@@ -27,10 +27,10 @@ Pod::Spec.new do |s|
 
   s.dependency 'React-jsi'
   s.dependency 'React-callinvoker'
-  # GoogleSignIn 9.2+ may resolve AppCheckCore ≥ 11.3 (RecaptchaInterop). Expo's config
+  # GoogleSignIn 9.2+ / 10.0+ may resolve AppCheckCore ≥ 11.3 (RecaptchaInterop). Expo's config
   # plugin and bare Podfile snippets enable modular headers for AppCheckCore,
   # GoogleUtilities, and RecaptchaInterop so static CocoaPods / Firebase App Check work.
   # See issue #24.
-  s.dependency 'GoogleSignIn', '~> 9.0'
+  s.dependency 'GoogleSignIn', '~> 10.0'
   install_modules_dependencies(s)
 end

@@ -81,7 +81,7 @@ const GOOGLE_SIGN_IN_PODFILE_TAG = 'react-native-nitro-google-signin-google-pods
 /**
  * Pods required for static CocoaPods / Expo when AppCheckCore (≥ 11.3) pulls
  * GoogleUtilities + RecaptchaInterop. Do not pin AppCheckCore below 11.3 —
- * @react-native-firebase/app-check (and GoogleSignIn 9.2+) need ~> 11.3.
+ * @react-native-firebase/app-check (and GoogleSignIn 9.2+ / 10.0+) need ~> 11.3.
  * See issue #24.
  */
 const GOOGLE_SIGN_IN_PODFILE_PODS = `  pod 'AppCheckCore', :modular_headers => true
