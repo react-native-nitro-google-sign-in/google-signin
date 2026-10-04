@@ -117,6 +117,9 @@ export const GoogleOneTapSignIn = {
    * Safe to call again later to refresh tokens without re-running the account picker
    * (iOS refreshes via `GIDSignIn`; Android uses `AuthorizationClient`).
    *
+   * On Android it also works without a foreground Activity (e.g. in a background task) while the
+   * requested scopes are already granted; if Google asks for consent then, it throws `IN_PROGRESS`.
+   *
    * @throws {@link GoogleSignInError} with `SIGN_IN_REQUIRED` when no user is signed in.
    */
   getTokens(): Promise<GetTokensResponse> {

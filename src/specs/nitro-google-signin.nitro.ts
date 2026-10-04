@@ -159,6 +159,9 @@ export interface NitroGoogleSignin
    * Android: combines the cached ID token from the last sign-in with a fresh access token
    * from `AuthorizationClient`. iOS: refreshes tokens via `GIDSignIn` when needed.
    *
+   * Android works without a foreground Activity while the scopes are already granted; if Google
+   * asks for consent then, it throws `IN_PROGRESS`.
+   *
    * @throws {@link GoogleSignInError} with `SIGN_IN_REQUIRED` when no user is signed in.
    */
   getTokens(): Promise<GetTokensResponse>
