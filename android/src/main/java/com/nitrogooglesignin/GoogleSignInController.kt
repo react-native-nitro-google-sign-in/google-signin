@@ -295,9 +295,11 @@ internal object GoogleSignInController {
       }
 
     val accountEmail = getEmailFromStorage(context, lastUserId)
+    // No Activity is needed when the scopes are already granted (e.g. a background task); the
+    // helper only needs one to show consent.
     val authResult =
       GoogleSignInAuthorizationHelper.authorize(
-        activity = requireActivity(),
+        activity = context.currentActivity,
         context = context,
         serverClientId = webClientId!!,
         scopes = scopes,
@@ -316,10 +318,11 @@ internal object GoogleSignInController {
   }
 
   suspend fun clearCachedAccessToken(accessTokenString: String) {
-    val activity = requireActivity()
+    // Clearing a token never shows UI, so the application context is enough.
+    val context = requireContext()
     try {
       suspendCancellableCoroutine<Void?> { continuation ->
-        Identity.getAuthorizationClient(activity)
+        Identity.getAuthorizationClient(context)
           .clearToken(ClearTokenRequest.builder().setToken(accessTokenString).build())
           .addOnSuccessListener {
             continuation.resume(null)

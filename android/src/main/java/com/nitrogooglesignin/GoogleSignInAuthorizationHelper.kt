@@ -46,8 +46,12 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
     }
   }
 
+  /**
+   * [activity] is only needed when Google asks for consent (a resolution). Without it, already
+   * granted scopes are still authorized silently, and a required consent throws `IN_PROGRESS`.
+   */
   suspend fun authorize(
-    activity: Activity,
+    activity: Activity?,
     context: ReactApplicationContext,
     serverClientId: String,
     scopes: List<String>,
@@ -82,7 +86,12 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
         requestBuilder.requestOfflineAccess(serverClientId)
       }
 
-      val authClient = Identity.getAuthorizationClient(activity)
+      val authClient =
+        if (activity != null) {
+          Identity.getAuthorizationClient(activity)
+        } else {
+          Identity.getAuthorizationClient(context)
+        }
       val initial =
         try {
           authClient.authorize(requestBuilder.build()).awaitTask()
@@ -92,6 +101,14 @@ internal object GoogleSignInAuthorizationHelper : ActivityEventListener {
 
       val resolved =
         if (initial.hasResolution()) {
+          if (activity == null) {
+            throw GoogleSignInException(
+              code = "IN_PROGRESS",
+              message =
+                "Authorization requires user consent, but no Activity is available. " +
+                  "Retry when the app is in the foreground.",
+            )
+          }
           val pendingIntent =
             initial.pendingIntent
               ?: throw GoogleSignInException(

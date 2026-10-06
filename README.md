@@ -290,6 +290,8 @@ await GoogleOneTapSignIn.clearCachedAccessToken(accessToken)
 const { accessToken: freshToken } = await GoogleOneTapSignIn.getTokens()
 ```
 
+On **Android**, after scopes are granted in the foreground, `getTokens()` and `clearCachedAccessToken()` work from a background task without an Activity. If Google needs consent and there is no Activity, `getTokens()` throws `IN_PROGRESS`.
+
 See [Usage — Access tokens](https://react-native-nitro-google-sign-in.github.io/docs/guide/usage#access-tokens-gettokens).
 
 ### API
@@ -304,8 +306,8 @@ See [Usage — Access tokens](https://react-native-nitro-google-sign-in.github.i
 | `presentExplicitSignIn()` | Explicit Sign in with Google UI. On Android, when `hostedDomain` is set, JWT `hd` is validated after sign-in (Credential Manager flows filter at request time). |
 | `requestScopes(scopes)`   | Request **additional** OAuth access after sign-in; returns `{ serverAuthCode }`. Requires `offlineAccess: true` in `configure()` for a non-null code. |
 | `getCurrentUser()`        | Sync: returns current user + granted `scopes`, or `null`. Check scopes before `requestScopes()` for existing users. |
-| `getTokens()`             | Returns `{ idToken, accessToken }` for the signed-in user. Throws `SIGN_IN_REQUIRED` if not signed in. |
-| `clearCachedAccessToken(token)` | Clears stale access token cache (Android) or marks session for refresh (iOS). Call before `getTokens()` after a 401. |
+| `getTokens()`             | Returns `{ idToken, accessToken }` for the signed-in user. Throws `SIGN_IN_REQUIRED` if not signed in. Android: works without an Activity (background tasks) while scopes are granted; consent needed then → `IN_PROGRESS`. |
+| `clearCachedAccessToken(token)` | Clears stale access token cache (Android, no Activity needed) or marks session for refresh (iOS). Call before `getTokens()` after a 401. |
 | `signOut()`               | Clears local Google session (iOS SDK); disable auto sign-in on Android.                                                                          |
 | `revokeAccess(id)`        | Disconnect app (revokes OAuth grant). Android resolves account by email/id; iOS only revokes the current session (throws if `id` does not match). |
 
