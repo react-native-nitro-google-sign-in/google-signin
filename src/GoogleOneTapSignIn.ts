@@ -130,7 +130,8 @@ export const GoogleOneTapSignIn = {
    * Clears a cached OAuth access token.
    *
    * Call when Google returns an error indicating the access token is invalid.
-   * Android removes the token from `AuthorizationClient`'s local cache.
+   * Android removes the token from `AuthorizationClient`'s local cache and does not
+   * require a foreground Activity (safe from background tasks).
    * iOS marks the AppAuth session for refresh so the next `getTokens()` fetches
    * a new access token from Google.
    */

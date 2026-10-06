@@ -169,7 +169,8 @@ export interface NitroGoogleSignin
    * Clears a cached OAuth access token on Android (no-op on iOS).
    *
    * Call when Google returns an error indicating the access token is invalid.
-   * On Android, removes the token from `AuthorizationClient`'s local cache.
+   * On Android, removes the token from `AuthorizationClient`'s local cache and does
+   * not require a foreground Activity.
    * On iOS, marks the AppAuth session for refresh so the next `getTokens()` fetches
    * a new access token from Google.
    */
