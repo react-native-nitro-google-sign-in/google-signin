@@ -22,7 +22,7 @@ GEM
     atomos (0.1.3)
     base64 (0.3.0)
     benchmark (0.5.0)
-    bigdecimal (4.1.2)
+    bigdecimal (4.1.3)
     claide (1.1.0)
     cocoapods (1.15.2)
       addressable (~> 2.8)
@@ -124,7 +124,7 @@ CHECKSUMS
   atomos (0.1.3) sha256=7d43b22f2454a36bace5532d30785b06de3711399cb1c6bf932573eda536789f
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
   benchmark (0.5.0) sha256=465df122341aedcb81a2a24b4d3bd19b6c67c1530713fd533f3ff034e419236c
-  bigdecimal (4.1.2) sha256=53d217666027eab4280346fba98e7d5b66baaae1b9c3c1c0ffe89d48188a3fbd
+  bigdecimal (4.1.3) sha256=61ebe1e5e559bdc3cc6f2c0ee7f427321fc838f59611c294356eb04d6e21cf66
   claide (1.1.0) sha256=6d3c5c089dde904d96aa30e73306d0d4bd444b1accb9b3125ce14a3c0183f82e
   cocoapods (1.15.2) sha256=f0f5153de8d028d133b96f423e04f37fb97a1da0d11dda581a9f46c0cba4090a
   cocoapods-core (1.15.2) sha256=322650d97fe1ad4c0831a09669764b888bd91c6d79d0f6bb07281a17667a2136
